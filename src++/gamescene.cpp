@@ -5,7 +5,7 @@ void GameScene::Setup()
     
 }
 
-void GameScene::HandleEvents(SDL_Event e)
+void GameScene::HandleEvents(SDL_Event& e)
 {
 }
 

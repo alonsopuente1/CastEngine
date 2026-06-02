@@ -4,6 +4,8 @@
 #include "window.hpp"
 #include "scene.hpp"
 
+#include <SDL2/SDL.h>
+
 namespace CastEngine
 {
     void Game::HandleEvents()
@@ -18,21 +20,21 @@ namespace CastEngine
                 return;
             }
 
-            currentScene->HandleEvents(e);
+            mCurrentScene->HandleEvents(e);
         }
     }
 
     void Game::Update(float dtMs)
     {
-        currentScene->Update(dtMs);
+        mCurrentScene->Update(dtMs);
     }
 
     void Game::Draw()
     {
-        currentScene->Draw();
+        mCurrentScene->Draw();
     }
 
-    Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow)
+    Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow), mCurrentScene(nullptr)
     {
         if(!mWindow.IsInitialised())
         {
@@ -56,11 +58,11 @@ namespace CastEngine
     {
         try
         {
-            if(currentScene)
-                currentScene->Destroy();
-            currentScene = mScenes[pSceneName];   
-            currentScene->Setup();
+            if(mCurrentScene)
+                mCurrentScene->Destroy();
+            mCurrentScene = mScenes[pSceneName];   
             mRenderer.Destroy();
+            mCurrentScene->Setup();
         }
         catch(const std::exception& e)
         {
@@ -79,7 +81,7 @@ namespace CastEngine
     void Game::Run()
     {
 
-        if(!currentScene)
+        if(!mCurrentScene)
         {
             LogMsg(ERROR, "NO CURRENT SCENE TO RUN! did you forget to call Game::ChangeScene() to set the current scene?");
             return;
@@ -87,10 +89,18 @@ namespace CastEngine
 
         running = true;
 
-        while(running)
-    {
+        int lastTime = static_cast<int>(SDL_GetTicks());
 
-    }
+        while(running)
+        {
+            int startTime = static_cast<int>(SDL_GetTicks());
+            int deltaTime = startTime - lastTime;
+            lastTime = startTime;
+
+            HandleEvents();
+            Update(deltaTime);
+            Draw();
+        }
 
     }
     void Game::ShutDown()

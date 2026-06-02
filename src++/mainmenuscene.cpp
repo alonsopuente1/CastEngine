@@ -10,7 +10,7 @@ void MainMenuScene::Setup()
     mParentGame.GetRenderer().texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
 }
 
-void MainMenuScene::HandleEvents(SDL_Event e)
+void MainMenuScene::HandleEvents(SDL_Event& e)
 {
     
 

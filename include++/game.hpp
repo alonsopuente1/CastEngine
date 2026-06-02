@@ -21,7 +21,7 @@ namespace CastEngine
 
         std::unordered_map<std::string, IScene*> mScenes;
         
-        IScene* currentScene;
+        IScene* mCurrentScene;
 
         void HandleEvents();
         void Update(float dtMs);
