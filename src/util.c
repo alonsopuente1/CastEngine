@@ -7,6 +7,7 @@
 #include <Windows.h>
 #elif defined(__linux__)
 #include <dirent.h>
+#include "util.hpp"
 #endif
 
 void FreeDynamicArrayOfAllocatedElements(void** array, int numElements)

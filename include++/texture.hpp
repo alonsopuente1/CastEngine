@@ -35,7 +35,7 @@ namespace CastEngine
         ///     the textures only work for that window
         /// @param window window to attach to
         Texture(Window& window);
-
+        Texture(Window& window, SDL_Texture* sdlTex);
         ~Texture();
 
         /// @brief textures have to be attached to a window

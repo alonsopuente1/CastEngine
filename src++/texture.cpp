@@ -11,7 +11,11 @@ namespace CastEngine
  
     Texture::Texture(Window& window) : mWindow(window), mSDLTex(NULL), mName("")
     {}
-    
+
+    Texture::Texture(Window &window, SDL_Texture *sdlTex) : mWindow(window), mSDLTex(sdlTex), mName("")
+    {
+    }
+
     Texture::Texture(Window& window, const std::string& file) : mWindow(window), mSDLTex(NULL), mName("")
     {
         LoadTexture(file);

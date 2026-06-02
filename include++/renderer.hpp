@@ -48,8 +48,6 @@ namespace CastEngine
 
         void Destroy();
 
-        Window& GetWindow() const;
-
     };
 
 };

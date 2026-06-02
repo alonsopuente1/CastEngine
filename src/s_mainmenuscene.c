@@ -304,8 +304,6 @@ void MMS_RefreshMapList(mainMenuScene_t* scene, maingame_t* game)
 #else
     #error "macOS not supported"
 #endif
-    
-    
 
     if(!scene->mapFiles)
     {

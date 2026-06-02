@@ -3,6 +3,9 @@
 #include "renderer.hpp"
 #include "player.hpp"
 #include "scene.hpp"
+#include "button.hpp"
+
+#include <vector>
 
 class MainMenuScene : public CastEngine::IScene
 {
@@ -17,5 +20,14 @@ public:
     void Destroy() override;
 private:
 
+    enum MainMenuState
+    {
+        MAINMENU,
+        MAPCHOOSE
+    } mState;
 
+    CastEngine::Button mStartButton;
+    CastEngine::Button mExitButton;
+
+    std::vector<CastEngine::Button> mMapFileButtons;
 };

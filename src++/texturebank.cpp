@@ -3,12 +3,12 @@
 namespace CastEngine
 {
 
-    const Texture& TextureBank::operator[] (int i )
+    Texture& TextureBank::operator[] (int i )
     {
         return mTextures[i];
     }
 
-    const Texture* TextureBank::operator[](const std::string &str)
+    Texture* TextureBank::operator[](const std::string &str)
     {
         for(Texture& tex : mTextures)
             if (tex.GetTextureName() == str)
@@ -27,6 +27,18 @@ namespace CastEngine
         for(int i = 0; i < mTextures.size(); i++)
         {
             if(mTextures[i].GetTextureName() == pName)
+            {
+                mTextures.erase(mTextures.begin() + i);
+                return;
+            }
+        }
+    }
+
+    void TextureBank::RemoveByTex(const Texture &pTex)
+    {
+        for(int i = 0; i < mTextures.size(); i++)
+        {
+            if(mTextures[i].GetTexture() == pTex.GetTexture())
             {
                 mTextures.erase(mTextures.begin() + i);
                 return;

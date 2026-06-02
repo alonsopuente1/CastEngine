@@ -1,0 +1,69 @@
+#include "button.hpp"
+
+#include "window.hpp"
+#include "renderer.hpp"
+#include "fonts.hpp"
+#include "logger.hpp"
+
+CastEngine::Button::Button(Window &pWnd, Renderer &pRend) : mParentWindow(pWnd),
+    mParentRenderer(pRend), mText(nullptr)
+{
+}
+
+CastEngine::Button::~Button()
+{
+}
+
+void CastEngine::Button::SetText(const std::string &newText)
+{
+    if(mText)
+    {
+        mParentRenderer.texBank.RemoveByTex(*mText);
+        mText = nullptr;
+    }
+
+    mText = CastEngine::CreateText(mParentRenderer, {255, 255, 255, 255}, CastEngine::fonts[0], newText);
+    if(!mText)
+    {
+        LogMsgf(ERROR, "failed to create text for button with text '%s'\n", newText.c_str());
+    }
+}
+
+void CastEngine::Button::SetPosition(SDL_Rect newPos)
+{
+    mPos = newPos;
+}
+
+void CastEngine::Button::SetBackgroundColour(SDL_Color newColour)
+{
+    mBackgroundColour = newColour;
+}
+
+void CastEngine::Button::Draw()
+{
+
+    SDL_SetRenderDrawBlendMode(mParentRenderer.GetWindow().GetRenderer(), SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(mParentRenderer.GetWindow().GetRenderer(), 
+        mBackgroundColour.r, 
+        mBackgroundColour.g, 
+        mBackgroundColour.b, 
+        mBackgroundColour.a
+    );
+
+
+    SDL_RenderFillRect(mParentRenderer.GetWindow().GetRenderer(), &mPos);
+    if(mText)
+    {
+        mParentRenderer.RenderTexture(*mText, {0, 0, static_cast<int>(mText->GetWidth()), static_cast<int>(mText->GetHeight())}, mPos);
+    }
+    SDL_SetRenderDrawBlendMode(mParentRenderer.GetWindow().GetRenderer(), SDL_BLENDMODE_NONE);    
+}
+
+void CastEngine::Button::Destroy()
+{
+    if(mText)
+    {
+        mParentRenderer.texBank.RemoveByTex(*mText);
+        mText = nullptr;
+    }
+}

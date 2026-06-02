@@ -11,11 +11,12 @@ namespace CastEngine
 
     public:
 
-        const Texture& operator[] (int i);
-        const Texture* operator[] (const std::string& str);
+        Texture& operator[] (int i);
+        Texture* operator[] (const std::string& str);
         
         void FreeAll();
         void RemoveByName(const std::string& pName);
+        void RemoveByTex(const Texture& pTex);
 
         /// @brief size of the internal vector of Texture's
         /// @return size of vector
