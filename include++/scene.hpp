@@ -1,28 +1,32 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include "game.hpp"
 
 namespace CastEngine
 {
 
-    class Game;
+    class Renderer;
+    class Window;
+
     /// @brief scene class interface to implement own scenes
     class IScene {
     
-    protected:
-
-        Game& mParentGame;
-
-    public:
-
-        IScene(Game& pGame) : mParentGame(pGame) {} 
+        
+        public:
+        
+        IScene(Game& pGame) : mParentGame(pGame), mRenderer(pGame.GetRenderer()), mWindow(pGame.GetWindow()) {} 
         
         virtual void Setup() = 0;
         virtual void HandleEvents(SDL_Event e) = 0;
         virtual void Update(float dtMs) = 0;
         virtual void Draw() = 0;
         virtual void Destroy() = 0;
+        
+    protected:
 
+        Game& mParentGame;
+
+        Renderer& mRenderer;
+        Window& mWindow;
     };
-
 };

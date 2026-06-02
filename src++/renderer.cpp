@@ -19,12 +19,17 @@ void CastEngine::Renderer::ResetDepthBuffer()
 
 CastEngine::Renderer::Renderer(Window &window) : mWindow(window)
 {
+    if(!mWindow.IsInitialised())
+    {
+        LogMsg(ERROR, "passed uninitialised window to Renderer constructor\n");
+        exit(-1);
+    }
     ResetDepthBuffer();
 }
 
 CastEngine::Renderer::~Renderer()
 {
-    texBank.FreeAll();
+    Destroy();
 }
 
 bool CastEngine::Renderer::RenderTexture(const Texture &tex, SDL_Rect src, SDL_Rect dst)
@@ -179,4 +184,5 @@ void CastEngine::Renderer::Present()
 void CastEngine::Renderer::Destroy()
 {
     texBank.FreeAll();
+    ResetDepthBuffer();
 }

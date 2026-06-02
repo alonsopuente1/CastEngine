@@ -1,59 +1,17 @@
-#include "window.hpp"
-#include "texture.hpp"
-#include "map.hpp"
+#include "game.hpp"
 
-#include "logger.hpp"
+#include "mainmenuscene.hpp"
 
 int main(int argc, char** argv)
 {
-    CastEngine::Window myWnd;
+    CastEngine::Game game;
+    MainMenuScene mainMenuScene(game);
 
-    if(!myWnd.CreateWindow("RayCaster", 1280, 720))
-    {
-        LogMsg(ERROR, "failed to create window");
-        return -1;
-    }
+    game.AddScene(&mainMenuScene);
 
-    bool running = true;
+    game.ChangeScene(typeid(mainMenuScene).name());
 
-    CastEngine::Texture myTex(myWnd);
-
-    if(!myTex.LoadTexture("res/textures/enemies/cacodemon.png"))
-    {
-        LogMsg(ERROR, "failed to load texture"); 
-        return -1;
-    }
-
-    CastEngine::Map myMap;
-
-    CastEngine::Map::LoadArgs args;
-    myMap.LoadMap("res/maps/map1.sdm", args);
-
-    myMap.print();
-
-    while(running)
-    {
-        SDL_Event e;
-
-        while(SDL_PollEvent(&e))
-        {
-            switch(e.type)
-            {
-                case SDL_QUIT:
-                    running = false;
-                    break;
-            }
-        }
-
-        SDL_Rect dst = { 0, 0, myWnd.GetWidth() / 2, myWnd.GetHeight() / 2};
-        
-        if(SDL_RenderCopy(myWnd.GetRenderer(), myTex.GetTexture(), NULL, &dst) < 0)
-        {
-            LogMsgf(ERROR, "failed to render texture. SDL_ERROR: %s", SDL_GetError());
-        }
-
-        SDL_RenderPresent(myWnd.GetRenderer());
-    }
+    game.Run();
 
     return 0;
 }

@@ -1,31 +1,44 @@
 #pragma once
 
 #include "window.hpp"
-#include "scene.hpp"
+#include "renderer.hpp"
 
 #include <unordered_map>
 #include <memory>
 
 namespace CastEngine
 {
+    class IScene;
     class Game
     {
 
     private:
 
         Window mWindow;
-        
+        Renderer mRenderer;
+
         bool running;
 
-        std::unordered_map<std::string, std::unique_ptr<IScene>> mScenes;
+        std::unordered_map<std::string, IScene*> mScenes;
         
         IScene* currentScene;
 
+        void HandleEvents();
+        void Update(float dtMs);
+        void Draw();
+
     public:
+
+        Game();
+
+        void AddScene(IScene* pScene);
 
         void ChangeScene(const std::string& pSceneName);
 
         Window& GetWindow();
+        Renderer& GetRenderer();
+
+        void Run();
 
         void ShutDown();
 

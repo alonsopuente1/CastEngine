@@ -35,7 +35,7 @@ namespace CastEngine
 
         /// @brief creates a new window. if a window and 
         /// renderer already exist, it gets destroyed, effectively
-        /// making all textures creating on the renderer useless
+        /// making all textures created on the renderer useless
         /// @param title title of the window to be created
         /// @param pWidth width of the window to be created
         /// @param pHeight height of the window to be created
