@@ -22,6 +22,17 @@ void CastEngine::Button::SetText(const std::string &newText)
         mText = nullptr;
     }
 
+    if(newText.empty())
+    {
+        return;
+    }
+
+    if(CastEngine::fonts.empty())
+    {
+        LogMsg(ERROR, "no fonts loaded. cannot set button text\n");
+        return;
+    }
+
     mText = CastEngine::CreateText(mParentRenderer, {255, 255, 255, 255}, CastEngine::fonts[0], newText);
     if(!mText)
     {

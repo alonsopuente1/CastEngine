@@ -1,6 +1,6 @@
 #include "fonts.hpp"
 
-#include "logger.h"
+#include "logger.hpp"
 #include "texture.hpp"
 #include "renderer.hpp"
 #include "window.hpp"
@@ -10,21 +10,31 @@ std::string fontPaths[64] = { "res/fonts/runescape.ttf" };
 
 namespace CastEngine
 {
-    TTF_Font* fonts[64] = { nullptr };
-    void InitFonts()
+    std::vector<TTF_Font*> fonts;
+
+    bool InitFonts()
     {
-        int numOfFilePaths = sizeof(fontPaths) / sizeof(std::string);
-    
-        int iterations = numOfFilePaths > 64 ? 64 : numOfFilePaths;
-    
-        for(int i = 0; i < iterations; i++)
+        if(TTF_Init() < 0)
         {
-            fonts[i] = TTF_OpenFont(fontPaths[i].c_str(), 16);
-            if(!fonts[i])
-                LogMsgf(WARN, "failed to load font at filepath '%s'. TTF_ERROR: %s\n", fontPaths[i].c_str(), TTF_GetError());
+            LogMsgf(ERROR, "failed to initialise SDL_ttf. TTF_ERROR: %s\n", TTF_GetError());
+            return false;
         }
+
+        return true;
     }
-    
+
+    bool LoadFont(const std::string &filePath, int fontSize)
+    {
+        fonts.push_back(TTF_OpenFont(filePath.c_str(), fontSize));
+        if(fonts[fonts.size() - 1] == NULL)
+        {
+            LogMsgf(ERROR, "failed to load font from path '%s'. TTF_ERROR: %s\n", filePath.c_str(), TTF_GetError());
+            fonts.pop_back();
+            return false;
+        }
+        return true;
+    }
+
     Texture* CreateText(Renderer &rend, SDL_Color colour, TTF_Font *font, const std::string &text)
     {
         SDL_Texture* texture = nullptr;
@@ -50,7 +60,9 @@ namespace CastEngine
 
     void CleanupFonts()
     {
-        for(int i = 0; i < static_cast<int>(sizeof(fonts) / sizeof(*fonts)); i++)
+        for(int i = 0; i < static_cast<int>(fonts.size()); i++)
             TTF_CloseFont(fonts[i]);
+
+        TTF_Quit();
     }
 };

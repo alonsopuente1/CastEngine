@@ -52,8 +52,8 @@ namespace CastEngine
         Texture& operator=(const Texture&);
 
         // move constructors
-        Texture(Texture&& other);
-        Texture& operator=(Texture&& tex);
+        Texture(Texture&& other) noexcept;
+        Texture& operator=(Texture&& tex) noexcept;
         
         /// @brief textures have to be attached to a window.
         /// @brief the textures only work for the window attached  

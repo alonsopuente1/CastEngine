@@ -46,11 +46,6 @@ namespace CastEngine
         }
     }
 
-    inline size_t TextureBank::BankSize() const
-    {
-        return mTextures.size();
-    }
-
     void TextureBank::PushTexture(Texture &&tex)
     {
         mTextures.push_back(std::move(tex));

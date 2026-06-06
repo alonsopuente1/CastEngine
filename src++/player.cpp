@@ -98,7 +98,7 @@ namespace CastEngine
         // clamp velocity magnitude
         if(mVel.GetMagnitude() > mMaxMoveSpeed)
             mVel.SetMagnitude(mMaxMoveSpeed);
-        else if(mVel.GetMagnitude() < 0.000001f);
+        else if(mVel.GetMagnitude() < 0.000001f)
             mVel = vec2d(0.0f);
 
         mPos += mVel * dtMs;

@@ -21,7 +21,7 @@ namespace CastEngine
         LoadTexture(file);
     }
 
-    Texture::Texture(const Texture &other) : mWindow(other.mWindow) {
+    Texture::Texture(const Texture &other) : mWindow(other.mWindow), mSDLTex(NULL) {
         *this = other;   
     }
 
@@ -61,13 +61,13 @@ namespace CastEngine
         Destroy();
     }
 
-    Texture::Texture(Texture &&other) : mWindow(other.mWindow), mSDLTex(other.mSDLTex), mName(other.mName)
+    Texture::Texture(Texture &&other) noexcept : mWindow(other.mWindow), mSDLTex(other.mSDLTex), mName(other.mName)
     {
         other.mSDLTex = NULL;
         other.mName = "";
     }
 
-    Texture &Texture::operator=(Texture &&tex)
+    Texture &Texture::operator=(Texture &&tex) noexcept
     {
         if(this == &tex)
             return *this;

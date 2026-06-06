@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "window.hpp"
 #include "scene.hpp"
+#include "fonts.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -36,6 +37,13 @@ namespace CastEngine
 
     Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow), mCurrentScene(nullptr)
     {
+        InitFonts();
+        if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        {
+            LogMsgf(ERROR, "failed to initialise SDL. SDL_ERROR: %s\n", SDL_GetError());
+            exit(-1);
+        }
+
         if(!mWindow.IsInitialised())
         {
             LogMsg(ERROR, "failed to create window in Game constructor\n");
@@ -70,14 +78,17 @@ namespace CastEngine
         }
         
     }
+    
     Window &Game::GetWindow()
     {
         return mWindow;
     }
+    
     Renderer &Game::GetRenderer()
     {
         return mRenderer;
     }
+
     void Game::Run()
     {
 
@@ -106,5 +117,7 @@ namespace CastEngine
     void Game::ShutDown()
     {
         running = false;
+
+        CleanupFonts();
     }
 };

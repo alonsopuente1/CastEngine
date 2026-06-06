@@ -20,7 +20,7 @@ namespace CastEngine
 
         /// @brief size of the internal vector of Texture's
         /// @return size of vector
-        inline size_t BankSize() const;
+        inline size_t BankSize() const { return mTextures.size(); };
 
         void PushTexture(Texture&& tex);
 

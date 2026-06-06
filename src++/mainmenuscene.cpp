@@ -4,12 +4,15 @@
 #include "game.hpp"
 #include "texture.hpp"
 #include "util.hpp"
+#include "fonts.hpp"
 
 void MainMenuScene::Setup()
 {
     mParentGame.GetWindow().SetTitle("Main Menu");
     mParentGame.GetRenderer().texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
 
+    CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
+    
     int rectHeight = mParentGame.GetWindow().GetHeight() / 6;
     int rectWidth = mParentGame.GetWindow().GetWidth() / 2;
 
@@ -21,7 +24,10 @@ void MainMenuScene::Setup()
     
     mExitButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 + 10, rectWidth, rectHeight });
     mExitButton.SetBackgroundColour({0, 0, 0, 100});
-    mExitButton.SetText("Quit");
+    mExitButton.SetText("Quit");    
+
+    mState = MAINMENU;
+
 
     std::vector<std::string> mapFiles;
 
