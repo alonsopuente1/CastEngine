@@ -2,6 +2,7 @@
 
 #include "texture.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace CastEngine
@@ -22,11 +23,11 @@ namespace CastEngine
         /// @return size of vector
         inline size_t BankSize() const { return mTextures.size(); };
 
-        void PushTexture(Texture&& tex);
+        Texture* PushTexture(Texture&& tex);
 
     private:
 
-        std::vector<Texture> mTextures;
+        std::vector<std::unique_ptr<Texture>> mTextures;
 
     };
 };

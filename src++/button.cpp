@@ -50,6 +50,18 @@ void CastEngine::Button::SetBackgroundColour(SDL_Color newColour)
     mBackgroundColour = newColour;
 }
 
+void CastEngine::Button::HandleEvent(const SDL_Event &e)
+{
+    if(e.type == SDL_MOUSEBUTTONDOWN)
+    {
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        SDL_Point mousePos = {mouseX, mouseY};
+        if(SDL_PointInRect(&mousePos, &mPos) && mOnClick)
+            mOnClick();
+    }
+}
+
 void CastEngine::Button::Draw()
 {
 

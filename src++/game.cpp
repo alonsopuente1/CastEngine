@@ -49,6 +49,20 @@ namespace CastEngine
             LogMsg(ERROR, "failed to create window in Game constructor\n");
             exit(-1);
         }
+
+        SDL_RendererInfo info = { 0 };
+
+        if(SDL_GetRendererInfo(mRenderer.GetWindow().GetRenderer(), &info) < 0)
+        {
+            LogMsgf(ERROR, "failed to verify renderer's functionality. SDL_ERROR: %s", SDL_GetError());
+            exit(-1);
+        }
+        
+        if(SDL_RENDERER_TARGETTEXTURE && info.flags == 0)
+        {
+            LogMsg(ERROR, "drivers does not support textures as renderer targets");
+            exit(-1);
+        }
     }
 
     void Game::AddScene(IScene *pScene)

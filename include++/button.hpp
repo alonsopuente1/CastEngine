@@ -2,6 +2,7 @@
 
 #include <string>
 #include <SDL2/SDL.h>
+#include <functional>
 
 namespace CastEngine
 {
@@ -22,6 +23,8 @@ namespace CastEngine
         SDL_Color mBackgroundColour;
 
         Texture* mText;
+        
+        std::function<void()> mOnClick;
 
     public:
 
@@ -31,6 +34,9 @@ namespace CastEngine
         void SetText(const std::string& newText);
         void SetPosition(SDL_Rect newPos);
         void SetBackgroundColour(SDL_Color newColour);
+        inline void SetOnClick(std::function<void()> onClick) { mOnClick = onClick; }
+
+        void HandleEvent(const SDL_Event& e);
 
         void Draw();
 

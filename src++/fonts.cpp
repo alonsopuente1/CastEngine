@@ -53,8 +53,7 @@ namespace CastEngine
             return nullptr;
         }
 
-        rend.texBank.PushTexture(Texture(rend.GetWindow(), texture));
-        return &rend.texBank[rend.texBank.BankSize() - 1];
+        return rend.texBank.PushTexture(Texture(rend.GetWindow(), texture));
 
     }
 

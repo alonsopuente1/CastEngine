@@ -12,7 +12,11 @@ class MainMenuScene : public CastEngine::IScene
 {
 
 public:
-    MainMenuScene(CastEngine::Game& pGame) : IScene(pGame), mStartButton(pGame.GetWindow(), pGame.GetRenderer()), mExitButton(pGame.GetWindow(), pGame.GetRenderer()) {}
+    MainMenuScene(CastEngine::Game& pGame) : 
+        IScene(pGame), 
+        mStartButton(pGame.GetWindow(), pGame.GetRenderer()), 
+        mExitButton(pGame.GetWindow(), pGame.GetRenderer()), 
+        mBackButton(pGame.GetWindow(), pGame.GetRenderer()) {}
 
     void Setup() override;
     void HandleEvents(SDL_Event& e) override;
@@ -29,6 +33,7 @@ private:
 
     CastEngine::Button mStartButton;
     CastEngine::Button mExitButton;
+    CastEngine::Button mBackButton;
 
     std::vector<CastEngine::Button> mMapFileButtons;
 };

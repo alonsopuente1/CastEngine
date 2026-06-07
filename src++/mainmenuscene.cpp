@@ -21,17 +21,36 @@ void MainMenuScene::Setup()
     mStartButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 - rectHeight - 10, rectWidth, rectHeight });
     mStartButton.SetBackgroundColour({0, 0, 0, 100});
     mStartButton.SetText("Play");
+    mStartButton.SetOnClick([this]() {
+        this->mState = MAPCHOOSE;
+    });
     
     mExitButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 + 10, rectWidth, rectHeight });
     mExitButton.SetBackgroundColour({0, 0, 0, 100});
     mExitButton.SetText("Quit");    
+    mExitButton.SetOnClick([this]() {
+        this->mParentGame.ShutDown();
+    });
 
     mState = MAINMENU;
 
 
     std::vector<std::string> mapFiles;
-
     GetAllFilesInDir("./res/maps/", mapFiles);
+
+    mMapFileButtons.reserve(mapFiles.size());
+    
+    int backButtonWidth = 100;
+    int backButtonHeight = 100;
+    mBackButton.SetPosition({backButtonWidth, mParentGame.GetWindow().GetHeight() - backButtonHeight, backButtonWidth, backButtonHeight});
+    mBackButton.SetBackgroundColour({0, 0, 0, 100});
+    mBackButton.SetText("Back");
+
+    SDL_Rect rect = { 0 };
+    for(const std::string& filePath : mapFiles)
+    {
+        
+    }
 }
 
 void MainMenuScene::HandleEvents(SDL_Event& e)
@@ -78,6 +97,11 @@ void MainMenuScene::Draw()
     mRenderer.ClearScreen(bgColour);
 
     mRenderer.RenderTexture(mRenderer.texBank[0], {0, 0, static_cast<int>(mRenderer.texBank[0].GetWidth()), static_cast<int>(mRenderer.texBank[0].GetHeight())}, {100, 100, static_cast<int>(mRenderer.texBank[0].GetWidth()), static_cast<int>(mRenderer.texBank[0].GetHeight())});
+
+    mStartButton.Draw();
+    mExitButton.Draw();
+
+
 
     mRenderer.Present();
 }

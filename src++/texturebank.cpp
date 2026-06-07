@@ -5,16 +5,16 @@ namespace CastEngine
 
     Texture& TextureBank::operator[] (int i )
     {
-        return mTextures[i];
+        return *mTextures[i];
     }
 
     Texture* TextureBank::operator[](const std::string &str)
     {
-        for(Texture& tex : mTextures)
-            if (tex.GetTextureName() == str)
-                return &tex;
+        for(const auto& tex : mTextures)
+            if (tex->GetTextureName() == str)
+                return tex.get();
 
-        return NULL;
+        return nullptr;
     }
 
     void TextureBank::FreeAll()
@@ -24,9 +24,9 @@ namespace CastEngine
 
     void TextureBank::RemoveByName(const std::string &pName)
     {
-        for(int i = 0; i < mTextures.size(); i++)
+        for(size_t i = 0; i < mTextures.size(); i++)
         {
-            if(mTextures[i].GetTextureName() == pName)
+            if(mTextures[i]->GetTextureName() == pName)
             {
                 mTextures.erase(mTextures.begin() + i);
                 return;
@@ -36,9 +36,9 @@ namespace CastEngine
 
     void TextureBank::RemoveByTex(const Texture &pTex)
     {
-        for(int i = 0; i < mTextures.size(); i++)
+        for(size_t i = 0; i < mTextures.size(); i++)
         {
-            if(mTextures[i].GetTexture() == pTex.GetTexture())
+            if(mTextures[i]->GetTexture() == pTex.GetTexture())
             {
                 mTextures.erase(mTextures.begin() + i);
                 return;
@@ -46,8 +46,9 @@ namespace CastEngine
         }
     }
 
-    void TextureBank::PushTexture(Texture &&tex)
+    Texture* TextureBank::PushTexture(Texture &&tex)
     {
-        mTextures.push_back(std::move(tex));
+        mTextures.emplace_back(std::make_unique<Texture>(std::move(tex)));
+        return mTextures.back().get();
     }
 };
