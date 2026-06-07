@@ -80,7 +80,10 @@ void MainMenuScene::HandleEvents(SDL_Event& e)
         SDL_Point mousePos = {mouseX, mouseY};
         switch(mState)
         {
-        
+        case MAINMENU:
+            mStartButton.HandleEvent(e);
+            mExitButton.HandleEvent(e);
+            break;
         }
 
     }
