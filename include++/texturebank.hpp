@@ -12,7 +12,7 @@ namespace CastEngine
 
     public:
 
-        Texture& operator[] (int i);
+        Texture* operator[] (int i);
         Texture* operator[] (const std::string& str);
         
         void FreeAll();

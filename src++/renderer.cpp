@@ -64,7 +64,7 @@ void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pM
 
     for(int i = 0; i < sizeof(textures) / sizeof(textures[0]); i++)
     {
-        textures[i] = &texBank[i];
+        textures[i] = texBank[i];
     }
 
     for(int x = 0; x < mWindow.GetWidth(); x++)

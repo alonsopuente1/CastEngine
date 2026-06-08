@@ -6,6 +6,8 @@
 #include "util.hpp"
 #include "fonts.hpp"
 
+#include "mapselectscene.hpp"
+
 void MainMenuScene::Setup()
 {
     mParentGame.GetWindow().SetTitle("Main Menu");
@@ -22,12 +24,12 @@ void MainMenuScene::Setup()
     mStartButton.SetBackgroundColour({0, 0, 0, 100});
     mStartButton.SetText("Play");
     mStartButton.SetOnClick([this]() {
-        this->mState = MAPCHOOSE;
+        this->mParentGame.ChangeScene<MapSelectScene>();
     });
     
     mExitButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 + 10, rectWidth, rectHeight });
     mExitButton.SetBackgroundColour({0, 0, 0, 100});
-    mExitButton.SetText("Quit");    
+    mExitButton.SetText("Quit");
     mExitButton.SetOnClick([this]() {
         this->mParentGame.ShutDown();
     });
@@ -56,7 +58,11 @@ void MainMenuScene::Draw()
     SDL_Colour bgColour = { 50, 50, 50, 255 };
     mRenderer.ClearScreen(bgColour);
 
-    mRenderer.RenderTexture(mRenderer.texBank[0], {0, 0, static_cast<int>(mRenderer.texBank[0].GetWidth()), static_cast<int>(mRenderer.texBank[0].GetHeight())}, {100, 100, static_cast<int>(mRenderer.texBank[0].GetWidth()), static_cast<int>(mRenderer.texBank[0].GetHeight())});
+    CastEngine::Texture* cacText = mRenderer.texBank[0];
+    if(cacText)
+    {
+        mRenderer.RenderTexture(*cacText, {0, 0, static_cast<int>(cacText->GetWidth()), static_cast<int>(cacText->GetHeight())}, {100, 100, static_cast<int>(cacText->GetWidth()), static_cast<int>(cacText->GetHeight())});
+    }
 
     mStartButton.Draw();
     mExitButton.Draw();

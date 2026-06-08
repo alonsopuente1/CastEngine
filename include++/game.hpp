@@ -3,7 +3,7 @@
 #include "window.hpp"
 #include "renderer.hpp"
 
-#include <unordered_map>
+#include <vector>
 #include <memory>
 
 namespace CastEngine
@@ -13,28 +13,32 @@ namespace CastEngine
     class Game
     {
         
-        private:
+    private:
         
         Window mWindow;
         Renderer mRenderer;
         
         bool running;
 
-        std::unordered_map<std::string, IScene*> mScenes;
-        
-        IScene* mCurrentScene;
+        std::vector<std::unique_ptr<IScene>> mSceneStack;
+
+        IScene* CurrentScene() const;   
 
         void HandleEvents();
         void Update(float dtMs);
         void Draw();
         
-        public:
+    public:
         
         Game();
 
-        void AddScene(IScene* pScene);
+        template<typename T>
+        void ChangeScene();
 
-        void ChangeScene(const std::string& pSceneName);
+        template<typename T>
+        void PushScene();
+
+        void PopScene();
 
         Window& GetWindow();
         Renderer& GetRenderer();
@@ -49,5 +53,20 @@ namespace CastEngine
             std::string mapFile;
         } GameData;
     };
+
+    template <typename T>
+    void Game::ChangeScene()
+    {
+        mSceneStack.clear();
+
+        mSceneStack.push_back(std::make_unique<T>(*this));
+        mSceneStack.back().get()->Setup();
+    }
     
+    template <typename T>
+    void Game::PushScene()
+    {
+        mSceneStack.push_back(std::make_unique<T>(*this));
+    }
+
 };

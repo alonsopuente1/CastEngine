@@ -3,7 +3,7 @@
 #include "button.hpp"
 #include "game.hpp"
 
-class MapSelectScene : CastEngine::IScene
+class MapSelectScene : public CastEngine::IScene
 {
 
 private:

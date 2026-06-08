@@ -7,8 +7,16 @@
 
 #include <SDL2/SDL.h>
 
+#include "mainmenuscene.hpp"
+#include "mapselectscene.hpp"
+
 namespace CastEngine
 {
+    IScene *Game::CurrentScene() const
+    {
+        return mSceneStack.empty() ? nullptr : mSceneStack.back().get();
+    }
+
     void Game::HandleEvents()
     {
         SDL_Event e = { 0 };
@@ -21,21 +29,21 @@ namespace CastEngine
                 return;
             }
 
-            mCurrentScene->HandleEvents(e);
+            CurrentScene()->HandleEvents(e);
         }
     }
 
     void Game::Update(float dtMs)
     {
-        mCurrentScene->Update(dtMs);
+        CurrentScene()->Update(dtMs);
     }
 
     void Game::Draw()
     {
-        mCurrentScene->Draw();
+        CurrentScene()->Draw();
     }
 
-    Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow), mCurrentScene(nullptr)
+    Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow)
     {
         InitFonts();
         if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -50,7 +58,7 @@ namespace CastEngine
             exit(-1);
         }
 
-        SDL_RendererInfo info = { 0 };
+        SDL_RendererInfo info;
 
         if(SDL_GetRendererInfo(mRenderer.GetWindow().GetRenderer(), &info) < 0)
         {
@@ -65,34 +73,11 @@ namespace CastEngine
         }
     }
 
-    void Game::AddScene(IScene *pScene)
+    void Game::PopScene()
     {
-        if(!pScene)
-        {
-            LogMsg(WARN, "passed null pointer to pScene");
-            return;
-        }
-
-        mScenes[typeid(*pScene).name()] = (pScene);
+        mSceneStack.pop_back();
     }
 
-    void Game::ChangeScene(const std::string &pSceneName)
-    {
-        try
-        {
-            if(mCurrentScene)
-                mCurrentScene->Destroy();
-            mCurrentScene = mScenes[pSceneName];   
-            mRenderer.Destroy();
-            mCurrentScene->Setup();
-        }
-        catch(const std::exception& e)
-        {
-            LogMsgf(ERROR, "couldnt find scene: %s\n\t\texception msg: %s", e.what());
-        }
-        
-    }
-    
     Window &Game::GetWindow()
     {
         return mWindow;
@@ -106,7 +91,7 @@ namespace CastEngine
     void Game::Run()
     {
 
-        if(!mCurrentScene)
+        if(!CurrentScene())
         {
             LogMsg(ERROR, "NO CURRENT SCENE TO RUN! did you forget to call Game::ChangeScene() to set the current scene?");
             return;
@@ -134,4 +119,7 @@ namespace CastEngine
 
         CleanupFonts();
     }
+
+    
+    
 };

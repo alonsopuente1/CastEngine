@@ -13,7 +13,7 @@ void MapSelectScene::Setup()
     mBackButton.SetBackgroundColour({0, 0, 0, 100});
     mBackButton.SetText("Back");
     mBackButton.SetOnClick([this]() {
-        this->mParentGame.ChangeScene(typeid(MainMenuScene).name());
+        this->mParentGame.ChangeScene<MainMenuScene>();
     });
 
     // retrieve all map files and create buttons for them

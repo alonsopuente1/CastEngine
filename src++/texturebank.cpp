@@ -1,15 +1,29 @@
 #include "texturebank.hpp"
 
+#include "logger.hpp"
+
 namespace CastEngine
 {
 
-    Texture& TextureBank::operator[] (int i )
+    Texture* TextureBank::operator[] (int i )
     {
-        return *mTextures[i];
+        try
+        {
+            return mTextures.at(i).get();
+        }
+        catch(const std::exception& e)
+        {
+            LogMsgf(ERROR, "attempted to access texture outside of bounds. EXCEPTION: %s", e.what());
+            return nullptr;
+        }
+        
     }
 
     Texture* TextureBank::operator[](const std::string &str)
     {
+        if(str.empty())
+            return nullptr;
+
         for(const auto& tex : mTextures)
             if (tex->GetTextureName() == str)
                 return tex.get();
@@ -45,9 +59,15 @@ namespace CastEngine
             }
         }
     }
-
+    
     Texture* TextureBank::PushTexture(Texture &&tex)
     {
+        if(!tex.IsInitialised())
+        {
+            LogMsg(WARN, "attempting to push empty texture to texbank");
+            return nullptr;
+        }
+
         mTextures.emplace_back(std::make_unique<Texture>(std::move(tex)));
         return mTextures.back().get();
     }
