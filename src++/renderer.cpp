@@ -32,6 +32,16 @@ CastEngine::Renderer::~Renderer()
     Destroy();
 }
 
+bool CastEngine::Renderer::operator==(const Renderer &other)
+{
+    return mWindow == other.mWindow;
+}
+
+bool CastEngine::Renderer::operator!=(const Renderer &other)
+{
+    return !(*this == other);
+}
+
 bool CastEngine::Renderer::RenderTexture(const Texture &tex, SDL_Rect src, SDL_Rect dst)
 {
     if(SDL_RenderCopy(mWindow.GetRenderer(), tex.GetTexture(), &src, &dst) < 0)

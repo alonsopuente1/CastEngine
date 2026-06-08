@@ -10,8 +10,44 @@ CastEngine::Button::Button(Window &pWnd, Renderer &pRend) : mParentWindow(pWnd),
 {
 }
 
+CastEngine::Button::Button(Button &&other) noexcept : 
+    mParentWindow(other.mParentWindow),
+    mParentRenderer(other.mParentRenderer),
+    mOnClick(other.mOnClick),
+    mBackgroundColour(other.mBackgroundColour),
+    mPos(other.mPos),
+    mText(other.mText)
+{
+    other.mText = nullptr;
+    other.mPos = { 0 };
+    other.mOnClick = std::function<void()>();
+    other.mBackgroundColour = { 0 };
+}
+
+CastEngine::Button &CastEngine::Button::operator=(Button &&other) noexcept
+{
+    if(mParentWindow != other.mParentWindow || mParentRenderer != other.mParentRenderer)
+    {
+        LogMsg(ERROR, "trying to move button created on a different renderer");
+        exit(-1);
+    }
+
+    mOnClick = other.mOnClick;
+    mBackgroundColour = other.mBackgroundColour;
+    mPos = other.mPos;
+    mText = other.mText;
+
+    other.mText = nullptr;
+    other.mOnClick = std::function<void()>();
+    other.mPos = { 0 };
+    other.mBackgroundColour = { 0 };
+
+    return *this;
+}
+
 CastEngine::Button::~Button()
 {
+    Destroy();
 }
 
 void CastEngine::Button::SetText(const std::string &newText)

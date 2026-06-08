@@ -54,7 +54,6 @@ namespace CastEngine
         }
 
         return rend.texBank.PushTexture(Texture(rend.GetWindow(), texture));
-
     }
 
     void CleanupFonts()

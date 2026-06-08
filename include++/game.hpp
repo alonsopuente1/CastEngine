@@ -8,15 +8,16 @@
 
 namespace CastEngine
 {
+    
     class IScene;
     class Game
     {
-
-    private:
-
+        
+        private:
+        
         Window mWindow;
         Renderer mRenderer;
-
+        
         bool running;
 
         std::unordered_map<std::string, IScene*> mScenes;
@@ -26,9 +27,9 @@ namespace CastEngine
         void HandleEvents();
         void Update(float dtMs);
         void Draw();
-
-    public:
-
+        
+        public:
+        
         Game();
 
         void AddScene(IScene* pScene);
@@ -41,7 +42,12 @@ namespace CastEngine
         void Run();
 
         void ShutDown();
-
+        
+        struct
+        {
+            // stores the file path to the map to load when changing to GameScene
+            std::string mapFile;
+        } GameData;
     };
-
+    
 };

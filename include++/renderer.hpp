@@ -33,6 +33,9 @@ namespace CastEngine
 
         inline Window& GetWindow() { return mWindow; }
 
+        bool operator==(const Renderer& other);
+        bool operator!=(const Renderer& other);
+
         bool RenderTexture(const Texture& tex, SDL_Rect src, SDL_Rect dst);
 
         void RenderPlayerView(const Player& pPlayer, const Map& pMap);

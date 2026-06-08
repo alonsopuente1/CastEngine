@@ -129,6 +129,7 @@ namespace CastEngine
     {
         return mSDLWindow == other.GetWindow() && mSDLRenderer == other.GetRenderer();
     }
+    
     bool Window::operator!=(Window &other) const
     {
         return !(*this == other);

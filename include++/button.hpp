@@ -29,6 +29,14 @@ namespace CastEngine
     public:
 
         Button(Window& pWnd, Renderer& pRend);
+
+        // copy/move assignemt and constructors
+        Button(const Button& other) = delete;
+        Button& operator=(const Button& other) = delete;
+        
+        Button(Button&& other) noexcept;
+        Button& operator=(Button&& other) noexcept;
+
         ~Button();
 
         void SetText(const std::string& newText);

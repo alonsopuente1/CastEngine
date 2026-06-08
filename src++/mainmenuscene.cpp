@@ -34,58 +34,15 @@ void MainMenuScene::Setup()
 
     mState = MAINMENU;
 
-
-    std::vector<std::string> mapFiles;
-    GetAllFilesInDir("./res/maps/", mapFiles);
-
-    mMapFileButtons.reserve(mapFiles.size());
-    
-    int backButtonWidth = 100;
-    int backButtonHeight = 100;
-    mBackButton.SetPosition({backButtonWidth, mParentGame.GetWindow().GetHeight() - backButtonHeight, backButtonWidth, backButtonHeight});
-    mBackButton.SetBackgroundColour({0, 0, 0, 100});
-    mBackButton.SetText("Back");
-
-    SDL_Rect rect = { 0 };
-    for(const std::string& filePath : mapFiles)
-    {
-        
-    }
 }
 
 void MainMenuScene::HandleEvents(SDL_Event& e)
 {
 
-    if(e.type == SDL_KEYDOWN)
-    {
-        if(e.key.keysym.sym == SDLK_ESCAPE && !e.key.repeat)
-        {
-            switch(mState)
-            {
-                case MAPCHOOSE:
-                {
-                    mState = MAINMENU;
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-
     if(e.type == SDL_MOUSEBUTTONDOWN)
     {
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
-        SDL_Point mousePos = {mouseX, mouseY};
-        switch(mState)
-        {
-        case MAINMENU:
-            mStartButton.HandleEvent(e);
-            mExitButton.HandleEvent(e);
-            break;
-        }
-
+        mStartButton.HandleEvent(e);
+        mExitButton.HandleEvent(e);
     }
 }
 
@@ -103,8 +60,6 @@ void MainMenuScene::Draw()
 
     mStartButton.Draw();
     mExitButton.Draw();
-
-
 
     mRenderer.Present();
 }
