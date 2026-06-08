@@ -4,6 +4,7 @@
 #include "renderer.hpp"
 
 #include <vector>
+#include <queue>
 #include <memory>
 
 namespace CastEngine
@@ -20,26 +21,37 @@ namespace CastEngine
         
         bool running;
 
-        std::vector<std::unique_ptr<IScene>> mSceneStack;
-
-        IScene* CurrentScene() const;   
-
         void HandleEvents();
         void Update(float dtMs);
         void Draw();
-        
+
+
+        // scene related 
+
+        std::vector<std::unique_ptr<IScene>> mSceneStack;
+        IScene* CurrentScene() const;   
+        void ProcessSceneCommands();
+
+        struct SceneCommand
+        {
+            enum class Type
+            {
+                Change,
+                Push,
+                Pop
+            };
+
+            Type type;
+            std::unique_ptr<IScene> scene;
+        };
+
+        std::queue<SceneCommand> mPendingSceneCommands;        
+
     public:
         
         Game();
 
-        template<typename T>
-        void ChangeScene();
-
-        template<typename T>
-        void PushScene();
-
-        void PopScene();
-
+        
         Window& GetWindow();
         Renderer& GetRenderer();
 
@@ -52,21 +64,38 @@ namespace CastEngine
             // stores the file path to the map to load when changing to GameScene
             std::string mapFile;
         } GameData;
+
+        // scene related 
+
+        template<typename T>
+        void ChangeScene();
+
+        template<typename T>
+        void PushScene();
+
+        void PopScene();
     };
+
+
+    // templated function implementations
+
 
     template <typename T>
     void Game::ChangeScene()
     {
-        mSceneStack.clear();
-
-        mSceneStack.push_back(std::make_unique<T>(*this));
-        mSceneStack.back().get()->Setup();
+        mPendingSceneCommands.push({
+            SceneCommand::Type::Change, 
+            std::make_unique<T>(*this)
+        });
     }
     
     template <typename T>
     void Game::PushScene()
     {
-        mSceneStack.push_back(std::make_unique<T>(*this));
+        mPendingSceneCommands.push({
+            SceneCommand::Type::Push, 
+            std::make_unique<T>(*this)
+        });
     }
 
 };

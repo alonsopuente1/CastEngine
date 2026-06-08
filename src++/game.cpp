@@ -17,6 +17,32 @@ namespace CastEngine
         return mSceneStack.empty() ? nullptr : mSceneStack.back().get();
     }
 
+    void Game::ProcessSceneCommands()
+    {
+
+        while(!mPendingSceneCommands.empty())
+        {
+            SceneCommand& command = mPendingSceneCommands.front();
+
+            switch(command.type)
+            {
+            case SceneCommand::Type::Change:
+                mSceneStack.clear();
+                mSceneStack.push_back(std::move(command.scene));
+                break;
+            case SceneCommand::Type::Push:
+                mSceneStack.push_back(std::move(command.scene));
+                break;
+            case SceneCommand::Type::Pop:
+                mSceneStack.pop_back();
+                break;
+            }
+
+            mPendingSceneCommands.pop();
+        }
+
+    }
+
     void Game::HandleEvents()
     {
         SDL_Event e = { 0 };
@@ -109,6 +135,9 @@ namespace CastEngine
 
             HandleEvents();
             Update(deltaTime);
+
+            ProcessSceneCommands();
+
             Draw();
         }
 

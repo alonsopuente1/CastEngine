@@ -40,6 +40,9 @@ void MapSelectScene::Setup()
 
 void MapSelectScene::HandleEvents(SDL_Event &e)
 {
+
+    mBackButton.HandleEvent(e);
+
     for(CastEngine::Button& button : mMapButtons)
         button.HandleEvent(e);
 }
@@ -58,8 +61,8 @@ void MapSelectScene::Draw()
 
     CastEngine::Texture& mapSelectText = *render.texBank["mapselecttext"];
 
-    int dstWidth = mapSelectText.GetWidth() * 10;
-    int dstHeight = mapSelectText.GetHeight() * 10;
+    int dstWidth = mapSelectText.GetWidth();
+    int dstHeight = mapSelectText.GetHeight();
 
     render.RenderTexture(*render.texBank["mapselecttext"], 
                         {0, 0, static_cast<int>(mapSelectText.GetWidth()), static_cast<int>(mapSelectText.GetHeight())}, 
