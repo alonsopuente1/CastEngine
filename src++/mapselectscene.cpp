@@ -67,6 +67,8 @@ void MapSelectScene::Draw()
                         {0, 0, static_cast<int>(mapSelectText.GetWidth()), static_cast<int>(mapSelectText.GetHeight())}, 
                         {mParentGame.GetWindow().GetWidth() / 2 - dstWidth / 2, 10, dstWidth, dstHeight });
     
+    mBackButton.Draw();
+
     render.Present();
 }
 
