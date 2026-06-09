@@ -18,6 +18,8 @@ public:
         IScene(pGame),
         mBackButton(pGame.GetWindow(), pGame.GetRenderer()) {}
 
+    ~MapSelectScene();
+
     void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;
     void Update(float dtMs) override;

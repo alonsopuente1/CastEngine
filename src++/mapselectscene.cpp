@@ -1,11 +1,19 @@
 #include "mapselectscene.hpp"
 
 #include "mainmenuscene.hpp"
+#include "gamescene.hpp"
 #include "util.hpp"
 #include "fonts.hpp"
 
 #include "logger.hpp"
 #include "util.hpp"
+
+MapSelectScene::~MapSelectScene()
+{
+    mMapButtons.clear();
+    mBackButton.Destroy();
+    mRenderer.texBank.FreeAll();
+}
 
 void MapSelectScene::OnEnter()
 {
@@ -26,8 +34,10 @@ void MapSelectScene::OnEnter()
     SDL_Rect rect = { 0, 0, 0, 0 };
     for(int i = 0; i < static_cast<int>(mapFiles.size()); i++)
     {
-        auto onClickFunc = []() {
-            LogMsg(DEBUG, "ive been clicked :(");
+        std::string mapFilePath = mapFiles[i];
+        auto onClickFunc = [this, mapFilePath]() {
+            this->mParentGame.GameData.mapFile = mapFilePath;
+            this->mParentGame.ChangeScene<GameScene>();
         };
 
         int screenWidth = mParentGame.GetWindow().GetWidth();

@@ -170,6 +170,19 @@ void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pM
     }
 }
 
+void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour)
+{
+    SDL_Rect dest = {0, 0, mWindow.GetWidth(), mWindow.GetHeight() / 2};
+
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), topColour.r, topColour.g, topColour.b, topColour.a);
+    SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
+
+    dest.y += mWindow.GetHeight() / 2;
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), bottomColour.r, bottomColour.g, bottomColour.b, bottomColour.a);
+    SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
+
+}
+
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)
 {
     SDL_Renderer* render = mWindow.GetRenderer();

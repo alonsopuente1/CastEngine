@@ -4,11 +4,21 @@
 #include "renderer.hpp"
 #include "window.hpp"
 
+#include "map.hpp"
+#include "player.hpp"
 
 class GameScene : public CastEngine::IScene
 {
 
+private:
+
+    CastEngine::Map mMap;
+    CastEngine::Player mPlayer;
+
 public:
+
+    GameScene(CastEngine::Game& pGame) : IScene(pGame), mPlayer(mMap) {}
+    ~GameScene();
 
     void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;
@@ -16,9 +26,7 @@ public:
     void Draw() override;
     void OnExit() override;
 
-
-private:
-
-    
+    void OnPause() override;
+    void OnResume() override;
 
 };

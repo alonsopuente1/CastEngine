@@ -12,12 +12,13 @@ MainMenuScene::~MainMenuScene()
 {
     mExitButton.Destroy();
     mStartButton.Destroy();
+    mRenderer.texBank.FreeAll();
 }
 
 void MainMenuScene::OnEnter()
 {
-    mParentGame.GetWindow().SetTitle("Main Menu");
-    mParentGame.GetRenderer().texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
+    mWindow.SetTitle("Main Menu");
+    mRenderer.texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
 
     CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
     
@@ -26,21 +27,31 @@ void MainMenuScene::OnEnter()
 
     SDL_SetRelativeMouseMode(SDL_FALSE);
 
-    mStartButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 - rectHeight - 10, rectWidth, rectHeight });
+    mStartButton.SetPosition({ 
+        mWindow.GetWidth() / 2 - rectWidth / 2, 
+        mWindow.GetHeight() / 2 - rectHeight - 10, 
+        rectWidth, 
+        rectHeight 
+    });
+    
     mStartButton.SetBackgroundColour({0, 0, 0, 100});
     mStartButton.SetText("Play");
     mStartButton.SetOnClick([this]() {
         this->mParentGame.ChangeScene<MapSelectScene>();
     });
     
-    mExitButton.SetPosition({ mParentGame.GetWindow().GetWidth() / 2 - rectWidth / 2, mParentGame.GetWindow().GetHeight() / 2 + 10, rectWidth, rectHeight });
+    mExitButton.SetPosition({ 
+        mWindow.GetWidth() / 2 - rectWidth / 2, 
+        mWindow.GetHeight() / 2 + 10, 
+        rectWidth, 
+        rectHeight 
+    });
+    
     mExitButton.SetBackgroundColour({0, 0, 0, 100});
     mExitButton.SetText("Quit");
     mExitButton.SetOnClick([this]() {
         this->mParentGame.ShutDown();
     });
-
-
 }
 
 void MainMenuScene::HandleEvents(SDL_Event& e)

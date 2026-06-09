@@ -58,6 +58,8 @@ namespace CastEngine
         inline vec2d GetVel() const { return mVel; }
         inline vec2d GetPos() const { return mPos; }
 
+        inline void SetPos(const vec2d& newPos) { mPos = newPos; }
+
         inline float GetViewAng() const { return mViewAng; }
 
         void HandleKeyInput(const SDL_Event& e);
