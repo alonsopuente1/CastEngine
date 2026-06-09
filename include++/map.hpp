@@ -44,7 +44,6 @@ namespace CastEngine
         const int& operator[] (int i) const;
 
         bool LoadMap(const std::string& pFilePath, LoadArgs& args);
-        bool NewLoadMap(const std::string& pFilePath, LoadArgs& args);
 
         inline int GetWidth() const { return mWidth; }
         inline int GetHeight() const { return mHeight; }

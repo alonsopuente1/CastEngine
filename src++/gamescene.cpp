@@ -15,7 +15,7 @@ void GameScene::OnEnter()
 {      
     CastEngine::Map::LoadArgs args;
     
-    if(!mMap.NewLoadMap(mParentGame.GameData.mapFile, args))
+    if(!mMap.LoadMap(mParentGame.GameData.mapFile, args))
     {
         LogMsgf(ERROR, "failed to load map '%s'", mParentGame.GameData.mapFile.c_str());
         mParentGame.ChangeScene<MainMenuScene>();
