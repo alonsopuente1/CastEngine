@@ -27,15 +27,34 @@ namespace CastEngine
             switch(command.type)
             {
             case SceneCommand::Type::Change:
+            {
                 mSceneStack.clear();
+
                 mSceneStack.push_back(std::move(command.scene));
+                mSceneStack.back()->OnEnter();
                 break;
+            }
+            
             case SceneCommand::Type::Push:
+            {
+                if(!mSceneStack.empty())
+                    mSceneStack.back()->OnPause();
+
                 mSceneStack.push_back(std::move(command.scene));
+                mSceneStack.back()->OnEnter();
+
                 break;
+            }
             case SceneCommand::Type::Pop:
+            {
+                mSceneStack.back()->OnExit();
                 mSceneStack.pop_back();
+
+                if(!mSceneStack.empty())
+                    mSceneStack.back()->OnResume();
+
                 break;
+            }    
             }
 
             mPendingSceneCommands.pop();
@@ -101,7 +120,10 @@ namespace CastEngine
 
     void Game::PopScene()
     {
-        mSceneStack.pop_back();
+        mPendingSceneCommands.push({
+            SceneCommand::Type::Pop,
+            std::unique_ptr<IScene>(nullptr)
+        });
     }
 
     Window &Game::GetWindow()
@@ -116,11 +138,12 @@ namespace CastEngine
 
     void Game::Run()
     {
+        ProcessSceneCommands();
 
         if(!CurrentScene())
         {
-            LogMsg(ERROR, "NO CURRENT SCENE TO RUN! did you forget to call Game::ChangeScene() to set the current scene?");
-            return;
+            LogMsg(ERROR, "no scene has been set, have you called 'game.ChangeScene<YourScene>()'?");
+            exit(-1);
         }
 
         running = true;

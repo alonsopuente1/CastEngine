@@ -22,11 +22,14 @@ namespace CastEngine
         
         IScene(Game& pGame); 
         
-        virtual void Setup() = 0;
+        virtual void OnEnter() = 0;
         virtual void HandleEvents(SDL_Event& e) = 0;
         virtual void Update(float dtMs) = 0;
         virtual void Draw() = 0;
-        virtual void Destroy() = 0;
+        virtual void OnExit() = 0;
+
+        virtual void OnPause() = 0;
+        virtual void OnResume() = 0;
         
     };
 };

@@ -4,7 +4,9 @@
 #include "util.hpp"
 #include "fonts.hpp"
 
-void MapSelectScene::Setup()
+#include "logger.hpp"
+
+void MapSelectScene::OnEnter()
 {
     // setup the back button to go to main menu    
     int backButtonWidth = 100;
@@ -20,13 +22,11 @@ void MapSelectScene::Setup()
     std::vector<std::string> mapFiles;
     GetAllFilesInDir("./res/maps/", mapFiles);
 
-    mMapButtons.reserve(mapFiles.size());
-
-    SDL_Rect rect = { 0 };
+    SDL_Rect rect = { 0, 0, 0, 0 };
     for(const std::string& filePath : mapFiles)
     {
-        auto onClickFunc = [this, filePath]() {
-            this->mParentGame.GameData.mapFile = filePath;
+        auto onClickFunc = []() {
+            LogMsg(DEBUG, "ive been clicked :(");
         };
 
         CastEngine::Button newButton(mParentGame.GetWindow(), mParentGame.GetRenderer());
@@ -40,7 +40,6 @@ void MapSelectScene::Setup()
 
 void MapSelectScene::HandleEvents(SDL_Event &e)
 {
-
     mBackButton.HandleEvent(e);
 
     for(CastEngine::Button& button : mMapButtons)
@@ -71,6 +70,14 @@ void MapSelectScene::Draw()
     render.Present();
 }
 
-void MapSelectScene::Destroy()
+void MapSelectScene::OnExit()
+{
+}
+
+void MapSelectScene::OnPause()
+{
+}
+
+void MapSelectScene::OnResume()
 {
 }

@@ -18,9 +18,12 @@ public:
         IScene(pGame),
         mBackButton(pGame.GetWindow(), pGame.GetRenderer()) {}
 
-    void Setup() override;
+    void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;
     void Update(float dtMs) override;
     void Draw() override;
-    void Destroy() override;
+    void OnExit() override;
+
+    void OnPause() override;
+    void OnResume() override;
 };

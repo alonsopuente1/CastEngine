@@ -8,7 +8,13 @@
 
 #include "mapselectscene.hpp"
 
-void MainMenuScene::Setup()
+MainMenuScene::~MainMenuScene()
+{
+    mExitButton.Destroy();
+    mStartButton.Destroy();
+}
+
+void MainMenuScene::OnEnter()
 {
     mParentGame.GetWindow().SetTitle("Main Menu");
     mParentGame.GetRenderer().texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
@@ -34,7 +40,6 @@ void MainMenuScene::Setup()
         this->mParentGame.ShutDown();
     });
 
-    mState = MAINMENU;
 
 }
 
@@ -70,6 +75,14 @@ void MainMenuScene::Draw()
     mRenderer.Present();
 }
 
-void MainMenuScene::Destroy()
+void MainMenuScene::OnExit()
+{
+}
+
+void MainMenuScene::OnPause()
+{
+}
+
+void MainMenuScene::OnResume()
 {
 }

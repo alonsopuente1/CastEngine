@@ -1,6 +1,6 @@
 #include "gamescene.hpp"
 
-void GameScene::Setup()
+void GameScene::OnEnter()
 {      
     
 }
@@ -17,6 +17,6 @@ void GameScene::Draw()
 {
 }
 
-void GameScene::Destroy()
+void GameScene::OnExit()
 {
 }

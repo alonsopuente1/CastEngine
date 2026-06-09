@@ -15,25 +15,23 @@ public:
     MainMenuScene(CastEngine::Game& pGame) : 
         IScene(pGame), 
         mStartButton(pGame.GetWindow(), pGame.GetRenderer()), 
-        mExitButton(pGame.GetWindow(), pGame.GetRenderer()), 
-        mBackButton(pGame.GetWindow(), pGame.GetRenderer()) {}
+        mExitButton(pGame.GetWindow(), pGame.GetRenderer())
+        {}
 
-    void Setup() override;
+    ~MainMenuScene();
+
+    void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;
     void Update(float dtMs) override;
     void Draw() override;
-    void Destroy() override;
-private:
+    void OnExit() override;
 
-    enum MainMenuState
-    {
-        MAINMENU,
-        MAPCHOOSE
-    } mState;
+    void OnPause() override;
+    void OnResume() override;
+
+private:
 
     CastEngine::Button mStartButton;
     CastEngine::Button mExitButton;
-    CastEngine::Button mBackButton;
 
-    std::vector<CastEngine::Button> mMapFileButtons;
 };
