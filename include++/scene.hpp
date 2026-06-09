@@ -21,6 +21,7 @@ namespace CastEngine
     public:
         
         IScene(Game& pGame); 
+        virtual ~IScene() = default;
         
         virtual void OnEnter() = 0;
         virtual void HandleEvents(SDL_Event& e) = 0;

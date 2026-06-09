@@ -95,7 +95,7 @@ void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pM
         else
         {
             stepX = 1;
-            sideDist.x = (mapX = 1.0f - ppos.x) * deltaDist.x;
+            sideDist.x = (mapX + 1.0f - ppos.x) * deltaDist.x;
         }
 
         if(rayDir.y < 0)
@@ -129,6 +129,8 @@ void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pM
 
             if(pMap[mapY * pMap.GetHeight() + mapX] > 0) hit = 1;
         }
+
+
 
         if(side == 0)   perpWallDist = (sideDist.x - deltaDist.x);
         else            perpWallDist = (sideDist.y - deltaDist.y);

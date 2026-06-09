@@ -139,7 +139,7 @@ namespace CastEngine
 
         if(mSDLTex == NULL)
         {
-            LogMsgf(ERROR, "failed to load texture at file path '%s'. IMG_ERROR: ", IMG_GetError());
+            LogMsgf(ERROR, "failed to load texture at file path '%s'. IMG_ERROR: %s", filePath.c_str(), IMG_GetError());
             return false;
         }
 
