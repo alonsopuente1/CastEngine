@@ -192,7 +192,11 @@ void MMS_Update(void* scene, maingame_t* game, float dt)
 
     for(int i = 0; i < iterations; i++)
     {
-        SDL_Rect rect = {game->window.width / 2 - rectWidth / 2, rectHeight * (5 + i), rectWidth, rectHeight};
+        SDL_Rect rect = {
+            game->window.width / 2 - rectWidth / 2, 
+            rectHeight * (5 + i), 
+            rectWidth, 
+            rectHeight};
 
         W_SetButtonRect(&mmScene->mapFileButtons[i], rect);
     }

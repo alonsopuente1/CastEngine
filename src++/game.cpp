@@ -19,7 +19,6 @@ namespace CastEngine
 
     void Game::ProcessSceneCommands()
     {
-
         while(!mPendingSceneCommands.empty())
         {
             SceneCommand& command = mPendingSceneCommands.front();

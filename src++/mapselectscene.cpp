@@ -5,6 +5,7 @@
 #include "fonts.hpp"
 
 #include "logger.hpp"
+#include "util.hpp"
 
 void MapSelectScene::OnEnter()
 {
@@ -23,16 +24,37 @@ void MapSelectScene::OnEnter()
     GetAllFilesInDir("./res/maps/", mapFiles);
 
     SDL_Rect rect = { 0, 0, 0, 0 };
-    for(const std::string& filePath : mapFiles)
+    for(int i = 0; i < static_cast<int>(mapFiles.size()); i++)
     {
         auto onClickFunc = []() {
             LogMsg(DEBUG, "ive been clicked :(");
         };
 
+        int screenWidth = mParentGame.GetWindow().GetWidth();
+        int screenHeight = mParentGame.GetWindow().GetHeight();
+
+        int buttonWidth = screenWidth / 5;
+        int buttonHeight = screenHeight / 20;
+
+        rect = {
+            screenWidth / 2 - buttonWidth / 2,
+            buttonHeight * (5 + i),
+            buttonWidth,
+            buttonHeight
+        };
+
+        char cMapName[64];
+        fileNameFromPath(mapFiles[i].c_str(), cMapName, sizeof(cMapName));
+
+        std::string mapName(cMapName);
+
         CastEngine::Button newButton(mParentGame.GetWindow(), mParentGame.GetRenderer());
         newButton.SetBackgroundColour({0, 0, 0, 100});
         newButton.SetPosition(rect);
         newButton.SetOnClick(onClickFunc);
+        newButton.SetText(mapName);
+        
+        mMapButtons.push_back(std::move(newButton));
     }
 
     CastEngine::CreateText(mParentGame.GetRenderer(), {255, 255, 255, 255}, CastEngine::fonts[0], "Map Select")->SetTextureName("mapselecttext");
@@ -67,6 +89,9 @@ void MapSelectScene::Draw()
                         {0, 0, static_cast<int>(mapSelectText.GetWidth()), static_cast<int>(mapSelectText.GetHeight())}, 
                         {mParentGame.GetWindow().GetWidth() / 2 - dstWidth / 2, 10, dstWidth, dstHeight });
     
+    for(CastEngine::Button& button : mMapButtons)
+        button.Draw();
+
     mBackButton.Draw();
 
     render.Present();
