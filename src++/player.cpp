@@ -90,22 +90,16 @@ namespace CastEngine
         else if(mVel.GetMagnitude() < 0.000001f)
             mVel = vec2d(0.0f);
 
-        mPos += mVel * dtMs;
-        vec2d deltaPos = mPos - oldPos;
-        
-        // does adding x put player in wall?
-        if(mWorld.IsWall(mPos.x, oldPos.y))
-            mPos.x = oldPos.x;
-        // does adding y put player in wall?
-        if(mWorld.IsWall(oldPos.x, mPos.y))
-            mPos.y = oldPos.y;
+        vec2d newPos = mPos + (mVel * dtMs);
+
+        ResolveWallCollision(newPos);
     }
 
     void Player::Draw()
     {
     }
 
-    void Player::Rotate(float ang)
+    void Player::Rotate(float ang) 
     {
         mViewAng += ang;
     }

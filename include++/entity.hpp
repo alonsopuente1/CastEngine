@@ -33,6 +33,9 @@ namespace CastEngine
 
         virtual void OnCollision(Entity& other) {}
 
+        
+        void ResolveWallCollision(vec2d newPos);
+
         // transform
         inline void AddPos(const vec2d& pos) { mPos += pos; }
         inline void SetPos(const vec2d& pos) { mPos = pos; }

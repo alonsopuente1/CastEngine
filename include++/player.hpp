@@ -32,14 +32,9 @@ namespace CastEngine
             bool lookleft : 1;
             bool lookright : 1;
             bool shooting : 1;
-        } State;
+        } State{};
 
         
-        /// @brief walks the player forwards or backwards
-        /// @param distance positive value for forwards, negative for backwards
-        void Walk(float distance);
-        
-        void Strafe(float distance);
         
         void Rotate(float ang);
 

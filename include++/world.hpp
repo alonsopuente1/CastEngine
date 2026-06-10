@@ -4,6 +4,17 @@
 
 #include "vec2d.hpp"
 
+/* world.hpp
+
+    interface for a world which a scene should implement for
+    entities to be able to access data without dependance on
+    main game/scene
+
+    any scenes that inherit the IWorld interface should override
+    the virtual functions so that entities can access needed data
+
+*/
+
 namespace CastEngine
 {
 
