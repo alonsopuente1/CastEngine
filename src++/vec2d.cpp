@@ -54,7 +54,7 @@ vec2d vec2d::operator-(const vec2d& other)
 
 vec2d& vec2d::operator-=(const vec2d& other)
 {
-    *this = *this + other;
+    *this = *this - other;
     return *this;
 }
 

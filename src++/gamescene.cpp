@@ -43,6 +43,8 @@ void GameScene::OnEnter()
     }
 
     mPlayer.SetPos(args.startPos);
+    mPlayer.SetRotateSpeed(args.rotateSpeed);
+    mPlayer.SetMaxSpeed(args.maxSpeed);
 }
 
 void GameScene::HandleEvents(SDL_Event& e)
@@ -58,10 +60,14 @@ void GameScene::HandleEvents(SDL_Event& e)
         }
     }
 
+    if(e.type == SDL_KEYUP || e.type == SDL_KEYDOWN)
+        mPlayer.HandleKeyInput(e);
+
 }
 
 void GameScene::Update(float dtMs)
 {
+    mPlayer.Update(dtMs);
 }
 
 void GameScene::Draw()

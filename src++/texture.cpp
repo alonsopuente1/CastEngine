@@ -145,10 +145,12 @@ namespace CastEngine
 
         return true;
     }
+
     SDL_Texture *Texture::GetTexture() const
     {
         return mSDLTex;
     }
+    
     bool Texture::CreateBlankTexture(const std::string &pName, int pWidth, int pHeight)
     {
         if(!mWindow.IsInitialised())
@@ -173,6 +175,7 @@ namespace CastEngine
 
         return true;
     }
+
     Window &Texture::GetAttachedWindow() const
     {
         return mWindow;
@@ -187,6 +190,5 @@ namespace CastEngine
 
         mWindow = pWindow;
     }
-
 
 };

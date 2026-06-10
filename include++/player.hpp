@@ -59,6 +59,8 @@ namespace CastEngine
         inline vec2d GetPos() const { return mPos; }
 
         inline void SetPos(const vec2d& newPos) { mPos = newPos; }
+        inline void SetRotateSpeed(const float& newSpeed) { mRotateSpeed = newSpeed; }
+        inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }
 
         inline float GetViewAng() const { return mViewAng; }
 

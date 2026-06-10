@@ -18,21 +18,11 @@ namespace CastEngine
             return;
         }
 
-        // 1 if key up, 0 if down
-        int uporDown = SDL_KEYUP - SDL_KEYDOWN;
-        bool state = true;
-        if(uporDown)
-        {
-            state = false;
-        }
+        if(e.key.repeat != 0)
+            return;
 
-
-        // TODO: make a menu to be able to change
-        // controls
-        if(e.key.keysym.sym == SDLK_w)
-        {
-            
-        }
+        // false if key up, true if down
+        bool state = SDL_KEYUP - e.type == 1;
 
         switch(e.key.keysym.sym)
         {
@@ -47,6 +37,12 @@ namespace CastEngine
                 break;
             case SDLK_d:
                 State.right = state;
+                break;
+            case SDLK_LEFT:
+                State.lookleft = state;
+                break;
+            case SDLK_RIGHT:
+                State.lookright = state;
                 break;
         }
     }
@@ -67,11 +63,11 @@ namespace CastEngine
         }
         if(State.left)
         {
-            newAcc += viewDir.GetPerpendicular();
+            newAcc -= viewDir.GetPerpendicular();
         }
         if(State.right)
         {
-            newAcc -= viewDir.GetPerpendicular();
+            newAcc += viewDir.GetPerpendicular();
         }
         if(State.lookleft)
         {
@@ -84,13 +80,9 @@ namespace CastEngine
         
         // if player not moving apply friction
         if(!newAcc.GetMagnitude())
-        {
             newAcc = mVel * -0.05f;
-        }
         else
-        {
             newAcc.SetMagnitude(0.0005f);
-        }
 
         // update velocity
         mVel += newAcc;
