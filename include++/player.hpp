@@ -1,12 +1,13 @@
 #pragma once
 
 #include "vec2d.hpp"
+#include "entity.hpp"
 #include <SDL2/SDL.h>
 
 namespace CastEngine
 {
     class Map;
-    class Player
+    class Player : public Entity
     {
 
     private:
@@ -18,12 +19,6 @@ namespace CastEngine
         
         /// @brief in radians
         float mFov;
-
-        vec2d mAcc;
-        vec2d mVel;
-        vec2d mPos;
-
-        vec2d mHitbox;
 
         float mRotateSpeed;
 
@@ -39,8 +34,6 @@ namespace CastEngine
             bool shooting : 1;
         } State;
 
-
-        Map& mAttachedMap;
         
         /// @brief walks the player forwards or backwards
         /// @param distance positive value for forwards, negative for backwards
@@ -52,19 +45,15 @@ namespace CastEngine
 
     public:
 
-        Player(Map& pMap);
+        using Entity::Entity;
 
-        inline vec2d GetAcc() const { return mAcc; }
-        inline vec2d GetVel() const { return mVel; }
-        inline vec2d GetPos() const { return mPos; }
-
-        inline void SetPos(const vec2d& newPos) { mPos = newPos; }
         inline void SetRotateSpeed(const float& newSpeed) { mRotateSpeed = newSpeed; }
         inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }
 
         inline float GetViewAng() const { return mViewAng; }
 
         void HandleKeyInput(const SDL_Event& e);
-        void Update(float dtMs);
+        void Update(float dtMs) override;
+        void Draw() override;
     };
 };

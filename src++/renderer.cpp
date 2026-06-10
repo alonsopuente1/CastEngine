@@ -52,6 +52,77 @@ bool CastEngine::Renderer::RenderTexture(const Texture &tex, SDL_Rect src, SDL_R
     return true;
 }
 
+bool CastEngine::Renderer::RenderCircle(SDL_Point centre, float radius, SDL_Color pColour)
+{
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), pColour.r, pColour.g, pColour.b, pColour.a);
+
+    // form vertices for the circle
+    
+    const int numPoints = 10;
+    const float angle = (M_PI * 2) / numPoints;
+
+    for(int i = 0; i < numPoints; i++)
+    {
+        int x1 = cosf(angle * i) * radius + centre.x; 
+        int y1 = sinf(angle * i) * radius + centre.y;
+
+        int x2 = cosf(angle * (i + 1)) * radius + centre.x;
+        int y2 = sinf(angle * (i + 1)) * radius + centre.y;
+
+        if(SDL_RenderDrawLine(mWindow.GetRenderer(), x1, y1, x2, y2) < 0)
+        {
+            LogMsgf(ERROR, "failed to render line for cirlce. SDL_ERROR: %s", SDL_GetError());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_Color pColour)
+{
+    // number of triangles to use for the circle
+    // more triangles = better definition of circle
+    const int numTriangles = 10;
+
+    int numVertices = numTriangles * 3;
+
+    std::vector<SDL_Vertex> vertices;
+    vertices.reserve(static_cast<size_t>(numVertices));
+    float triangleAngle = (M_PI * 2) / static_cast<float>(numTriangles);
+    
+    for(int i = 0; i < numVertices; i++)
+    {
+        int j = i / 3;
+
+        SDL_Vertex* centreVertex = &vertices[i];
+        SDL_Vertex* currentVertex = &vertices[i + 1];
+        SDL_Vertex* finalVertex = &vertices[i + 2];
+
+        centreVertex->color = pColour;
+        currentVertex->color = pColour;
+        finalVertex->color = pColour;
+
+        centreVertex->position.x = centre.x;
+        centreVertex->position.y = centre.y; 
+
+        currentVertex->position.x = cosf(triangleAngle * j) * radius + centre.x;
+        currentVertex->position.y = sinf(triangleAngle * j) * radius + centre.y;
+
+        finalVertex->position.x = cosf(triangleAngle * (j + 1)) * radius + centre.x;
+        finalVertex->position.y = sinf(triangleAngle * (j + 1)) * radius + centre.y;
+        
+    }
+
+    if(SDL_RenderGeometry(mWindow.GetRenderer(), NULL, vertices.data(), numVertices, NULL, 0) < 0)
+    {
+        LogMsg(ERROR, "failed to render circle, operation unsupported");
+        return false;
+    }
+
+    return true;
+}
+
 void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pMap)
 {
     vec2d playerDir = vec2d::AngToVec(pPlayer.GetViewAng());

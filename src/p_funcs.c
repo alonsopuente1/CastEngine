@@ -76,10 +76,10 @@ void P_HandleState(player_t* p, map_t* m, float dt)
     
     // does adding x put player in wall?
     if(M_GetMapCell(m, (int)oldPos.y * m->mapWidth + (int)(oldPos.x + deltaPos.x)) > 0)
-        p->pos.x -= deltaPos.x;
+        p->pos.x = oldPos.x;
     // does adding y put player in wall?
     if(M_GetMapCell(m, (int)(oldPos.y + deltaPos.y) * m->mapWidth + (int)(oldPos.x)) > 0)
-        p->pos.y -= deltaPos.y;
+        p->pos.y = oldPos.y;
 
 }
 

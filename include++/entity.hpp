@@ -1,29 +1,53 @@
 #pragma once
 
+#include "vec2d.hpp"
+
 namespace CastEngine
 {
-    class Texture;
-    class Map;
+    class IWorld;
     class Entity
     {
 
-    private:
+    protected:
 
-        Texture* mTexture;
-
-        Map& mMap;
+        IWorld& mWorld;
         
+        vec2d mAcc;
+        vec2d mVel;
+        vec2d mPos;
+
+        float mRadius = 0.3f;
+
+        bool mAlive = true;
 
     public:
 
-        Entity(Map& pMap) : mTexture(nullptr), mMap(pMap) {}
-        ~Entity() {}
+        Entity(IWorld& pWorld) : mWorld(pWorld) {}
+        virtual ~Entity() = default;
 
-        void SetTexture(const Texture& tex);
-        const Texture* GetTexture();
+        virtual void Update(float dtMs) = 0;
+        virtual void Draw() = 0;
+        
+        inline bool IsAlive() const { return mAlive; }
+        inline void Destroy() { mAlive = false; }
 
+        virtual void OnCollision(Entity& other) {}
 
+        // transform
+        inline void AddPos(const vec2d& pos) { mPos += pos; }
+        inline void SetPos(const vec2d& pos) { mPos = pos; }
+        inline const vec2d& GetPos() const { return mPos; }
 
+        inline void AddVel(const vec2d& vel) { mVel += vel; }
+        inline void SetVel(const vec2d& vel) { mVel = vel; }
+        inline const vec2d& GetVel() const { return mVel; }
+
+        inline void AddAcc(const vec2d& acc) { mAcc += acc; }
+        inline void SetAcc(const vec2d& acc) { mAcc = acc; }
+        inline const vec2d& GetAcc() const { return mAcc; }
+
+        inline float GetRadius() const { return mRadius; }
+        inline void SetRadius(const float& newRadius) { mRadius = newRadius; }
     };
 
 };

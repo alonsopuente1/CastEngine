@@ -11,6 +11,26 @@ GameScene::~GameScene()
     mRenderer.texBank.FreeAll();
 }
 
+void GameScene::SpawnEntity(std::unique_ptr<CastEngine::Entity> ptr)
+{
+    mEntManager.PushEntity(std::move(ptr));
+}
+
+CastEngine::Map &GameScene::GetMap()
+{
+    return mMap;
+}
+
+bool GameScene::IsWall(vec2d &pos) 
+{
+    return IsWall(pos.x, pos.y);
+}
+
+bool GameScene::IsWall(int x, int y) 
+{
+    return mMap[y * mMap.GetWidth() + x] > 0;
+}
+
 void GameScene::OnEnter()
 {      
     CastEngine::Map::LoadArgs args;
@@ -42,9 +62,11 @@ void GameScene::OnEnter()
         mRenderer.texBank.PushTexture(CastEngine::Texture(mWindow, texturePaths[i]));
     }
 
-    mPlayer.SetPos(args.startPos);
-    mPlayer.SetRotateSpeed(args.rotateSpeed);
-    mPlayer.SetMaxSpeed(args.maxSpeed);
+    mPlayer = dynamic_cast<CastEngine::Player*>(mEntManager.PushEntity(std::make_unique<CastEngine::Player>(*this)));
+
+    mPlayer->SetPos(args.startPos);
+    mPlayer->SetRotateSpeed(args.rotateSpeed);
+    mPlayer->SetMaxSpeed(args.maxSpeed);
 }
 
 void GameScene::HandleEvents(SDL_Event& e)
@@ -61,13 +83,13 @@ void GameScene::HandleEvents(SDL_Event& e)
     }
 
     if(e.type == SDL_KEYUP || e.type == SDL_KEYDOWN)
-        mPlayer.HandleKeyInput(e);
+        mPlayer->HandleKeyInput(e);
 
 }
 
 void GameScene::Update(float dtMs)
 {
-    mPlayer.Update(dtMs);
+    mEntManager.UpdateEntities(dtMs);
 }
 
 void GameScene::Draw()
@@ -79,7 +101,7 @@ void GameScene::Draw()
     SDL_Color bottColour = {60, 60, 60, 255};
     mRenderer.RenderCeilingAndFloor(topColour, bottColour);
 
-    mRenderer.RenderPlayerView(mPlayer, mMap);
+    mRenderer.RenderPlayerView(*mPlayer, mMap);
 
     mRenderer.Present();
 }

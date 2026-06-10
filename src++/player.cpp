@@ -3,13 +3,10 @@
 #include "logger.hpp"
 #include "map.hpp"
 
+#include "world.hpp"
+
 namespace CastEngine
 {
-    Player::Player(Map &pMap) : mAttachedMap(pMap),
-        mAcc(0.f), mVel(0.f), mPos(0.0f), mHitbox(0.0f),
-        mFov(DegToRad(90.0f))
-    {}
-
     void Player::HandleKeyInput(const SDL_Event &e)
     {
         if(e.type != SDL_KEYDOWN && e.type != SDL_KEYUP)
@@ -85,7 +82,7 @@ namespace CastEngine
             newAcc.SetMagnitude(0.0005f);
 
         // update velocity
-        mVel += newAcc;
+        mVel += newAcc * dtMs;
 
         // clamp velocity magnitude
         if(mVel.GetMagnitude() > mMaxMoveSpeed)
@@ -96,16 +93,18 @@ namespace CastEngine
         mPos += mVel * dtMs;
         vec2d deltaPos = mPos - oldPos;
         
-        if(mAttachedMap[(int) mPos.y * mAttachedMap.GetWidth() + (int)(oldPos.x + deltaPos.x)] > 0)
-            mPos.x -= deltaPos.x;
-        if(mAttachedMap[(int)(oldPos.y + deltaPos.y) * mAttachedMap.GetWidth() + (int)(oldPos.x)] > 0)
-            mPos.y -= deltaPos.y;
+        // does adding x put player in wall?
+        if(mWorld.IsWall(mPos.x, oldPos.y))
+            mPos.x = oldPos.x;
+        // does adding y put player in wall?
+        if(mWorld.IsWall(oldPos.x, mPos.y))
+            mPos.y = oldPos.y;
     }
 
-    void Player::Walk(float distance)
+    void Player::Draw()
     {
-        
     }
+
     void Player::Rotate(float ang)
     {
         mViewAng += ang;

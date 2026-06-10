@@ -38,6 +38,9 @@ namespace CastEngine
 
         bool RenderTexture(const Texture& tex, SDL_Rect src, SDL_Rect dst);
 
+        bool RenderCircle(SDL_Point centre, float radius, SDL_Color pColour);
+        bool RenderFillCircle(SDL_Point centre, float radius, SDL_Color pColour);
+
         void RenderPlayerView(const Player& pPlayer, const Map& pMap);
         void RenderGun(const Gun& pGun);
         void RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour);
