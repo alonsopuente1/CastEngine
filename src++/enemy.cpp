@@ -10,7 +10,6 @@ namespace CastEngine
 {
     void Enemy::Think()
     {
-        LogMsg(DEBUG, "thinking...");
         mAcc = vec2d(-0.0005f, 0.0f);
     }
 
@@ -27,6 +26,6 @@ namespace CastEngine
 
     void Enemy::Draw()
     {
-        mWorld.RenderSprite(mTex, mPos);
+        mWorld.RenderSprite(mTex, mWorld.GetPlayerPos(), mWorld.GetPlayerDir(), mPos);
     }
 }

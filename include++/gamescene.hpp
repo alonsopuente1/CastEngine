@@ -31,7 +31,9 @@ public:
     bool IsWall(vec2d& pos) override;
     bool IsWall(int x, int y) override;
 
-    void RenderSprite(CastEngine::Texture* tex, vec2d pos) override;
+    void RenderSprite(CastEngine::Texture* tex, vec2d from, vec2d dir, vec2d to) override;
+    vec2d GetPlayerPos() const override;
+    vec2d GetPlayerDir() const override;
 
     void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;

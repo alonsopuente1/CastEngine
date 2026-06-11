@@ -31,19 +31,18 @@ bool GameScene::IsWall(int x, int y)
     return mMap[y * mMap.GetWidth() + x] > 0;
 }
 
-void GameScene::RenderSprite(CastEngine::Texture* tex, vec2d pos)
+void GameScene::RenderSprite(CastEngine::Texture* tex, vec2d from, vec2d dir, vec2d to)
 {
-    vec2d playerToTarget = pos - mPlayer->GetPos();
-
-    vec2d playerDir = vec2d::AngToVec(mPlayer->GetViewAng());
-    vec2d plane = playerDir.GetPerpendicular() * -1.f;
+    vec2d playerToTarget = to - from;
+    dir.Normalise();
+    vec2d plane = dir.GetPerpendicular() * -1.f;
 
     plane.SetMagnitude(-tanf(mPlayer->GetFOV() / 2.0f));
 
-    float invDet = 1.0f / (plane.x * playerDir.y - playerDir.x * plane.y);
+    float invDet = 1.0f / (plane.x * dir.y - dir.x * plane.y);
 
     vec2d transform = {
-        invDet * (playerDir.y * playerToTarget.x - playerDir.x * playerToTarget.y),
+        invDet * (dir.y * playerToTarget.x - dir.x * playerToTarget.y),
         invDet * (-plane.y * playerToTarget.x + plane.x * playerToTarget.y)
     };
 
@@ -71,6 +70,16 @@ void GameScene::RenderSprite(CastEngine::Texture* tex, vec2d pos)
         }
     }
     SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
+}
+
+vec2d GameScene::GetPlayerPos() const
+{
+    return mPlayer->GetPos();
+}
+
+vec2d GameScene::GetPlayerDir() const
+{
+    return vec2d::AngToVec(mPlayer->GetViewAng());
 }
 
 void GameScene::OnEnter()

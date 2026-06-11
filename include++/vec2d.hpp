@@ -46,6 +46,7 @@ struct vec2d
     static vec2d AngToVec(float angle);
 
     void Normalise();
+    inline vec2d Normalised() const { vec2d copy = *this; copy.Normalise(); return copy; }
 
     void Rotate(float angle);
 
