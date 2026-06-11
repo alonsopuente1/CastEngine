@@ -4,7 +4,7 @@
 
 struct vec2d
 {
-    float x, y;
+    float x = 0.f, y = 0.f;
 
     // normal constructors
 
@@ -16,34 +16,24 @@ struct vec2d
 
     vec2d& operator=(const vec2d& other);
 
-    vec2d(const vec2d& other);
-    vec2d(vec2d&& other);
-
-    vec2d& operator=(vec2d&& other);
+    vec2d(const vec2d& other) = default;
 
     // math operations
 
-    vec2d operator+(const vec2d& other);
+    vec2d operator+(const vec2d& other) const;
+    vec2d operator-(const vec2d& b) const;
+    vec2d operator*(float mag) const;
+    vec2d operator/(float mag) const;
 
     vec2d& operator+=(const vec2d& other);
-
-    vec2d operator-(const vec2d& other);
-
     vec2d& operator-=(const vec2d& other);
-
-    vec2d operator*(float mag);
-
     vec2d& operator*=(float mag);
-
-    vec2d operator/(float mag);
-
     vec2d operator/=(float mag);
 
     // equality operations
 
-    bool operator==(const vec2d& other);
-
-    bool operator!=(const vec2d& other);
+    bool operator==(const vec2d& other) const;
+    bool operator!=(const vec2d& other) const;
 
     // public helper methods
 
@@ -59,7 +49,7 @@ struct vec2d
 
     void Rotate(float angle);
 
-    float DotProduct(const vec2d& other);
+    float DotProduct(const vec2d& other) const;
 
 
 };

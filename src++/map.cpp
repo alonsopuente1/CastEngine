@@ -59,6 +59,9 @@ namespace CastEngine
 
     const int& Map::operator[] (int i) const
     {
+        if(i < 0 || i > mMapData.size() - 1)
+            return 0;
+
         return mMapData[i];
     }
 

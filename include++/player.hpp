@@ -18,7 +18,7 @@ namespace CastEngine
         float mMaxMoveSpeed;
         
         /// @brief in radians
-        float mFov;
+        const float mFov = M_PI / 2.f;
 
         float mRotateSpeed;
 
@@ -46,6 +46,7 @@ namespace CastEngine
         inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }
 
         inline float GetViewAng() const { return mViewAng; }
+        inline const float GetFOV() const { return mFov; }
 
         void HandleKeyInput(const SDL_Event& e);
         void Update(float dtMs) override;

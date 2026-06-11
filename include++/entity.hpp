@@ -12,9 +12,9 @@ namespace CastEngine
 
         IWorld& mWorld;
         
-        vec2d mAcc;
-        vec2d mVel;
-        vec2d mPos;
+        vec2d mAcc = vec2d(0.f);
+        vec2d mVel = vec2d(0.f);
+        vec2d mPos = vec2d(0.f);
 
         float mRadius = 0.3f;
 

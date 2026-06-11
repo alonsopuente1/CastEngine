@@ -25,11 +25,13 @@ public:
     GameScene(CastEngine::Game& pGame) : IScene(pGame) {}
     ~GameScene();
 
-    void SpawnEntity(std::unique_ptr<CastEngine::Entity> ptr) override;
+    void SpawnEntity(std::unique_ptr<CastEngine::Entity>&& ptr) override;
     CastEngine::Map& GetMap() override;
 
     bool IsWall(vec2d& pos) override;
     bool IsWall(int x, int y) override;
+
+    void RenderSprite(CastEngine::Texture* tex, vec2d pos) override;
 
     void OnEnter() override;
     void HandleEvents(SDL_Event& e) override;

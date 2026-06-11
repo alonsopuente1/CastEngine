@@ -20,8 +20,6 @@ namespace CastEngine
         
         Window& mWindow;
 
-        std::vector<float> depthBuffer;
-
         void ResetDepthBuffer();
         
     public:
@@ -29,6 +27,7 @@ namespace CastEngine
         Renderer(Window& window);
         ~Renderer();
         
+        std::vector<float> depthBuffer;
         TextureBank texBank;
 
         inline Window& GetWindow() { return mWindow; }

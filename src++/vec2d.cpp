@@ -15,28 +15,8 @@ vec2d& vec2d::operator=(const vec2d& other)
     return *this;
 }
 
-vec2d::vec2d(const vec2d& other)
-{
-*this = other;
-}
-
-vec2d::vec2d(vec2d&& other) : x(other.x), y(other.y)
-{
-    other.x = 0.0f;
-    other.y = 0.0f;
-}    
-
-vec2d& vec2d::operator=(vec2d&& other)
-{
-    x = other.x;
-    y = other.y;
-    other.x = 0.0f;
-    other.y = 0.0f;
-
-    return *this;
-}
 // math operations
-vec2d vec2d::operator+(const vec2d& other)
+vec2d vec2d::operator+(const vec2d& other) const
 {
     return vec2d(x + other.x, y + other.y);
 }    
@@ -47,10 +27,11 @@ vec2d& vec2d::operator+=(const vec2d& other)
     return *this;
 }
 
-vec2d vec2d::operator-(const vec2d& other)
+vec2d vec2d::operator-(const vec2d &b) const
 {
-    return vec2d(x - other.x, y - other.y);
+    return vec2d(x - b.x, y - b.y);
 }
+
 
 vec2d& vec2d::operator-=(const vec2d& other)
 {
@@ -58,7 +39,7 @@ vec2d& vec2d::operator-=(const vec2d& other)
     return *this;
 }
 
-vec2d vec2d::operator*(float mag)
+vec2d vec2d::operator*(float mag) const
 {
     return vec2d(x * mag, y * mag);
 }
@@ -68,7 +49,7 @@ vec2d& vec2d::operator*=(float mag)
     *this = *this * mag;
     return *this;
 }
-vec2d vec2d::operator/(float mag)
+vec2d vec2d::operator/(float mag) const
 {
     return vec2d(x / mag, y / mag);
 }
@@ -78,11 +59,11 @@ vec2d vec2d::operator/=(float mag)
     return *this;
 }
 // equality operations
-bool vec2d::operator==(const vec2d& other)
+bool vec2d::operator==(const vec2d& other) const 
 {
     return x == other.x && y == other.y;
 }
-bool vec2d::operator!=(const vec2d& other)
+bool vec2d::operator!=(const vec2d& other) const 
 {
     return !(*this == other);        
 }
@@ -114,7 +95,7 @@ void vec2d::Rotate(float angle)
 {
     *this = vec2d(x * cosf(angle) - y * sinf(angle), x * sinf(angle) + y * cosf(angle));
 }
-float vec2d::DotProduct(const vec2d& other)
+float vec2d::DotProduct(const vec2d& other) const 
 {
     return x * other.x + y * other.y;
 }
