@@ -31,47 +31,6 @@ bool GameScene::IsWall(int x, int y)
     return mMap[y * mMap.GetWidth() + x] > 0;
 }
 
-void GameScene::RenderSprite(CastEngine::Texture* tex, vec2d from, vec2d dir, vec2d to)
-{
-    vec2d playerToTarget = to - from;
-    dir.Normalise();
-    vec2d plane = dir.GetPerpendicular() * -1.f;
-
-    plane.SetMagnitude(-tanf(mPlayer->GetFOV() / 2.0f));
-
-    float invDet = 1.0f / (plane.x * dir.y - dir.x * plane.y);
-
-    vec2d transform = {
-        invDet * (dir.y * playerToTarget.x - dir.x * playerToTarget.y),
-        invDet * (-plane.y * playerToTarget.x + plane.x * playerToTarget.y)
-    };
-
-    int spriteScreenX = static_cast<int>((mWindow.GetWidth() / 2.f) * (1.f + transform.x / transform.y));
-
-    int spriteHeight = abs(static_cast<int>(mWindow.GetHeight() / transform.y));
-
-    int spriteWidth = (tex->GetWidth() / tex->GetHeight()) * spriteHeight;
-
-    int drawStartX = -spriteWidth / 2.f + spriteScreenX;
-    int drawEndX = spriteWidth / 2.f + spriteScreenX;
-
-    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);
-    for(int i = drawStartX; i < drawEndX; i++)
-    {
-        int texX = static_cast<int>(static_cast<float>(i - drawStartX) / static_cast<float>(drawEndX - drawStartX) * tex->GetWidth());
-
-        SDL_Rect src = {texX, 0, 1, tex->GetHeight()};
-        SDL_Rect dst = {i, -spriteHeight / 2 + mWindow.GetHeight() / 2.f, 1, spriteHeight};
-
-        if(transform.y > 0 && i > 0 && i < mWindow.GetWidth() && transform.y < mRenderer.depthBuffer[i])
-        {
-            mRenderer.depthBuffer[i] = transform.y;
-            SDL_RenderCopy(mWindow.GetRenderer(), tex->GetTexture(), &src, &dst);
-        }
-    }
-    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
-}
-
 vec2d GameScene::GetPlayerPos() const
 {
     return mPlayer->GetPos();
@@ -79,7 +38,7 @@ vec2d GameScene::GetPlayerPos() const
 
 vec2d GameScene::GetPlayerDir() const
 {
-    return vec2d::AngToVec(mPlayer->GetViewAng());
+    return mPlayer->GetDir();
 }
 
 void GameScene::OnEnter()
@@ -125,6 +84,7 @@ void GameScene::OnEnter()
     enemy->SetPos(vec2d(4, 4));
     enemy->SetMaxSpeed(0.005f);
 
+    mRenderer.SetCamera(mCam);
 }
 
 void GameScene::HandleEvents(SDL_Event& e)
@@ -148,6 +108,8 @@ void GameScene::HandleEvents(SDL_Event& e)
 void GameScene::Update(float dtMs)
 {
     mEntManager.UpdateEntities(dtMs);
+
+    mCam.Follow(*mPlayer);
 }
 
 void GameScene::Draw()
@@ -159,9 +121,9 @@ void GameScene::Draw()
     SDL_Color bottColour = {60, 60, 60, 255};
     mRenderer.RenderCeilingAndFloor(topColour, bottColour);
 
-    mRenderer.RenderPlayerView(*mPlayer, mMap);
+    mRenderer.RenderCameraView(mMap);
 
-    mEntManager.DrawEntities();
+    mEntManager.DrawEntities(mRenderer);
 
     mRenderer.Present();
 }

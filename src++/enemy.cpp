@@ -3,6 +3,7 @@
 #include "world.hpp"
 #include "texture.hpp"
 #include "vec2d.hpp"
+#include "renderer.hpp"
 
 #include "logger.hpp"
 
@@ -24,8 +25,8 @@ namespace CastEngine
         ResolveWallCollision(mPos + (mVel * dtMs));
     }
 
-    void Enemy::Draw()
+    void Enemy::Draw(Renderer& render)
     {
-        mWorld.RenderSprite(mTex, mWorld.GetPlayerPos(), mWorld.GetPlayerDir(), mPos);
+        render.RenderSprite(mTex, mPos);
     }
 }

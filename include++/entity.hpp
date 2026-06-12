@@ -5,6 +5,7 @@
 namespace CastEngine
 {
     class IWorld;
+    class Renderer;
     class Entity
     {
 
@@ -26,14 +27,14 @@ namespace CastEngine
         virtual ~Entity() = default;
 
         virtual void Update(float dtMs) = 0;
-        virtual void Draw() = 0;
+        virtual void Draw(Renderer& render) = 0;
         
         inline bool IsAlive() const { return mAlive; }
         inline void Destroy() { mAlive = false; }
 
         virtual void OnCollision(Entity& other) {}
 
-        
+        // resolves wall collision with map in the world
         void ResolveWallCollision(vec2d newPos);
 
         // transform

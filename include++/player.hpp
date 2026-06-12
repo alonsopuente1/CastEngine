@@ -2,6 +2,8 @@
 
 #include "vec2d.hpp"
 #include "entity.hpp"
+#include "camera.hpp"
+
 #include <SDL2/SDL.h>
 
 namespace CastEngine
@@ -11,16 +13,13 @@ namespace CastEngine
     {
 
     private:
-        
-        /// @brief stored in radians
-        float mViewAng;
 
         float mMaxMoveSpeed;
         
-        /// @brief in radians
-        const float mFov = M_PI / 2.f;
-
+        // rotate speed of key presses
         float mRotateSpeed;
+
+        float mViewAngle = 0.0f;
 
         /// @brief stores the state of the player
         struct 
@@ -34,10 +33,6 @@ namespace CastEngine
             bool shooting : 1;
         } State{};
 
-        
-        
-        void Rotate(float ang);
-
     public:
 
         using Entity::Entity;
@@ -45,11 +40,10 @@ namespace CastEngine
         inline void SetRotateSpeed(const float& newSpeed) { mRotateSpeed = newSpeed; }
         inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }
 
-        inline float GetViewAng() const { return mViewAng; }
-        inline const float GetFOV() const { return mFov; }
-
+        inline vec2d GetDir() const { return vec2d::AngToVec(mViewAngle); }
+        
         void HandleKeyInput(const SDL_Event& e);
         void Update(float dtMs) override;
-        void Draw() override;
+        void Draw(Renderer& render) override;
     };
 };

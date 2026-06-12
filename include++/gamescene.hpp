@@ -9,6 +9,7 @@
 #include "world.hpp"
 #include "entitymanager.hpp"
 #include "entity.hpp"
+#include "camera.hpp"
 
 class GameScene : public CastEngine::IScene, public CastEngine::IWorld
 {
@@ -20,6 +21,7 @@ private:
 
     CastEngine::EntityManager mEntManager;
 
+    CastEngine::Camera mCam{};
 public:
 
     GameScene(CastEngine::Game& pGame) : IScene(pGame) {}
@@ -31,7 +33,6 @@ public:
     bool IsWall(vec2d& pos) override;
     bool IsWall(int x, int y) override;
 
-    void RenderSprite(CastEngine::Texture* tex, vec2d from, vec2d dir, vec2d to) override;
     vec2d GetPlayerPos() const override;
     vec2d GetPlayerDir() const override;
 

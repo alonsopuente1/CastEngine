@@ -21,7 +21,7 @@ namespace CastEngine
         /// @brief thinker function to implement simple AI
         void Think();
         void Update(float dtMs) override;
-        void Draw() override;
+        void Draw(Renderer& render) override;
 
         inline void SetTexture(Texture* tex) { mTex = tex; }
 

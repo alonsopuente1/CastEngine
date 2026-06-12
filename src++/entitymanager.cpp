@@ -54,10 +54,10 @@ namespace CastEngine
         
     }
 
-    void EntityManager::DrawEntities()
+    void EntityManager::DrawEntities(Renderer& render)
     {
         for(std::unique_ptr<Entity>& ent : mEntities)
-            ent.get()->Draw();   
+            ent.get()->Draw(render);   
     }
 
     void EntityManager::RemoveIf(std::function<bool(Entity*)> pFunc)

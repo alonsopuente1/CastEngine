@@ -47,7 +47,7 @@ namespace CastEngine
     void Player::Update(float dtMs)
     {
         vec2d newAcc(0.0f);
-        vec2d viewDir(vec2d::AngToVec(mViewAng));
+        vec2d viewDir = vec2d::AngToVec(mViewAngle);
         vec2d oldPos = mPos;
 
         if(State.forward)
@@ -68,11 +68,11 @@ namespace CastEngine
         }
         if(State.lookleft)
         {
-            Rotate(mRotateSpeed * dtMs);
+            mViewAngle += mRotateSpeed * dtMs;
         }
         if(State.lookright)
         {
-            Rotate(mRotateSpeed * dtMs * -1.f);
+            mViewAngle -= mRotateSpeed * dtMs;
         }
         
         // if player not moving apply friction
@@ -95,12 +95,8 @@ namespace CastEngine
         ResolveWallCollision(newPos);
     }
 
-    void Player::Draw()
+    void Player::Draw(Renderer& render)
     {
     }
 
-    void Player::Rotate(float ang) 
-    {
-        mViewAng += ang;
-    }
 }

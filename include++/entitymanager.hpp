@@ -9,6 +9,7 @@ namespace CastEngine
 
     class Entity;
     class Map;
+    class Renderer;
     class EntityManager
     {
 
@@ -37,7 +38,7 @@ namespace CastEngine
         EntityManager() {}
 
         void UpdateEntities(float dtMs);
-        void DrawEntities();
+        void DrawEntities(Renderer& render);
 
         inline Entity* PushEntity(std::unique_ptr<Entity>&& pEntity) { mEntities.push_back(std::move(pEntity)); return mEntities.back().get(); }
 

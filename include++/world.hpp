@@ -47,13 +47,6 @@ namespace CastEngine
         /// @return true if it is a wall, false if not
         virtual bool IsWall(int x, int y) = 0;
 
-        /// @brief renders a texture as a sprite on the screen from the from and dir vectors
-        /// @param tex texture to render as sprite
-        /// @param from position camera is in, in worldspace
-        /// @param dir direction of camera
-        /// @param to position of texture in world space
-        virtual void RenderSprite(Texture* tex, vec2d from, vec2d dir, vec2d to) = 0;
-
         virtual vec2d GetPlayerPos() const = 0;
         virtual vec2d GetPlayerDir() const = 0;
     };

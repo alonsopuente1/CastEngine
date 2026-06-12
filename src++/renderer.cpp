@@ -3,6 +3,7 @@
 #include "window.hpp"
 #include "player.hpp"
 #include "map.hpp"
+#include "camera.hpp"
 
 #include "logger.hpp"
 
@@ -123,15 +124,57 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
     return true;
 }
 
-void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pMap)
+void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target)
 {
-    vec2d playerDir = vec2d::AngToVec(pPlayer.GetViewAng());
+    vec2d camToTarget = target - mCurrentCamera->GetPos();
+    vec2d dir = mCurrentCamera->GetDir().Normalised();
+    vec2d plane = dir.GetPerpendicular();
 
-    vec2d plane = playerDir.GetPerpendicular();
+    plane.SetMagnitude(tanf(mCurrentCamera->GetFOV() / 2.0f));
 
-    const Texture* textures[10] = { 0 };
+    float invDet = 1.0f / (plane.x * dir.y - dir.x * plane.y);
 
-    vec2d ppos = pPlayer.GetPos();
+    vec2d transform = {
+        invDet * (dir.y * camToTarget.x - dir.x * camToTarget.y),
+        invDet * (-plane.y * camToTarget.x + plane.x * camToTarget.y)
+    };
+
+    int spriteScreenX = static_cast<int>((mWindow.GetWidth() / 2.f) * (1.f + transform.x / transform.y));
+
+    int spriteHeight = abs(static_cast<int>(mWindow.GetHeight() / transform.y));
+
+    int spriteWidth = (tex->GetWidth() / tex->GetHeight()) * spriteHeight;
+
+    int drawStartX = -spriteWidth / 2.f + spriteScreenX;
+    int drawEndX = spriteWidth / 2.f + spriteScreenX;
+
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);
+    for(int i = drawStartX; i < drawEndX; i++)
+    {
+        int texX = static_cast<int>(static_cast<float>(i - drawStartX) / static_cast<float>(drawEndX - drawStartX) * tex->GetWidth());
+
+        SDL_Rect src = {texX, 0, 1, tex->GetHeight()};
+        SDL_Rect dst = {i, -spriteHeight / 2 + mWindow.GetHeight() / 2.f, 1, spriteHeight};
+
+        if(transform.y > 0 && i > 0 && i < mWindow.GetWidth() && transform.y < depthBuffer[i])
+        {
+            depthBuffer[i] = transform.y;
+            SDL_RenderCopy(mWindow.GetRenderer(), tex->GetTexture(), &src, &dst);
+        }
+    }
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
+}
+
+void CastEngine::Renderer::RenderCameraView(const Map& pMap)
+{
+    vec2d dir = mCurrentCamera->GetDir();
+
+    vec2d plane = dir.GetPerpendicular();
+    plane.SetMagnitude(tanf(mCurrentCamera->GetFOV() / 2.0f));
+
+    const CastEngine::Texture* textures[10] = { 0 };
+
+    vec2d ppos = mCurrentCamera->GetPos();
 
     for(int i = 0; i < sizeof(textures) / sizeof(textures[0]); i++)
     {
@@ -141,7 +184,7 @@ void CastEngine::Renderer::RenderPlayerView(const Player &pPlayer, const Map &pM
     for(int x = 0; x < mWindow.GetWidth(); x++)
     {
         float cameraX = (float)x / (float)mWindow.GetWidth() * 2.0f - 1.0f;
-        vec2d rayDir = playerDir + (plane * cameraX);
+        vec2d rayDir = dir + (plane * cameraX);
         int mapX = (int)ppos.x;
         int mapY = (int)ppos.y;
 
