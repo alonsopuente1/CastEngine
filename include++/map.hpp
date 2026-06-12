@@ -41,7 +41,7 @@ namespace CastEngine
 
         };
 
-        const int& operator[] (int i) const;
+        int operator[] (int i) const;
 
         bool LoadMap(const std::string& pFilePath, LoadArgs& args);
 

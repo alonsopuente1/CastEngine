@@ -31,7 +31,7 @@ namespace CastEngine
 
             if((int)strlen(sanitised) != mWidth)
             {
-                SetErrorf("Map width doesnt match dimensions set in map file %s\n", mFilePath);
+                SetErrorf("Map width doesnt match dimensions set in map file %s\n", mFilePath.c_str());
                 return false;
             }
 
@@ -39,7 +39,7 @@ namespace CastEngine
             {
                 if(sanitised[x] < '0' || sanitised[x] > '9')
                 {
-                    SetErrorf("Invalid character '%c' in map data at row %d column %d in map file %s\n", currentLine[x], y, x, mFilePath);
+                    SetErrorf("Invalid character '%c' in map data at row %d column %d in map file %s\n", currentLine[x], y, x, mFilePath.c_str());
                     return false;
                 }
                 mMapData[y * mWidth + x] = sanitised[x] - '0';
@@ -50,16 +50,16 @@ namespace CastEngine
 
         if(y != mHeight)
         {
-            SetErrorf("Rows dont match in map at '%s'\n", mFilePath);
+            SetErrorf("Rows dont match in map at '%s'\n", mFilePath.c_str());
             return false;
         }
 
         return true;
     }
 
-    const int& Map::operator[] (int i) const
+    int Map::operator[] (int i) const
     {
-        if(i < 0 || i > mMapData.size() - 1)
+        if(i < 0 || i > static_cast<int>(mMapData.size()) - 1)
             return 0;
 
         return mMapData[i];
@@ -110,13 +110,11 @@ namespace CastEngine
 
             if(firstToken == "mapstart")
             {
-                int y = 0;
-
-                for(y; y < mHeight; y++)
+                for(int y = 0; y < mHeight; y++)
                 {
                     std::getline(file, currentLine);
                     lineNum++;
-                    if(currentLine.length() != mWidth)
+                    if(static_cast<int>(currentLine.length()) != mWidth)
                     {
                         LogMsgf(ERROR, "map width doesnt match set dimensions. in file '%s' on line %i", pFilePath.c_str(), lineNum);
                         return false;

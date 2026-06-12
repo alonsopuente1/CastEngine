@@ -9,19 +9,19 @@
 namespace CastEngine
 {
  
-    Texture::Texture(Window& window) : mWindow(window), mSDLTex(NULL), mName("")
+    Texture::Texture(Window& window) : mSDLTex(NULL), mName(""), mWindow(window)
     {}
 
-    Texture::Texture(Window &window, SDL_Texture *sdlTex) : mWindow(window), mSDLTex(sdlTex), mName("")
+    Texture::Texture(Window &window, SDL_Texture *sdlTex) : mSDLTex(sdlTex), mName(""), mWindow(window)
     {
     }
 
-    Texture::Texture(Window& window, const std::string& file) : mWindow(window), mSDLTex(NULL), mName("")
+    Texture::Texture(Window& window, const std::string& file) : mSDLTex(NULL), mName(""), mWindow(window)
     {
         LoadTexture(file);
     }
 
-    Texture::Texture(const Texture &other) : mWindow(other.mWindow), mSDLTex(NULL) {
+    Texture::Texture(const Texture &other) : mSDLTex(NULL), mWindow(other.mWindow) {
         *this = other;   
     }
 
@@ -61,7 +61,7 @@ namespace CastEngine
         Destroy();
     }
 
-    Texture::Texture(Texture &&other) noexcept : mWindow(other.mWindow), mSDLTex(other.mSDLTex), mName(other.mName)
+    Texture::Texture(Texture &&other) noexcept : mSDLTex(other.mSDLTex), mName(other.mName), mWindow(other.mWindow)
     {
         other.mSDLTex = NULL;
         other.mName = "";
@@ -82,7 +82,7 @@ namespace CastEngine
         return *this;
     }
 
-    Texture::Texture(Window& window, const std::string& name, int width, int height) : mWindow(window), mSDLTex(NULL), mName("")
+    Texture::Texture(Window& window, const std::string& name, int width, int height) : mSDLTex(NULL), mName(""), mWindow(window)
     {
         CreateBlankTexture(name, width, height);
     }

@@ -48,7 +48,6 @@ namespace CastEngine
     {
         vec2d newAcc(0.0f);
         vec2d viewDir = vec2d::AngToVec(mViewAngle);
-        vec2d oldPos = mPos;
 
         if(State.forward)
         {

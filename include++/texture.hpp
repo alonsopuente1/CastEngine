@@ -22,7 +22,7 @@ namespace CastEngine
     {
 
     private:
-        SDL_Texture*    mSDLTex;
+        SDL_Texture*    mSDLTex = nullptr;
         // name of texture. can be used as unique id or not.
         // usually holds the file path from the last image it loaded
         std::string     mName;

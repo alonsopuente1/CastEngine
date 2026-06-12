@@ -110,7 +110,7 @@ namespace CastEngine
             exit(-1);
         }
         
-        if(SDL_RENDERER_TARGETTEXTURE && info.flags == 0)
+        if((SDL_RENDERER_TARGETTEXTURE & info.flags) != SDL_RENDERER_TARGETTEXTURE)
         {
             LogMsg(ERROR, "drivers does not support textures as renderer targets");
             exit(-1);

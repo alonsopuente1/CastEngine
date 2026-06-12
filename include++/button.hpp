@@ -18,13 +18,13 @@ namespace CastEngine
         Window& mParentWindow;
         Renderer& mParentRenderer;
 
-        SDL_Rect mPos;
+        SDL_Rect mPos{};
 
-        SDL_Color mBackgroundColour;
+        SDL_Color mBackgroundColour{};
 
-        Texture* mText;
+        Texture* mText = nullptr;
         
-        std::function<void()> mOnClick;
+        std::function<void()> mOnClick{};
 
     public:
 

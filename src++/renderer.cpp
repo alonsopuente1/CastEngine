@@ -153,8 +153,8 @@ void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target)
     {
         int texX = static_cast<int>(static_cast<float>(i - drawStartX) / static_cast<float>(drawEndX - drawStartX) * tex->GetWidth());
 
-        SDL_Rect src = {texX, 0, 1, tex->GetHeight()};
-        SDL_Rect dst = {i, -spriteHeight / 2 + mWindow.GetHeight() / 2.f, 1, spriteHeight};
+        SDL_Rect src = {texX, 0, 1, static_cast<int>(tex->GetHeight())};
+        SDL_Rect dst = {i, -spriteHeight / 2 + mWindow.GetHeight() / 2, 1, spriteHeight};
 
         if(transform.y > 0 && i > 0 && i < mWindow.GetWidth() && transform.y < depthBuffer[i])
         {
@@ -176,7 +176,8 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
 
     vec2d ppos = mCurrentCamera->GetPos();
 
-    for(int i = 0; i < sizeof(textures) / sizeof(textures[0]); i++)
+    int numTextures = static_cast<int>(sizeof(textures) / sizeof(textures[0]));
+    for(int i = 0; i < numTextures; i++)
     {
         textures[i] = texBank[i];
     }
@@ -249,7 +250,7 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
         if(side == 0)   perpWallDist = (sideDist.x - deltaDist.x);
         else            perpWallDist = (sideDist.y - deltaDist.y);
 
-        if(x < depthBuffer.size() && perpWallDist >= depthBuffer[x])
+        if(x < static_cast<int>(depthBuffer.size()) && perpWallDist >= depthBuffer[x])
             continue;
 
         depthBuffer[x] = perpWallDist;
@@ -275,11 +276,11 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
 
         wallX -= floor(wallX);
 
-        int texX = (int)(wallX * (double)wallTexture->GetWidth());
+        int texX = static_cast<int>(wallX * static_cast<double>(wallTexture->GetWidth()));
         if(side == 0 && rayDir.x > 0) texX = wallTexture->GetWidth() - texX - 1;
         if(side == 1 && rayDir.y < 0) texX = wallTexture->GetWidth() - texX - 1;
 
-        SDL_Rect src = {texX, 0, 1, wallTexture->GetHeight()};
+        SDL_Rect src = {texX, 0, 1, static_cast<int>(wallTexture->GetHeight())};
         SDL_Rect dst = {x, drawStart, 1, lineHeight};
 
         RenderTexture(*wallTexture, src, dst);

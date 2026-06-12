@@ -13,15 +13,15 @@ CastEngine::Button::Button(Window &pWnd, Renderer &pRend) : mParentWindow(pWnd),
 CastEngine::Button::Button(Button &&other) noexcept : 
     mParentWindow(other.mParentWindow),
     mParentRenderer(other.mParentRenderer),
-    mOnClick(other.mOnClick),
-    mBackgroundColour(other.mBackgroundColour),
     mPos(other.mPos),
-    mText(other.mText)
+    mBackgroundColour(other.mBackgroundColour),
+    mText(other.mText),
+    mOnClick(other.mOnClick)
 {
     other.mText = nullptr;
-    other.mPos = { 0 };
+    other.mPos = { 0, 0, 0, 0};
     other.mOnClick = std::function<void()>();
-    other.mBackgroundColour = { 0 };
+    other.mBackgroundColour = { 0, 0, 0, 0 };
 }
 
 CastEngine::Button &CastEngine::Button::operator=(Button &&other) noexcept
@@ -39,8 +39,8 @@ CastEngine::Button &CastEngine::Button::operator=(Button &&other) noexcept
 
     other.mText = nullptr;
     other.mOnClick = std::function<void()>();
-    other.mPos = { 0 };
-    other.mBackgroundColour = { 0 };
+    other.mPos = { 0, 0, 0, 0 };
+    other.mBackgroundColour = { 0, 0, 0, 0 };
 
     return *this;
 }
