@@ -4,12 +4,12 @@
 
 namespace CastEngine
 {
-    Window::Window() : mSDLWindow(NULL), mSDLRenderer(NULL)
+    Window::Window() : mSDLWindow(NULL), mSDLRenderer(NULL), mTitle("")
     {
         
     }
 
-    Window::Window(const std::string& title, int pWidth, int pHeight)
+    Window::Window(const std::string& title, int pWidth, int pHeight) : mTitle(title)
     {
         CreateWindow(title, pWidth, pHeight);
     }
@@ -42,14 +42,14 @@ namespace CastEngine
             return false;
         }
 
-        mSDLRenderer = SDL_CreateRenderer(mSDLWindow, -1, 0);
+        mSDLRenderer = SDL_CreateRenderer(mSDLWindow, -1, SDL_RENDERER_PRESENTVSYNC);
         if(mSDLRenderer == NULL)
         {
             LogMsgf(ERROR, "failed to create renderer. SDL_ERROR: %s", SDL_GetError());
             Destroy();          
             return false;
         }
-
+        mTitle = title;
         return true;
     }
 
@@ -60,18 +60,18 @@ namespace CastEngine
             LogMsg(WARN, "attempting to set unintialised window title");
             return;
         }
-
+        mTitle = newTitle;
         SDL_SetWindowTitle(mSDLWindow, newTitle.c_str());
     }
 
-    const char* Window::GetTitle() const
+    const std::string& Window::GetTitle() const
     {
         if(!IsInitialised())
         {
             LogMsg(WARN, "attempting to get unintialised window title");
             return NULL;
         }
-        return SDL_GetWindowTitle(mSDLWindow);
+        return mTitle;
     }
     
     int Window::GetWidth() const

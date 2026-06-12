@@ -79,6 +79,12 @@ namespace CastEngine
 
     void Game::Update(float dtMs)
     {
+        std::string newTitle = mWindow.GetTitle();
+
+        newTitle += " - " + std::to_string(static_cast<int>(1000 / dtMs)) + "fps";
+        
+        SDL_SetWindowTitle(mWindow.GetWindow(), newTitle.c_str());
+
         CurrentScene()->Update(dtMs);
     }
 
@@ -137,6 +143,7 @@ namespace CastEngine
 
     void Game::Run()
     {
+        // this assumes that user has added scenes before calling this function
         ProcessSceneCommands();
 
         if(!CurrentScene())

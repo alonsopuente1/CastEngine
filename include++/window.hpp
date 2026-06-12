@@ -15,6 +15,7 @@ namespace CastEngine
         SDL_Window* mSDLWindow;
         SDL_Renderer* mSDLRenderer;
 
+        std::string mTitle;
     public:
     
         /// @brief constructor, defaults all internals to NULL
@@ -48,7 +49,7 @@ namespace CastEngine
 
         /// @brief gets the current title of the window
         /// @return title of window
-        const char* GetTitle() const;
+        const std::string& GetTitle() const;
 
         /// @brief gets the current width of the window
         /// @return width of window
