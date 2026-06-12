@@ -11,6 +11,8 @@ GameScene::~GameScene()
     mRenderer.texBank.FreeAll();
 }
 
+// IWorld interface overrides
+
 void GameScene::SpawnEntity(std::unique_ptr<CastEngine::Entity>&& ptr)
 {
     mEntManager.PushEntity(std::move(ptr));
@@ -40,6 +42,8 @@ vec2d GameScene::GetPlayerDir() const
 {
     return mPlayer->GetDir();
 }
+
+// IScene interface overrides
 
 void GameScene::OnEnter()
 {      
@@ -130,6 +134,7 @@ void GameScene::Draw()
 
 void GameScene::OnExit()
 {
+    mRenderer.texBank.FreeAll();
 }
 
 void GameScene::OnPause()
