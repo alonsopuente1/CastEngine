@@ -59,7 +59,7 @@ bool CastEngine::Renderer::RenderCircle(SDL_Point centre, float radius, SDL_Colo
 
     // form vertices for the circle
     
-    const int numPoints = 10;
+    const int numPoints = 20;
     const float angle = (M_PI * 2) / numPoints;
 
     for(int i = 0; i < numPoints; i++)
@@ -84,7 +84,7 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
 {
     // number of triangles to use for the circle
     // more triangles = better definition of circle
-    const int numTriangles = 10;
+    const int numTriangles = 20;
 
     int numVertices = numTriangles * 3;
 
@@ -92,7 +92,7 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
     vertices.resize(static_cast<size_t>(numVertices));
     float triangleAngle = (M_PI * 2) / static_cast<float>(numTriangles);
     
-    for(int i = 0; i < numVertices; i++)
+    for(int i = 0; i < numVertices; i+= 3)
     {
         int j = i / 3;
 
