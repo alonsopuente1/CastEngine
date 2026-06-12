@@ -337,8 +337,8 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
         int y = i / map.GetWidth();
 
         SDL_Rect cellScreenRect = {
-            x * rectWidth + static_cast<int>(minimapTex->GetWidth()) / 2 - static_cast<int>(cam.GetPos().x) * rectWidth,
-            y * rectHeight + static_cast<int>(minimapTex->GetHeight()) / 2 - static_cast<int>(cam.GetPos().y) * rectHeight,
+            x * rectWidth + static_cast<int>(minimapTex->GetWidth()) / 2 - static_cast<int>(cam.GetPos().x * rectWidth),
+            y * rectHeight + static_cast<int>(minimapTex->GetHeight()) / 2 - static_cast<int>(cam.GetPos().y * rectHeight),
             rectWidth,
             rectHeight
         };
