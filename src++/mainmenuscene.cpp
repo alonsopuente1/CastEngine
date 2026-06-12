@@ -88,6 +88,7 @@ void MainMenuScene::Draw()
 
 void MainMenuScene::OnExit()
 {
+    CastEngine::CleanupFonts();
 }
 
 void MainMenuScene::OnPause()

@@ -89,7 +89,7 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
     int numVertices = numTriangles * 3;
 
     std::vector<SDL_Vertex> vertices;
-    vertices.reserve(static_cast<size_t>(numVertices));
+    vertices.resize(static_cast<size_t>(numVertices));
     float triangleAngle = (M_PI * 2) / static_cast<float>(numTriangles);
     
     for(int i = 0; i < numVertices; i++)
@@ -242,7 +242,7 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
             if(mapX < 0 || mapX >= pMap.GetWidth() || mapY < 0 || mapY >= pMap.GetHeight())
                 break;
 
-            if(pMap[mapY * pMap.GetHeight() + mapX] > 0) hit = 1;
+            if(pMap[mapY * pMap.GetWidth() + mapX] > 0) hit = 1;
         }
 
 

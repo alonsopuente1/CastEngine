@@ -26,6 +26,8 @@ void MapSelectScene::OnEnter()
     mBackButton.SetOnClick([this]() {
         this->mParentGame.ChangeScene<MainMenuScene>();
     });
+    
+    CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
 
     // retrieve all map files and create buttons for them
     std::vector<std::string> mapFiles;
@@ -109,6 +111,7 @@ void MapSelectScene::Draw()
 
 void MapSelectScene::OnExit()
 {
+    CastEngine::CleanupFonts();
 }
 
 void MapSelectScene::OnPause()

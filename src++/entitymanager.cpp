@@ -28,7 +28,7 @@ namespace CastEngine
 
     bool EntityManager::CheckCollision(Entity &ent1, Entity &ent2)
     {
-        return ent1.GetRadius() + ent2.GetRadius() < (ent1.GetPos() - ent2.GetPos()).GetMagnitude();
+        return ent1.GetRadius() + ent2.GetRadius() > (ent1.GetPos() - ent2.GetPos()).GetMagnitude();
     }
 
     void EntityManager::UpdateEntities(float dtMs)
