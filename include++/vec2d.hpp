@@ -52,6 +52,7 @@ struct vec2d
 
     float DotProduct(const vec2d& other) const;
 
+    float GetAngle() const;
 
 };
 

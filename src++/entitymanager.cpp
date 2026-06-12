@@ -31,6 +31,11 @@ namespace CastEngine
         return ent1.GetRadius() + ent2.GetRadius() > (ent1.GetPos() - ent2.GetPos()).GetMagnitude();
     }
 
+    const std::vector<std::unique_ptr<Entity>> &EntityManager::GetEntities() const
+    {
+        return mEntities;
+    }
+
     void EntityManager::UpdateEntities(float dtMs)
     {
     

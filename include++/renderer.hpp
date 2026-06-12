@@ -65,7 +65,7 @@ namespace CastEngine
         void RenderGun(const Gun& pGun);
         void RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour);
         
-        void RenderMinimap(const Player& pPlayer, const EntityManager& pEm, const Map& map);
+        void RenderMinimap(const EntityManager& pEm, const Map& map, const Camera& cam);
 
         void UpdateMinimap(const Player& pPlayer, const EntityManager& pEm, const Map& pMap);
         

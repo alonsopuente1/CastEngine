@@ -37,6 +37,7 @@ namespace CastEngine
 
         EntityManager() {}
 
+        const std::vector<std::unique_ptr<Entity>>& GetEntities() const; 
         void UpdateEntities(float dtMs);
         void DrawEntities(Renderer& render);
 

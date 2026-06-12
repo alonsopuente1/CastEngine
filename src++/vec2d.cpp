@@ -99,3 +99,8 @@ float vec2d::DotProduct(const vec2d& other) const
 {
     return x * other.x + y * other.y;
 }
+
+float vec2d::GetAngle() const
+{
+    return atan2f(y, x);
+}

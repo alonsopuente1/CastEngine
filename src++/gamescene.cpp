@@ -129,6 +129,8 @@ void GameScene::Draw()
 
     mEntManager.DrawEntities(mRenderer);
 
+    mRenderer.RenderMinimap(mEntManager, mMap, mCam);
+
     mRenderer.Present();
 }
 

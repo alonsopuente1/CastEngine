@@ -4,6 +4,7 @@
 #include "player.hpp"
 #include "map.hpp"
 #include "camera.hpp"
+#include "entitymanager.hpp"
 
 #include "logger.hpp"
 
@@ -86,10 +87,11 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
     // more triangles = better definition of circle
     const int numTriangles = 20;
 
-    int numVertices = numTriangles * 3;
+    const int numVertices = numTriangles * 3;
 
     std::vector<SDL_Vertex> vertices;
     vertices.resize(static_cast<size_t>(numVertices));
+    
     float triangleAngle = (M_PI * 2) / static_cast<float>(numTriangles);
     
     for(int i = 0; i < numVertices; i+= 3)
@@ -112,7 +114,6 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
 
         finalVertex->position.x = cosf(triangleAngle * (j + 1)) * radius + centre.x;
         finalVertex->position.y = sinf(triangleAngle * (j + 1)) * radius + centre.y;
-        
     }
 
     if(SDL_RenderGeometry(mWindow.GetRenderer(), NULL, vertices.data(), numVertices, NULL, 0) < 0)
@@ -298,6 +299,91 @@ void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colou
     SDL_SetRenderDrawColor(mWindow.GetRenderer(), bottomColour.r, bottomColour.g, bottomColour.b, bottomColour.a);
     SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
 
+}
+
+void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &map, const Camera& cam)
+{
+    Texture* minimapTex = texBank["MINIMAP"];
+
+    if(!minimapTex)
+        minimapTex = texBank.PushTexture(Texture(mWindow, "MINIMAP", 100, 100));
+
+    const auto& entityList = pEm.GetEntities();
+
+    int numMapCells = map.GetHeight() * map.GetWidth();
+
+    int rectWidth = minimapTex->GetWidth() / map.GetWidth();
+    int rectHeight = minimapTex->GetHeight() / map.GetHeight();
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
+
+    // temp cell for drawing walls onto the minimap
+    // it is done this way because you cant render a rotated rect
+    // WITHOUT a texture :(
+    SDL_Texture* cell = SDL_CreateTexture(mWindow.GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1);
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), cell);
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0xff, 0xff);
+    SDL_RenderClear(mWindow.GetRenderer());
+
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
+    for(int i = 0; i < numMapCells; i++)
+    {
+        if(map[i] == 0)
+            continue;
+
+        int x = i % map.GetWidth();
+        int y = i / map.GetWidth();
+
+        SDL_Rect cellScreenRect = {
+            x * rectWidth + static_cast<int>(minimapTex->GetWidth()) / 2 - static_cast<int>(cam.GetPos().x) * rectWidth,
+            y * rectHeight + static_cast<int>(minimapTex->GetHeight()) / 2 - static_cast<int>(cam.GetPos().y) * rectHeight,
+            rectWidth,
+            rectHeight
+        };
+
+        SDL_Point centreRotation = {
+            static_cast<int>(minimapTex->GetWidth()) / 2 - cellScreenRect.x,
+            static_cast<int>(minimapTex->GetHeight()) / 2 - cellScreenRect.y
+        };
+
+        float angle = (cam.GetDir().GetAngle()) * (180.0f / M_PI);
+
+        if(SDL_RenderCopyEx(
+            mWindow.GetRenderer(), 
+            cell, 
+            NULL, 
+            &cellScreenRect, 
+            static_cast<double>(angle), 
+            &centreRotation, 
+            static_cast<SDL_RendererFlip>(0)) < 0)
+        {
+            LogMsg(ERROR, "failed to render map cell onto minimap texture");
+        }
+    }
+   
+    for(const auto& ent : entityList)
+    {
+        vec2d minimapPos;
+        vec2d centreMinimap = vec2d(static_cast<float>(minimapTex->GetWidth()) / 2.f, static_cast<float>(minimapTex->GetHeight()) / 2.f);
+        minimapPos.x = ent->GetPos().x * rectWidth - cam.GetPos().x * rectWidth;
+        minimapPos.y = ent->GetPos().y * rectHeight - cam.GetPos().y * rectHeight;
+
+        minimapPos.Rotate(cam.GetDir().GetAngle());
+        minimapPos += centreMinimap;
+
+        SDL_Point entCircle = {static_cast<int>(minimapPos.x), static_cast<int>(minimapPos.y)};
+
+        RenderFillCircle(entCircle, ent->GetRadius() * rectWidth, {255, 0, 0, 255});
+    }
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), NULL);
+    SDL_DestroyTexture(cell);
+
+    SDL_Rect minimapRect = {0, 0, static_cast<int>(minimapTex->GetWidth()), static_cast<int>(minimapTex->GetHeight())};
+
+    RenderTexture(*minimapTex, minimapRect, minimapRect);
 }
 
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)
