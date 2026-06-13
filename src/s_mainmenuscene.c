@@ -145,7 +145,16 @@ void MMS_HandleEvents(void* scene, maingame_t* game, SDL_Event* event)
             SDL_GetMouseState(&mouseX, &mouseY);
             SDL_Point mousePos = (SDL_Point){mouseX, mouseY};
 
-            if(SDL_PointInRect(&mousePos, &mmScene->backButton.rect))
+            if(SDL_PointInRect(&mousePos, &mmScene->backButton
+        if(mSDLWindow)
+            SDL_DestroyWindow(mSDLWindow);
+
+        if(mSDLRenderer)
+            SDL_DestroyRenderer(mSDLRenderer);
+
+        mSDLWindow = NULL;
+        mSDLRenderer = NULL;
+    .rect))
             {
                 mmScene->state = MAINMENU;
             }

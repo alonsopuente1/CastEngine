@@ -5,12 +5,16 @@
 #include "renderer.hpp"
 #include "logger.hpp"
 
+#include <algorithm>
+
 namespace CastEngine
 {
     bool AnimatedTexture::LoadAnimation(const std::string &animName, const std::string &filePath)
     {
         std::vector<std::string> frameFilePaths;
         GetAllFilesInDir(filePath, frameFilePaths);
+
+        std::sort(frameFilePaths.begin(), frameFilePaths.end());
 
         if(frameFilePaths.empty())
             return false;

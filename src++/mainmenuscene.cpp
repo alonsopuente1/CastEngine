@@ -24,10 +24,13 @@ void MainMenuScene::OnEnter()
     CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
     
     if(!mTex.LoadAnimation("test", "res/textures/guns/dbshotgun/FIREING"))
+    {
         mParentGame.ShutDown();
+        
+    }
     else
     {
-        mTex.SetAnimationTime(2000);
+        mTex.SetAnimationTime(1000);
         mTex.Loop();
     }   
 
