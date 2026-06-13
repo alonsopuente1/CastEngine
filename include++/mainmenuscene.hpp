@@ -5,6 +5,7 @@
 #include "scene.hpp"
 #include "button.hpp"
 #include "game.hpp"
+#include "animatedtexture.hpp"
 
 #include <vector>
 
@@ -15,7 +16,8 @@ public:
     MainMenuScene(CastEngine::Game& pGame) : 
         IScene(pGame), 
         mStartButton(pGame.GetWindow(), pGame.GetRenderer()), 
-        mExitButton(pGame.GetWindow(), pGame.GetRenderer())
+        mExitButton(pGame.GetWindow(), pGame.GetRenderer()),
+        mTex(mRenderer)
         {}
 
     ~MainMenuScene();
@@ -33,5 +35,7 @@ private:
 
     CastEngine::Button mStartButton;
     CastEngine::Button mExitButton;
+
+    CastEngine::AnimatedTexture mTex;
 
 };

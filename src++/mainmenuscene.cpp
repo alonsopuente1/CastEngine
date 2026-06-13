@@ -5,6 +5,7 @@
 #include "texture.hpp"
 #include "util.hpp"
 #include "fonts.hpp"
+#include "animatedtexture.hpp"
 
 #include "mapselectscene.hpp"
 
@@ -22,6 +23,14 @@ void MainMenuScene::OnEnter()
 
     CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
     
+    if(!mTex.LoadAnimation("test", "res/textures/guns/dbshotgun/FIREING"))
+        mParentGame.ShutDown();
+    else
+    {
+        mTex.SetAnimationTime(2000);
+        mTex.Loop();
+    }   
+
     int rectHeight = mParentGame.GetWindow().GetHeight() / 6;
     int rectWidth = mParentGame.GetWindow().GetWidth() / 2;
 
@@ -66,6 +75,7 @@ void MainMenuScene::HandleEvents(SDL_Event& e)
 
 void MainMenuScene::Update(float dtMs)
 {
+    mTex.Update(dtMs);
 }
 
 void MainMenuScene::Draw()
@@ -83,12 +93,22 @@ void MainMenuScene::Draw()
     mStartButton.Draw();
     mExitButton.Draw();
 
+    SDL_Rect src = {
+        0, 0,
+        mTex.GetTexture()->GetWidth(),
+        mTex.GetTexture()->GetHeight()
+    };
+
+
+    mRenderer.RenderTexture(*mTex.GetTexture(), src, src);
+
     mRenderer.Present();
 }
 
 void MainMenuScene::OnExit()
 {
     CastEngine::CleanupFonts();
+    mTex.Destroy();
 }
 
 void MainMenuScene::OnPause()

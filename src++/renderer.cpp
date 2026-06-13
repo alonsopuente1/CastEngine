@@ -317,15 +317,19 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
 
     SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
 
+    SDL_Color black = {0, 0, 0, 255};
+    SDL_Color blue = {0, 0, 255, 255};
+    
+    ClearScreen(black);
+
     // temp cell for drawing walls onto the minimap
     // it is done this way because you cant render a rotated rect
     // WITHOUT a texture :(
     SDL_Texture* cell = SDL_CreateTexture(mWindow.GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1);
 
     SDL_SetRenderTarget(mWindow.GetRenderer(), cell);
-    SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0xff, 0xff);
-    SDL_RenderClear(mWindow.GetRenderer());
 
+    ClearScreen(blue);
 
     SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
     for(int i = 0; i < numMapCells; i++)
@@ -355,14 +359,14 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
             cell, 
             NULL, 
             &cellScreenRect, 
-            static_cast<double>(angle), 
+            0, 
             &centreRotation, 
             static_cast<SDL_RendererFlip>(0)) < 0)
         {
             LogMsg(ERROR, "failed to render map cell onto minimap texture");
         }
     }
-   
+
     for(const auto& ent : entityList)
     {
         vec2d minimapPos;
