@@ -3,11 +3,24 @@
 #include <filesystem>
 #include <cstring>
 
-void GetAllFilesInDir(const std::string& pPath, std::vector<std::string>& oFiles)
+#include "logger.hpp"
+
+bool GetAllFilesInDir(const std::string& pPath, std::vector<std::string>& oFiles)
 {
-    for (const auto& entry : std::filesystem::directory_iterator(pPath))
-        if (entry.is_regular_file())
-            oFiles.push_back(entry.path().string());
+    try
+    {
+        for (const auto& entry : std::filesystem::directory_iterator(pPath))
+            if (entry.is_regular_file())
+                oFiles.push_back(entry.path().string());
+
+        return true;
+    }
+    catch(const std::exception& e)
+    {
+        LogMsgf(ERROR, "failed to get files in directory. exception msg: %s", e.what());
+        return false;
+    }
+    
 }
 
 void fileNameFromPath(const char* path, char* outName, int maxLen)

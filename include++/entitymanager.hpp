@@ -3,6 +3,9 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <utility>
+
+#include "vec2d.hpp"
 
 namespace CastEngine
 {
@@ -42,6 +45,8 @@ namespace CastEngine
         void DrawEntities(Renderer& render);
 
         inline Entity* PushEntity(std::unique_ptr<Entity>&& pEntity) { mEntities.push_back(std::move(pEntity)); return mEntities.back().get(); }
+
+        std::pair<Entity*, float> RayCast(vec2d origin, vec2d dir, float maxDist);
 
         void RemoveIf(std::function<bool(Entity*)> pFunc);
     };

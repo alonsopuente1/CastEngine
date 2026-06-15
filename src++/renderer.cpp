@@ -310,6 +310,8 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
         }
     }
 
+    /* DRAW ENTITIES ONTO MINIMAP */
+
     for(const auto& ent : entityList)
     {
         vec2d minimapPos;
@@ -317,7 +319,7 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
         minimapPos.x = ent->GetPos().x * rectWidth - cam.GetPos().x * rectWidth;
         minimapPos.y = ent->GetPos().y * rectHeight - cam.GetPos().y * rectHeight;
 
-        minimapPos.Rotate(cam.GetDir().GetAngle());
+        // minimapPos.Rotate(cam.GetDir().GetAngle());
         minimapPos += centreMinimap;
 
         SDL_Point entCircle = {static_cast<int>(minimapPos.x), static_cast<int>(minimapPos.y)};
@@ -329,8 +331,9 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
     SDL_DestroyTexture(cell);
 
     SDL_Rect minimapRect = {0, 0, static_cast<int>(minimapTex->GetWidth()), static_cast<int>(minimapTex->GetHeight())};
+    SDL_Rect minimapDst = {mWindow.GetWidth() / 20, mWindow.GetHeight() / 20, mWindow.GetWidth() / 10, mWindow.GetHeight() / 10};
 
-    RenderTexture(*minimapTex, minimapRect, minimapRect);
+    RenderTexture(*minimapTex, minimapRect, minimapDst);
 }
 
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)

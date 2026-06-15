@@ -76,17 +76,18 @@ void GameScene::OnEnter()
         mRenderer.texBank.PushTexture(CastEngine::Texture(mWindow, texturePaths[i]));
     }
 
+    CastEngine::Enemy* enemy = dynamic_cast<CastEngine::Enemy*>(mEntManager.PushEntity(std::make_unique<CastEngine::Enemy>(*this)));
+
+    enemy->SetTexture(mRenderer.texBank[mRenderer.texBank.BankSize() - 1]);
+    enemy->SetPos(vec2d(4, 4));
+    enemy->SetMaxSpeed(0.005f);
+
     mPlayer = dynamic_cast<CastEngine::Player*>(mEntManager.PushEntity(std::make_unique<CastEngine::Player>(*this, mRenderer)));
 
     mPlayer->SetPos(args.startPos);
     mPlayer->SetRotateSpeed(args.rotateSpeed);
     mPlayer->SetMaxSpeed(args.maxSpeed);
 
-    CastEngine::Enemy* enemy = dynamic_cast<CastEngine::Enemy*>(mEntManager.PushEntity(std::make_unique<CastEngine::Enemy>(*this)));
-
-    enemy->SetTexture(mRenderer.texBank[mRenderer.texBank.BankSize() - 1]);
-    enemy->SetPos(vec2d(4, 4));
-    enemy->SetMaxSpeed(0.005f);
 
     mRenderer.SetCamera(mCam);
 }
@@ -107,6 +108,22 @@ void GameScene::HandleEvents(SDL_Event& e)
     if(e.type == SDL_KEYUP || e.type == SDL_KEYDOWN)
         mPlayer->HandleKeyInput(e);
 
+    if(e.type == SDL_MOUSEBUTTONDOWN)
+    {
+        if(mPlayer->TryShoot())
+        {
+            vec2d origin = mPlayer->GetPos();
+            vec2d dir = mPlayer->GetDir();
+
+            CastEngine::Map::RayCastDesc desc;
+            float wallDist = mMap.WallRayCast(origin, dir, desc);
+
+            auto [hitEnt, entDist] = mEntManager.RayCast(origin, dir, wallDist);
+
+            if(hitEnt)
+                LogMsg(DEBUG, "HIT!");
+        }
+    }
 }
 
 void GameScene::Update(float dtMs)

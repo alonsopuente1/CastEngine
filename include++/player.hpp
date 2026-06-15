@@ -38,7 +38,7 @@ namespace CastEngine
 
     public:
 
-        Player(IWorld& world, Renderer& render) : Entity(world), mCurrentGun(render) {}
+        Player(IWorld& world, Renderer& render);
 
         inline void SetRotateSpeed(const float& newSpeed) { mRotateSpeed = newSpeed; }
         inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }

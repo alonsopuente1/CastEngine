@@ -4,7 +4,7 @@
 #include "entity.hpp"
 #include "enemy.hpp"
 
-#include "vec2d.hpp"
+#include <cfloat>
 
 namespace CastEngine
 {
@@ -65,7 +65,45 @@ namespace CastEngine
             ent.get()->Draw(render);   
     }
 
-    void EntityManager::RemoveIf(std::function<bool(Entity*)> pFunc)
+    std::pair<Entity*, float> EntityManager::RayCast(vec2d origin, vec2d dir, float maxDist)
+    {
+        dir.Normalise();
+
+        Entity* best = nullptr;
+        float bestDist = FLT_MAX;
+
+        const float hitRadius = 0.6f;
+
+        for(const std::unique_ptr<Entity>& ent : mEntities)
+        {
+            Entity* rawEnt = ent.get();
+            if(!rawEnt->IsAlive())
+                continue;
+            
+            vec2d toEnt = rawEnt->GetPos() - origin;
+
+            float t = toEnt.DotProduct(dir);
+
+            if(t <= 0.0f)
+                continue;
+
+            vec2d closestPoint = origin + (dir * t);
+            float perpDist = (closestPoint - rawEnt->GetPos()).GetMagnitude();
+
+            if(perpDist <= hitRadius + rawEnt->GetRadius() && t < maxDist && t < bestDist)
+            {
+                bestDist = perpDist;
+                best = rawEnt;
+            }
+        }
+
+        if(best)
+            return {best, bestDist};
+
+        return {nullptr, 0.0f};
+    }
+
+    void EntityManager::RemoveIf(std::function<bool(Entity *)> pFunc)
     {
         for(std::unique_ptr<Entity>& ent : mEntities)
         {

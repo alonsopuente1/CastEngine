@@ -7,6 +7,25 @@
 
 namespace CastEngine
 {
+    Player::Player(IWorld &world, Renderer &render) : Entity(world), mCurrentGun(render)
+    {
+        GunDef shotgun;
+
+        shotgun.animFilePath = "./res/textures/guns/dbshotgun/FIREING";
+        shotgun.animName = "shotgun.firing";
+        shotgun.damage = 50;
+        shotgun.fireRateMs = 1000;
+        shotgun.magSize = 4;
+        shotgun.reserves = 20;
+        shotgun.texScale = 0.7f;
+
+        if(!mCurrentGun.Load(shotgun))
+        {  
+            LogMsg(ERROR, "failed to load shotgun");
+        }
+
+    }
+
     void Player::HandleKeyInput(const SDL_Event &e)
     {
         if(e.type != SDL_KEYDOWN && e.type != SDL_KEYUP)

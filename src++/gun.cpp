@@ -4,6 +4,7 @@
 
 #include "renderer.hpp"
 #include "window.hpp"
+#include "texture.hpp"
 
 namespace CastEngine
 {
@@ -63,12 +64,35 @@ namespace CastEngine
     {
         if(mCooldownMs < mFireRateMs)
             mCooldownMs += dtMs;
+
+        mAnim.Update(dtMs);
     }
 
     void Gun::Draw(Renderer &render)
     {
+        Texture* tex = mAnim.GetTexture();
+        if(!tex || !tex->IsInitialised()) return;
+        
         Window& window = render.GetWindow();
+    
+        int windowW = window.GetWidth();
+        int windowH = window.GetHeight();
 
+        float ratio = static_cast<float>(windowW) / (2.f * tex->GetWidth());
+
+        int dstW = static_cast<int>(tex->GetWidth() * ratio * mTexScale);
+        int dstH = static_cast<int>(tex->GetHeight() * ratio * mTexScale);
+
+        int dstX = static_cast<int>(windowW * 0.5f - dstW * 0.5f);
+        int dstY = static_cast<int>(windowH - dstH);
+
+        SDL_Rect src { 0, 0,
+            static_cast<int>(tex->GetWidth()),
+            static_cast<int>(tex->GetHeight()) };
+        SDL_Rect dst { dstX, dstY, dstW, dstH };
+
+        if(!render.RenderTexture(*tex, src, dst))
+            LogMsg(ERROR, "failed to render gun");
     }
  
     bool Gun::TryShoot()

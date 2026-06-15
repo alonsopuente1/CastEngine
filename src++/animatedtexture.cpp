@@ -12,7 +12,8 @@ namespace CastEngine
     bool AnimatedTexture::LoadAnimation(const std::string &animName, const std::string &filePath)
     {
         std::vector<std::string> frameFilePaths;
-        GetAllFilesInDir(filePath, frameFilePaths);
+        if(!GetAllFilesInDir(filePath, frameFilePaths))
+            return false;
 
         std::sort(frameFilePaths.begin(), frameFilePaths.end());
 
