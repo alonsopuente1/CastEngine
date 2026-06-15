@@ -352,7 +352,7 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
             static_cast<int>(minimapTex->GetHeight()) / 2 - cellScreenRect.y
         };
 
-        float angle = (cam.GetDir().GetAngle()) * (180.0f / M_PI);
+        // float angle = (cam.GetDir().GetAngle()) * (180.0f / M_PI);
 
         if(SDL_RenderCopyEx(
             mWindow.GetRenderer(), 

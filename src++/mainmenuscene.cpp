@@ -98,8 +98,8 @@ void MainMenuScene::Draw()
 
     SDL_Rect src = {
         0, 0,
-        mTex.GetTexture()->GetWidth(),
-        mTex.GetTexture()->GetHeight()
+        static_cast<int>(mTex.GetTexture()->GetWidth()),
+        static_cast<int>(mTex.GetTexture()->GetHeight())
     };
 
 

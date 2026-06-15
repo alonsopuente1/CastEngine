@@ -9,7 +9,7 @@ namespace CastEngine
         
     }
 
-    Window::Window(const std::string& title, int pWidth, int pHeight) : mTitle(title)
+    Window::Window(const std::string& title, int pWidth, int pHeight) : mTitle(title), mSDLWindow(nullptr), mSDLRenderer(nullptr)
     {
         CreateWindow(title, pWidth, pHeight);
     }

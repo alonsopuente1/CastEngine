@@ -40,7 +40,7 @@ namespace CastEngine
         
         if(def.texScale < 0)
         {
-            LogMsgf(ERROR, "invalid texture scale value. expected positive value got: '%i'", def.texScale);
+            LogMsgf(ERROR, "invalid texture scale value. expected positive value got: '%f'", def.texScale);
             return false;
         }
         mTexScale = def.texScale;

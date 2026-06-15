@@ -95,18 +95,21 @@ namespace CastEngine
 
     Game::Game() : mWindow("CastShooter", 1280, 720), mRenderer(mWindow)
     {
+        LogMsg(DEBUG, "hello1");
         InitFonts();
         if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
             LogMsgf(ERROR, "failed to initialise SDL. SDL_ERROR: %s\n", SDL_GetError());
             exit(-1);
         }
+        LogMsg(DEBUG, "hello2");
 
         if(!mWindow.IsInitialised())
         {
             LogMsg(ERROR, "failed to create window in Game constructor\n");
             exit(-1);
         }
+        LogMsg(DEBUG, "hello3");
 
         SDL_RendererInfo info;
 
@@ -145,7 +148,7 @@ namespace CastEngine
     {
         // this assumes that user has added scenes before calling this function
         ProcessSceneCommands();
-
+        
         if(!CurrentScene())
         {
             LogMsg(ERROR, "no scene has been set, have you called 'game.ChangeScene<YourScene>()'?");
@@ -164,9 +167,9 @@ namespace CastEngine
 
             HandleEvents();
             Update(deltaTime);
-
+            
             ProcessSceneCommands();
-
+            
             Draw();
         }
 
