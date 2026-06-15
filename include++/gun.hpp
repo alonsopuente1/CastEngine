@@ -44,7 +44,8 @@ namespace CastEngine
 
         bool Load(GunDef& def);
         void Update(float dtMs);
-
+        void Draw(Renderer& render);
+        
         bool TryShoot();
         void Reload();
 

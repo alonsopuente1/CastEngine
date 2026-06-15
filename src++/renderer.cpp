@@ -187,99 +187,42 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
     {
         float cameraX = (float)x / (float)mWindow.GetWidth() * 2.0f - 1.0f;
         vec2d rayDir = dir + (plane * cameraX);
-        int mapX = (int)ppos.x;
-        int mapY = (int)ppos.y;
+        
+        Map::RayCastDesc desc;
+        int mapVal = pMap.WallRayCast(mCurrentCamera->GetPos(), rayDir, desc);
 
-        vec2d sideDist;
-
-        vec2d deltaDist;
-        deltaDist.x = (rayDir.x == 0) ? FLT_MAX : fabs(1 / rayDir.x);
-        deltaDist.y = (rayDir.y == 0) ? FLT_MAX : fabs(1 / rayDir.y);
-        float perpWallDist;
-
-        int stepX;
-        int stepY;
-
-        int hit = 0;
-        int side;
-
-        if(rayDir.x < 0)
-        {
-            stepX = -1;
-            sideDist.x = (ppos.x - mapX) * deltaDist.x;
-        }
-        else
-        {
-            stepX = 1;
-            sideDist.x = (mapX + 1.0f - ppos.x) * deltaDist.x;
-        }
-
-        if(rayDir.y < 0)
-        {
-            stepY = -1;
-            sideDist.y = (ppos.y - mapY) * deltaDist.y;
-        }
-        else
-        {
-            stepY = 1;
-            sideDist.y = (mapY + 1.0f - ppos.y) * deltaDist.y;
-        }
-
-        while(hit == 0)
-        {
-            if(sideDist.x < sideDist.y)
-            {
-                sideDist.x += deltaDist.x;
-                mapX += stepX;
-                side = 0;
-            }
-
-            else
-            {
-                sideDist.y += deltaDist.y;
-                mapY += stepY;
-                side = 1;
-            }
-            if(mapX < 0 || mapX >= pMap.GetWidth() || mapY < 0 || mapY >= pMap.GetHeight())
-                break;
-
-            if(pMap[mapY * pMap.GetWidth() + mapX] > 0) hit = 1;
-        }
-
-
-
-        if(side == 0)   perpWallDist = (sideDist.x - deltaDist.x);
-        else            perpWallDist = (sideDist.y - deltaDist.y);
-
-        if(x < static_cast<int>(depthBuffer.size()) && perpWallDist >= depthBuffer[x])
+        if(mapVal < 0)
             continue;
 
-        depthBuffer[x] = perpWallDist;
+        if(x < static_cast<int>(depthBuffer.size()) && desc.perpWallDist >= depthBuffer[x])
+            continue;
 
-        int lineHeight = (int)((float)mWindow.GetHeight() / perpWallDist);
+        depthBuffer[x] = desc.perpWallDist;
+
+        int lineHeight = static_cast<int>(static_cast<float>(mWindow.GetHeight()) / desc.perpWallDist);
 
         int drawStart = -lineHeight / 2 + mWindow.GetHeight() / 2;
 
-        int texNum = pMap[mapY * pMap.GetWidth() + mapX] - 1;
+        int texNum = mapVal - 1;
 
         if(texNum < 0)
             continue;
 
         const Texture* wallTexture = textures[texNum];
 
-        double wallX;
+        float wallX;
 
-        if(side == 0)
-            wallX = ppos.y + perpWallDist * rayDir.y;
+        if(desc.side == Map::RayCastDesc::RAY_HIT_VERTICAL)
+            wallX = ppos.y + desc.perpWallDist * rayDir.y;
         else
-            wallX = ppos.x + perpWallDist * rayDir.x;
+            wallX = ppos.x + desc.perpWallDist * rayDir.x;
 
 
-        wallX -= floor(wallX);
+        wallX -= floorf(wallX);
 
-        int texX = static_cast<int>(wallX * static_cast<double>(wallTexture->GetWidth()));
-        if(side == 0 && rayDir.x > 0) texX = wallTexture->GetWidth() - texX - 1;
-        if(side == 1 && rayDir.y < 0) texX = wallTexture->GetWidth() - texX - 1;
+        int texX = static_cast<int>(wallX * static_cast<float>(wallTexture->GetWidth()));
+        if(desc.side == Map::RayCastDesc::RAY_HIT_VERTICAL && rayDir.x > 0) texX = static_cast<int>(wallTexture->GetWidth()) - texX - 1;
+        if(desc.side == Map::RayCastDesc::RAY_HIT_HORIZONTAL && rayDir.y < 0) texX = static_cast<int>(wallTexture->GetWidth()) - texX - 1;
 
         SDL_Rect src = {texX, 0, 1, static_cast<int>(wallTexture->GetHeight())};
         SDL_Rect dst = {x, drawStart, 1, lineHeight};

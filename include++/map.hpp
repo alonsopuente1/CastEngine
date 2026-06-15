@@ -41,12 +41,35 @@ namespace CastEngine
 
         };
 
+        
+        /// @return -1 if index out of bounds
         int operator[] (int i) const;
 
         bool LoadMap(const std::string& pFilePath, LoadArgs& args);
 
         inline int GetWidth() const { return mWidth; }
         inline int GetHeight() const { return mHeight; }
+
+
+        struct RayCastDesc
+        {
+            enum
+            {
+                RAY_HIT_NONE = -1,
+                RAY_HIT_VERTICAL = 0,
+                RAY_HIT_HORIZONTAL = 1
+            } side;
+
+            vec2d pointOfCollision;
+            float perpWallDist;
+        };
+
+        /// @brief performs a raycast from given point and direction
+        /// @param origin origin of ray
+        /// @param dir direction of ray
+        /// @param desc collision description of raycast
+        /// @return the value of the wall that the ray hit. -1 if ray didnt hit any wall
+        int WallRayCast(const vec2d& origin, vec2d dir, RayCastDesc& desc) const;
 
         Map();
 

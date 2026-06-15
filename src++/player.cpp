@@ -50,29 +50,19 @@ namespace CastEngine
         vec2d viewDir = vec2d::AngToVec(mViewAngle);
 
         if(State.forward)
-        {
             newAcc += viewDir;
-        }   
         if(State.backward)
-        {
             newAcc -= viewDir;
-        }
+
         if(State.left)
-        {
             newAcc -= viewDir.GetPerpendicular();
-        }
         if(State.right)
-        {
             newAcc += viewDir.GetPerpendicular();
-        }
+
         if(State.lookleft)
-        {
             mViewAngle += mRotateSpeed * dtMs;
-        }
         if(State.lookright)
-        {
             mViewAngle -= mRotateSpeed * dtMs;
-        }
         
         // if player not moving apply friction
         if(!newAcc.GetMagnitude())
@@ -92,10 +82,13 @@ namespace CastEngine
         vec2d newPos = mPos + (mVel * dtMs);
 
         ResolveWallCollision(newPos);
+
+        mCurrentGun.Update(dtMs);
     }
 
     void Player::Draw(Renderer& render)
     {
+        mCurrentGun.Draw(render);
     }
 
 }

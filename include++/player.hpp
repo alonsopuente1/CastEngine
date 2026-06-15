@@ -3,6 +3,7 @@
 #include "vec2d.hpp"
 #include "entity.hpp"
 #include "camera.hpp"
+#include "gun.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -33,15 +34,20 @@ namespace CastEngine
             bool shooting : 1;
         } State{};
 
+        Gun mCurrentGun;
+
     public:
 
-        using Entity::Entity;
+        Player(IWorld& world, Renderer& render) : Entity(world), mCurrentGun(render) {}
 
         inline void SetRotateSpeed(const float& newSpeed) { mRotateSpeed = newSpeed; }
         inline void SetMaxSpeed(const float& maxSpeed) { mMaxMoveSpeed = maxSpeed; }
 
         inline vec2d GetDir() const { return vec2d::AngToVec(mViewAngle); }
         
+        inline bool TryShoot() { return mCurrentGun.TryShoot(); }
+        
+
         void HandleKeyInput(const SDL_Event& e);
         void Update(float dtMs) override;
         void Draw(Renderer& render) override;

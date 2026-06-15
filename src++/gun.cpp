@@ -2,6 +2,9 @@
 
 #include "logger.hpp"
 
+#include "renderer.hpp"
+#include "window.hpp"
+
 namespace CastEngine
 {
     
@@ -20,7 +23,8 @@ namespace CastEngine
         }
 
         mFireRateMs = def.fireRateMs;
-        
+        mAnim.SetAnimationTime(def.fireRateMs);
+
         if(def.damage < 0)
         {
             LogMsgf(ERROR, "invalid damage value. expected a positive value, got '%i'", def.damage);
@@ -60,11 +64,19 @@ namespace CastEngine
         if(mCooldownMs < mFireRateMs)
             mCooldownMs += dtMs;
     }
+
+    void Gun::Draw(Renderer &render)
+    {
+        Window& window = render.GetWindow();
+
+    }
+ 
     bool Gun::TryShoot()
     {
         if(mAmmo <= 0 || !IsReady())
             return false;
-
+        mCooldownMs = 0;
+        mAnim.PlayOnce();
         mAmmo--;
 
         return true;

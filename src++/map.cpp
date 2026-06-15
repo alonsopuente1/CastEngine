@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cfloat>
 
 #include "vec2d.hpp"
 #include "logger.hpp"
@@ -60,7 +61,7 @@ namespace CastEngine
     int Map::operator[] (int i) const
     {
         if(i < 0 || i > static_cast<int>(mMapData.size()) - 1)
-            return 0;
+            return -1;
 
         return mMapData[i];
     }
@@ -162,7 +163,88 @@ namespace CastEngine
         file.close();
         return true;
     }
-    
+
+    int Map::WallRayCast(const vec2d& origin, vec2d dir, RayCastDesc &desc) const
+    {
+        int mapX = static_cast<int>(origin.x);
+        int mapY = static_cast<int>(origin.y);
+
+        vec2d sideDist;
+        vec2d deltaDist;
+        // dir.Normalise();
+
+        deltaDist.x = (dir.x == 0) ? FLT_MAX : fabs(1.f / dir.x);
+        deltaDist.y = (dir.y == 0) ? FLT_MAX : fabs(1.f / dir.y);
+        
+        int wallVal = 0;
+
+        int stepX = 0;
+        int stepY = 0;
+
+
+        desc.side = RayCastDesc::RAY_HIT_NONE;
+
+        if(dir.x < 0)
+        {
+            stepX = -1;
+            sideDist.x = (origin.x - mapX) * deltaDist.x;
+        }
+        else
+        {
+            stepX = 1;
+            sideDist.x = (mapX + 1.0f - origin.x) * deltaDist.x;
+        }
+
+        if(dir.y < 0)
+        {
+            stepY = -1;
+            sideDist.y = (origin.y - mapY) * deltaDist.y;
+        }
+        else
+        {
+            stepY = 1;
+            sideDist.y = (mapY + 1.0f - origin.y) * deltaDist.y;
+        }
+
+        while(true)
+        {
+            if(sideDist.x < sideDist.y)
+            {
+                sideDist.x += deltaDist.x;
+                mapX += stepX;
+                desc.side = RayCastDesc::RAY_HIT_VERTICAL;
+            }
+            else
+            {
+                sideDist.y += deltaDist.y;
+                mapY += stepY;
+                desc.side = RayCastDesc::RAY_HIT_HORIZONTAL;
+            }
+
+            if(mapX < 0 || mapX >= mWidth || mapY < 0 || mapY >= mHeight)
+                wallVal = -1;
+            else
+                wallVal = (*this)[mapY * mWidth + mapX];
+
+            if(wallVal > 0) 
+            {
+                if(desc.side == RayCastDesc::RAY_HIT_HORIZONTAL)
+                    desc.perpWallDist = sideDist.y - deltaDist.y;
+                else
+                    desc.perpWallDist = sideDist.x - deltaDist.x;
+                return wallVal;
+            }
+            // ray ended up out of bounds of map cells 
+            else if(wallVal < 0)
+            {
+                desc.side = RayCastDesc::RAY_HIT_NONE;
+                desc.pointOfCollision = vec2d(0.f);
+                return -1;
+            }
+        }
+
+        // execution should never reach here
+    }
 
     Map::Map() : mFilePath("")
     {

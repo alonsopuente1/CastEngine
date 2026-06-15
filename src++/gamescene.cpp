@@ -76,7 +76,7 @@ void GameScene::OnEnter()
         mRenderer.texBank.PushTexture(CastEngine::Texture(mWindow, texturePaths[i]));
     }
 
-    mPlayer = dynamic_cast<CastEngine::Player*>(mEntManager.PushEntity(std::make_unique<CastEngine::Player>(*this)));
+    mPlayer = dynamic_cast<CastEngine::Player*>(mEntManager.PushEntity(std::make_unique<CastEngine::Player>(*this, mRenderer)));
 
     mPlayer->SetPos(args.startPos);
     mPlayer->SetRotateSpeed(args.rotateSpeed);
