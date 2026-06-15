@@ -120,6 +120,7 @@ void GameScene::Draw()
 {
     SDL_Color bgColour = {0, 0, 0, 0};
     mRenderer.ClearScreen(bgColour);
+    mRenderer.ResetDepthBuffer();
 
     SDL_Color topColour = {40, 40, 40, 255};
     SDL_Color bottColour = {60, 60, 60, 255};

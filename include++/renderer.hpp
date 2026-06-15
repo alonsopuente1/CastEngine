@@ -25,8 +25,6 @@ namespace CastEngine
 
         const Camera* mCurrentCamera = nullptr;
 
-        void ResetDepthBuffer();
-        
     public:
         
         Renderer(Window& window);
@@ -34,7 +32,8 @@ namespace CastEngine
         
         std::vector<float> depthBuffer;
         TextureBank texBank;
-
+        
+        void ResetDepthBuffer();
         inline void SetCamera(const Camera& cam) { mCurrentCamera = &cam; }
 
         inline Window& GetWindow() { return mWindow; }

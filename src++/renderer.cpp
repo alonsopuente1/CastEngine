@@ -260,7 +260,7 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
 
         int drawStart = -lineHeight / 2 + mWindow.GetHeight() / 2;
 
-        int texNum = pMap[mapY * pMap.GetHeight() + mapX] - 1;
+        int texNum = pMap[mapY * pMap.GetWidth() + mapX] - 1;
 
         if(texNum < 0)
             continue;
@@ -393,7 +393,6 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)
 {
     SDL_Renderer* render = mWindow.GetRenderer();
-    ResetDepthBuffer();
 
     if(SDL_SetRenderDrawColor(render, colour.r, colour.g, colour.b, colour.a) < 0)
     {
