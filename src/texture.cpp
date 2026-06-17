@@ -21,41 +21,6 @@ namespace CastEngine
         LoadTexture(file);
     }
 
-    Texture::Texture(const Texture &other) : mSDLTex(NULL), mWindow(other.mWindow) {
-        *this = other;   
-    }
-
-    Texture &Texture::operator=(const Texture &other)
-    {
-        mWindow = other.mWindow;
-        if(!other.mWindow.IsInitialised())
-        {
-            LogMsg(ERROR, "texture attached to uninitialised window");
-            return *this;
-        }
-        if(!CreateBlankTexture(other.mName, other.GetWidth(), other.GetHeight()))
-        {
-            LogMsg(ERROR, "failed to create blank texture");
-            return *this;
-        }
-
-        if(SDL_SetRenderTarget(mWindow.GetRenderer(), other.GetTexture()) < 0)
-        {
-            LogMsgf(ERROR, "failed to set render target. SDL_ERROR: %s", SDL_GetError());
-            Destroy();    
-            return *this;
-        }
-
-        if(SDL_RenderCopy(mWindow.GetRenderer(), other.mSDLTex, NULL, NULL) < 0)
-        {
-            LogMsgf(ERROR, "failed to copy the texture. SDL_ERROR: %s", SDL_GetError());
-            Destroy();
-            return *this;
-        }    
-
-        return *this;
-    }
-
     Texture::~Texture()
     {
         Destroy();
@@ -171,7 +136,8 @@ namespace CastEngine
         if(IsInitialised())
             Destroy();
 
-        mSDLTex = newTex;        
+        mSDLTex = newTex;     
+        SetTextureName(pName);
 
         return true;
     }

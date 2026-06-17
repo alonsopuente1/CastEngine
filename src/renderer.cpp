@@ -244,14 +244,14 @@ void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colou
 
 }
 
-void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &map, const Camera& cam)
+void CastEngine::Renderer::UpdateMinimap(const EntityManager &entManager, const Map &map)
 {
     Texture* minimapTex = texBank["MINIMAP"];
 
     if(!minimapTex)
         minimapTex = texBank.PushTexture(Texture(mWindow, "MINIMAP", 100, 100));
 
-    const auto& entityList = pEm.GetEntities();
+    const auto& entityList = entManager.GetEntities();
 
     int numMapCells = map.GetHeight() * map.GetWidth();
 
@@ -261,20 +261,10 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
     SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
 
     SDL_Color black = {0, 0, 0, 255};
-    SDL_Color blue = {0, 0, 255, 255};
-    
     ClearScreen(black);
+    
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0xff, 0xff);
 
-    // temp cell for drawing walls onto the minimap
-    // it is done this way because you cant render a rotated rect
-    // WITHOUT a texture :(
-    SDL_Texture* cell = SDL_CreateTexture(mWindow.GetRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1);
-
-    SDL_SetRenderTarget(mWindow.GetRenderer(), cell);
-
-    ClearScreen(blue);
-
-    SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
     for(int i = 0; i < numMapCells; i++)
     {
         if(map[i] == 0)
@@ -284,29 +274,15 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
         int y = i / map.GetWidth();
 
         SDL_Rect cellScreenRect = {
-            x * rectWidth + static_cast<int>(minimapTex->GetWidth()) / 2 - static_cast<int>(cam.GetPos().x * rectWidth),
-            y * rectHeight + static_cast<int>(minimapTex->GetHeight()) / 2 - static_cast<int>(cam.GetPos().y * rectHeight),
+            x * rectWidth,
+            y * rectHeight,
             rectWidth,
             rectHeight
         };
 
-        SDL_Point centreRotation = {
-            static_cast<int>(minimapTex->GetWidth()) / 2 - cellScreenRect.x,
-            static_cast<int>(minimapTex->GetHeight()) / 2 - cellScreenRect.y
-        };
-
-        // float angle = (cam.GetDir().GetAngle()) * (180.0f / M_PI);
-
-        if(SDL_RenderCopyEx(
-            mWindow.GetRenderer(), 
-            cell, 
-            NULL, 
-            &cellScreenRect, 
-            0, 
-            &centreRotation, 
-            static_cast<SDL_RendererFlip>(0)) < 0)
+        if(SDL_RenderFillRect(mWindow.GetRenderer(), &cellScreenRect) < 0)
         {
-            LogMsg(ERROR, "failed to render map cell onto minimap texture");
+            LogMsgf(ERROR, "failed to render map rect onto minimap texture. SDL_ERROR: %s", SDL_GetError());
         }
     }
 
@@ -315,12 +291,9 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
     for(const auto& ent : entityList)
     {
         vec2d minimapPos;
-        vec2d centreMinimap = vec2d(static_cast<float>(minimapTex->GetWidth()) / 2.f, static_cast<float>(minimapTex->GetHeight()) / 2.f);
-        minimapPos.x = ent->GetPos().x * rectWidth - cam.GetPos().x * rectWidth;
-        minimapPos.y = ent->GetPos().y * rectHeight - cam.GetPos().y * rectHeight;
-
-        // minimapPos.Rotate(cam.GetDir().GetAngle());
-        minimapPos += centreMinimap;
+        
+        minimapPos.x = ent->GetPos().x * rectWidth;
+        minimapPos.y = ent->GetPos().y * rectHeight;
 
         SDL_Point entCircle = {static_cast<int>(minimapPos.x), static_cast<int>(minimapPos.y)};
 
@@ -328,10 +301,28 @@ void CastEngine::Renderer::RenderMinimap(const EntityManager &pEm, const Map &ma
     }
 
     SDL_SetRenderTarget(mWindow.GetRenderer(), NULL);
-    SDL_DestroyTexture(cell);
 
-    SDL_Rect minimapRect = {0, 0, static_cast<int>(minimapTex->GetWidth()), static_cast<int>(minimapTex->GetHeight())};
-    SDL_Rect minimapDst = {mWindow.GetWidth() / 20, mWindow.GetHeight() / 20, mWindow.GetWidth() / 10, mWindow.GetHeight() / 10};
+}
+
+void CastEngine::Renderer::RenderMinimap()
+{
+    Texture* minimapTex = texBank["MINIMAP"];
+    if(!minimapTex)
+    {
+        LogMsg(WARN, "failed to fetch the minimap tex");
+        return;
+    }
+
+    SDL_Rect minimapRect = {
+        0, 0, 
+        static_cast<int>(minimapTex->GetWidth()), 
+        static_cast<int>(minimapTex->GetHeight())};
+
+    SDL_Rect minimapDst = {
+        mWindow.GetWidth() / 20, 
+        mWindow.GetHeight() / 20, 
+        mWindow.GetWidth() / 10, 
+        mWindow.GetHeight() / 10};
 
     RenderTexture(*minimapTex, minimapRect, minimapDst);
 }

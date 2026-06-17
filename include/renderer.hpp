@@ -60,13 +60,11 @@ namespace CastEngine
         /// program will seg fault.
         void RenderCameraView(const Map& map);
 
-        void RenderMap(const Player& pPlayer, const Map& pMap);
-        void RenderGun(const Gun& pGun);
         void RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour);
         
-        void RenderMinimap(const EntityManager& pEm, const Map& map, const Camera& cam);
+        void UpdateMinimap(const EntityManager& entManager, const Map& map);
+        void RenderMinimap();
 
-        void UpdateMinimap(const Player& pPlayer, const EntityManager& pEm, const Map& pMap);
         
         void ClearScreen(SDL_Color& colour);
         void Present();

@@ -44,23 +44,17 @@ namespace CastEngine
         /// @param file file path to the image to load
         Texture(Window& window, const std::string& file);
         
-        /// @brief copies the texture including its name
-        /// @param other other texture to copy
-        Texture(const Texture& other);
-
-        // delete copy assignment
-        Texture& operator=(const Texture&);
-
-        // move constructors
-        Texture(Texture&& other) noexcept;
-        Texture& operator=(Texture&& tex) noexcept;
-        
         /// @brief textures have to be attached to a window.
         /// @brief the textures only work for the window attached  
         /// @param window window to attach to
         /// @param name name to give to texture
         /// @param width width of the texture 
         Texture(Window& window, const std::string& name, int width, int height);
+
+        // move constructors
+        Texture(Texture&& other) noexcept;
+        Texture& operator=(Texture&& tex) noexcept;
+        
 
         /// @brief getter method for width
         /// @return width of texture (0 if no texture loaded)

@@ -133,6 +133,8 @@ void GameScene::Update(float dtMs)
         return !ent->IsAlive();
     });
 
+    mRenderer.UpdateMinimap(mEntManager, mMap);
+
     mCam.Follow(*mPlayer);
 }
 
@@ -150,7 +152,7 @@ void GameScene::Draw()
 
     mEntManager.DrawEntities(mRenderer);
 
-    mRenderer.RenderMinimap(mEntManager, mMap, mCam);
+    mRenderer.RenderMinimap();
 
     mRenderer.Present();
 }
