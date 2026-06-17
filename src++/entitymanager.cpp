@@ -4,6 +4,7 @@
 #include "entity.hpp"
 #include "enemy.hpp"
 
+#include <algorithm>
 #include <cfloat>
 
 namespace CastEngine
@@ -105,12 +106,16 @@ namespace CastEngine
 
     void EntityManager::RemoveIf(std::function<bool(Entity *)> pFunc)
     {
-        for(std::unique_ptr<Entity>& ent : mEntities)
-        {
-            if(pFunc(ent.get()))
-            {
+        
+        
 
-            }
-        }
+        mEntities.erase(std::remove_if(
+            mEntities.begin(), mEntities.end(), 
+            std::function<bool(std::unique_ptr<Entity>& ent)>(
+                [](std::unique_ptr<Entity>& ent)
+                {
+                    return !ent->IsAlive();
+                })
+            ), mEntities.end()); //mEntities,
     }
 };

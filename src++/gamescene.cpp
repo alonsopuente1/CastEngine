@@ -116,12 +116,12 @@ void GameScene::HandleEvents(SDL_Event& e)
             vec2d dir = mPlayer->GetDir();
 
             CastEngine::Map::RayCastDesc desc;
-            float wallDist = mMap.WallRayCast(origin, dir, desc);
+            mMap.WallRayCast(origin, dir, desc);
 
-            auto [hitEnt, entDist] = mEntManager.RayCast(origin, dir, wallDist);
+            auto [hitEnt, entDist] = mEntManager.RayCast(origin, dir, desc.perpWallDist);
 
             if(hitEnt)
-                LogMsg(DEBUG, "HIT!");
+                hitEnt->Destroy();
         }
     }
 }
@@ -129,6 +129,9 @@ void GameScene::HandleEvents(SDL_Event& e)
 void GameScene::Update(float dtMs)
 {
     mEntManager.UpdateEntities(dtMs);
+    mEntManager.RemoveIf([](CastEngine::Entity* ent){
+        return !ent->IsAlive();
+    });
 
     mCam.Follow(*mPlayer);
 }

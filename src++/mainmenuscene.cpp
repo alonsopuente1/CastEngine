@@ -23,17 +23,6 @@ void MainMenuScene::OnEnter()
 
     CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
     
-    if(!mTex.LoadAnimation("test", "res/textures/guns/dbshotgun/FIREING"))
-    {
-        mParentGame.ShutDown();
-        
-    }
-    else
-    {
-        mTex.SetAnimationTime(1000);
-        mTex.Loop();
-    }   
-
     int rectHeight = mParentGame.GetWindow().GetHeight() / 6;
     int rectWidth = mParentGame.GetWindow().GetWidth() / 2;
 
@@ -78,7 +67,6 @@ void MainMenuScene::HandleEvents(SDL_Event& e)
 
 void MainMenuScene::Update(float dtMs)
 {
-    mTex.Update(dtMs);
 }
 
 void MainMenuScene::Draw()
@@ -87,23 +75,8 @@ void MainMenuScene::Draw()
     SDL_Colour bgColour = { 50, 50, 50, 255 };
     mRenderer.ClearScreen(bgColour);
 
-    CastEngine::Texture* cacText = mRenderer.texBank[0];
-    if(cacText)
-    {
-        mRenderer.RenderTexture(*cacText, {0, 0, static_cast<int>(cacText->GetWidth()), static_cast<int>(cacText->GetHeight())}, {100, 100, static_cast<int>(cacText->GetWidth()), static_cast<int>(cacText->GetHeight())});
-    }
-
     mStartButton.Draw();
     mExitButton.Draw();
-
-    SDL_Rect src = {
-        0, 0,
-        static_cast<int>(mTex.GetTexture()->GetWidth()),
-        static_cast<int>(mTex.GetTexture()->GetHeight())
-    };
-
-
-    mRenderer.RenderTexture(*mTex.GetTexture(), src, src);
 
     mRenderer.Present();
 }
@@ -111,7 +84,8 @@ void MainMenuScene::Draw()
 void MainMenuScene::OnExit()
 {
     CastEngine::CleanupFonts();
-    mTex.Destroy();
+    mStartButton.Destroy();
+    mExitButton.Destroy();
 }
 
 void MainMenuScene::OnPause()
