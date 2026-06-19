@@ -22,9 +22,3 @@ simply run
 '''
 make -j
 '''
-
-## Screenshots 
-![screenshot of "game"](res/screenshots/game1.png)
-![another screenshot of "game"](res/screenshots/game2.png)
-![screenshot of main menu](res/screenshots/mainmenu.png)
-![screenshot of map selection](res/screenshots/mapselect.png)
