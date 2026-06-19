@@ -6,13 +6,12 @@
 namespace CastEngine
 {
 
-    void HUDElement::Init(Renderer &rend, TTF_Font *font)
+    void HUDElement::Init(TTF_Font *font)
     {
         mFont = font;
-
     }
 
-    void HUDElement::Update(Renderer &rend, const std::string &newValue)
+    void HUDElement::Update(const std::string &newValue)
     {
         if(newValue == mLastValue)
             return;
@@ -21,20 +20,29 @@ namespace CastEngine
 
         if(mTexture)
         {
-            rend.texBank.RemoveByTex(*mTexture);
+            mParentRender.texBank.RemoveByTex(*mTexture);
             mTexture = nullptr;
         }
 
         SDL_Color white{255, 255, 255, 255};
-        mTexture = CreateText(rend, white, mFont, newValue);
+        mTexture = CreateText(mParentRender, white, mFont, newValue);
     }
 
-    void HUDElement::Draw(Renderer &rend, SDL_Rect dst)
+    void HUDElement::Draw(SDL_Rect dst)
     {
-        rend.RenderTexture(*mTexture, 
+        mParentRender.RenderTexture(*mTexture, 
             {0, 0, 
             static_cast<int>(mTexture->GetWidth()), 
             static_cast<int>(mTexture->GetHeight())}, dst);
     }
 
+    void HUDElement::Destroy()
+    {
+        if(mTexture)
+            mParentRender.texBank.RemoveByTex(*mTexture);
+        
+        mTexture = nullptr;
+        mFont = nullptr;
+        mLastValue = "";
+    }
 }

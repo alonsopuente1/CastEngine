@@ -6,6 +6,7 @@
 #include "util.hpp"
 #include "fonts.hpp"
 #include "animatedtexture.hpp"
+#include "logger.hpp"
 
 #include "mapselectscene.hpp"
 
@@ -21,7 +22,12 @@ void MainMenuScene::OnEnter()
     mWindow.SetTitle("Main Menu");
     mRenderer.texBank.PushTexture(CastEngine::Texture(mParentGame.GetWindow(), "res/textures/enemies/cacodemon.png"));
 
-    CastEngine::LoadFont("res/fonts/runescape.ttf", 48);
+    if(!CastEngine::LoadFont("res/fonts/runescape.ttf", 48))
+    {
+        LogMsg(ERROR, "failed to load font");
+        mParentGame.ChangeScene<MainMenuScene>();
+        return;
+    }
     
     int rectHeight = mParentGame.GetWindow().GetHeight() / 6;
     int rectWidth = mParentGame.GetWindow().GetWidth() / 2;
@@ -53,6 +59,8 @@ void MainMenuScene::OnEnter()
     mExitButton.SetOnClick([this]() {
         this->mParentGame.ShutDown();
     });
+
+    mTest.Init(CastEngine::fonts[0]);
 }
 
 void MainMenuScene::HandleEvents(SDL_Event& e)
@@ -67,6 +75,7 @@ void MainMenuScene::HandleEvents(SDL_Event& e)
 
 void MainMenuScene::Update(float dtMs)
 {
+    mTest.Update("Hello, World!");
 }
 
 void MainMenuScene::Draw()
@@ -77,6 +86,8 @@ void MainMenuScene::Draw()
 
     mStartButton.Draw();
     mExitButton.Draw();
+
+    mTest.Draw({0, 0, 100, 100});
 
     mRenderer.Present();
 }

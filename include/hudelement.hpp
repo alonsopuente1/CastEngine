@@ -13,17 +13,20 @@ namespace CastEngine
 
     private:
 
-        std::string mLastValue;
-        Texture* mTexture;
-        TTF_Font* mFont;
+        Renderer& mParentRender;
+        std::string mLastValue = "";
+        Texture* mTexture = nullptr;
+        TTF_Font* mFont = nullptr;
 
     public:
+        HUDElement(Renderer& rend) : mParentRender(rend) {}
+        ~HUDElement() { Destroy(); }
 
-        void Init(Renderer& rend, TTF_Font* font);
-        void Update(Renderer& rend, const std::string& newValue);
-        void Draw(Renderer& rend, SDL_Rect dst);
+        void Init(TTF_Font* font);
+        void Update(const std::string& newValue);
+        void Draw(SDL_Rect dst);
 
-
+        void Destroy();
     };
 
 }

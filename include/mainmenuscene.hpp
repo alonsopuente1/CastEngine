@@ -1,13 +1,9 @@
 #pragma once
 
-#include "renderer.hpp"
-#include "player.hpp"
 #include "scene.hpp"
 #include "button.hpp"
 #include "game.hpp"
-#include "animatedtexture.hpp"
-
-#include <vector>
+#include "hudelement.hpp"
 
 class MainMenuScene : public CastEngine::IScene
 {
@@ -16,7 +12,8 @@ public:
     MainMenuScene(CastEngine::Game& pGame) : 
         IScene(pGame), 
         mStartButton(pGame.GetWindow(), pGame.GetRenderer()), 
-        mExitButton(pGame.GetWindow(), pGame.GetRenderer())
+        mExitButton(pGame.GetWindow(), pGame.GetRenderer()),
+        mTest(pGame.GetRenderer())
         {}
 
     ~MainMenuScene();
@@ -35,5 +32,6 @@ private:
     CastEngine::Button mStartButton;
     CastEngine::Button mExitButton;
 
+    CastEngine::HUDElement mTest;
 
 };
