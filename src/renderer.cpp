@@ -5,8 +5,7 @@
 #include "castengine/camera.hpp"
 #include "castengine/entitymanager.hpp"
 #include "castengine/logger.hpp"
-
-#include "player.hpp"
+#include "castengine/entity.hpp"
 
 #include <cfloat>
 
