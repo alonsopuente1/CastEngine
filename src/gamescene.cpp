@@ -2,9 +2,10 @@
 
 #include "mainmenuscene.hpp"
 #include "enemy.hpp"
-#include "game.hpp"
-#include "logger.hpp"
-#include "fonts.hpp"
+
+#include "castengine/game.hpp"
+#include "castengine/logger.hpp"
+#include "castengine/fonts.hpp"
 
 GameScene::~GameScene()
 {
@@ -77,13 +78,13 @@ void GameScene::OnEnter()
         mRenderer.texBank.PushTexture(CastEngine::Texture(mWindow, texturePaths[i]));
     }
 
-    CastEngine::Enemy* enemy = dynamic_cast<CastEngine::Enemy*>(mEntManager.PushEntity(std::make_unique<CastEngine::Enemy>(*this)));
+    Enemy* enemy = dynamic_cast<Enemy*>(mEntManager.PushEntity(std::make_unique<Enemy>(*this)));
 
     enemy->SetTexture(mRenderer.texBank[mRenderer.texBank.BankSize() - 1]);
     enemy->SetPos(vec2d(4, 4));
     enemy->SetMaxSpeed(0.005f);
 
-    mPlayer = dynamic_cast<CastEngine::Player*>(mEntManager.PushEntity(std::make_unique<CastEngine::Player>(*this, mRenderer)));
+    mPlayer = dynamic_cast<Player*>(mEntManager.PushEntity(std::make_unique<Player>(*this, mRenderer)));
 
     mPlayer->SetPos(args.startPos);
     mPlayer->SetRotateSpeed(args.rotateSpeed);
@@ -139,7 +140,8 @@ void GameScene::Update(float dtMs)
     mRenderer.UpdateMinimap(mEntManager, mMap);
     mHud.Update(*mPlayer);
 
-    mCam.Follow(*mPlayer);
+    mCam.SetDir(mPlayer->GetDir());
+    mCam.SetPos(mPlayer->GetPos());
 }
 
 void GameScene::Draw()

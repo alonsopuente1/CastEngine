@@ -1,9 +1,9 @@
-#include "util.hpp"
+#include "castengine/util.hpp"
 
 #include <filesystem>
 #include <cstring>
 
-#include "logger.hpp"
+#include "castengine/logger.hpp"
 
 bool GetAllFilesInDir(const std::string& pPath, std::vector<std::string>& oFiles)
 {

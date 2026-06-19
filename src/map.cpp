@@ -1,12 +1,12 @@
-#include "map.hpp"
+#include "castengine/map.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <cfloat>
 
-#include "vec2d.hpp"
-#include "logger.hpp"
+#include "castengine/vec2d.hpp"
+#include "castengine/logger.hpp"
 
 namespace CastEngine
 {

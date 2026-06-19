@@ -1,68 +1,63 @@
 #pragma once
 
-#include "animatedtexture.hpp"
+#include "castengine/animatedtexture.hpp"
 
-namespace CastEngine
+
+struct GunDef
 {
 
-    struct GunDef
-    {
+    std::string animFilePath; // file path to folder containing
+                                // gun shooting frames
+    std::string animName;
 
-        std::string animFilePath; // file path to folder containing
-                                    // gun shooting frames
-        std::string animName;
+    int fireRateMs;
+    float texScale;     // value to scale gun textures by
+    int damage;
 
-        int fireRateMs;
-        float texScale;     // value to scale gun textures by
-        int damage;
-
-        int magSize;
-        int reserves;
-
-        std::string name;
-
-    };
-
-    class Gun
-    {
+    int magSize;
+    int reserves;
     
-    private:
+    std::string name;
 
-        int mAmmo;       // amount of bullets currently in magazine
-        int mReserves;   // amount of bullets left over
-        int mMagSize;    // max size of magazine
+};
 
-        int mCooldownMs; // time since gun last been shot
-        int mFireRateMs; // time before gun can shoot again
+class Gun
+{
+    
+private:
 
-        int mDamage;
-        float mTexScale;
+    int mAmmo;       // amount of bullets currently in magazine
+    int mReserves;   // amount of bullets left over
+    int mMagSize;    // max size of magazine
 
-        AnimatedTexture mAnim;
+    int mCooldownMs; // time since gun last been shot
+    int mFireRateMs; // time before gun can shoot again
 
-        std::string mName;
-    public:
+    int mDamage;
+    float mTexScale;
 
-        Gun(Renderer& rend) : mAnim(rend) {}
-        ~Gun() { mAnim.Destroy(); }
+    CastEngine::AnimatedTexture mAnim;
+    
+    std::string mName;
 
-        bool Load(GunDef& def);
-        void Update(float dtMs);
-        void Draw(Renderer& render);
+public:
+
+    Gun(CastEngine::Renderer& rend) : mAnim(rend) {}
+    ~Gun() { mAnim.Destroy(); }
+
+    bool Load(GunDef& def);
+    void Update(float dtMs);
+    void Draw(CastEngine::Renderer& render);
         
-        bool TryShoot();
-        void Reload();
+    bool TryShoot();
+    void Reload();
 
-        inline bool IsReady() { return mCooldownMs >= mFireRateMs; }
+    inline bool IsReady() { return mCooldownMs >= mFireRateMs; }
 
-        inline int GetDamage() { return mDamage; }
+    inline int GetDamage() { return mDamage; }
 
-        inline int GetAmmo() const { return mAmmo; }
-        inline int GetMagSize() const { return mMagSize; }
-        inline int GetReserves() const { return mReserves; }
-        inline const std::string& GetName() const { return mName; }
-    };
-
-    
-
+    inline int GetAmmo() const { return mAmmo; }
+    inline int GetMagSize() const { return mMagSize; }
+    inline int GetReserves() const { return mReserves; }
+    inline const std::string& GetName() const { return mName; }
 };

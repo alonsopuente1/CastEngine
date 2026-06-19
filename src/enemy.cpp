@@ -1,32 +1,28 @@
 #include "enemy.hpp"
 
-#include "world.hpp"
-#include "texture.hpp"
-#include "vec2d.hpp"
-#include "renderer.hpp"
+#include "castengine/world.hpp"
+#include "castengine/texture.hpp"
+#include "castengine/vec2d.hpp"
+#include "castengine/renderer.hpp"
+#include "castengine/logger.hpp"
 
-#include "logger.hpp"
-
-namespace CastEngine
+void Enemy::Think()
 {
-    void Enemy::Think()
-    {
-        mAcc = vec2d(-0.0005f, 0.0f);
-    }
+    mAcc = vec2d(-0.0005f, 0.0f);
+}
 
-    void Enemy::Update(float dtMs)
-    {
-        Think();
+void Enemy::Update(float dtMs)
+{
+    Think();
 
-        mVel += mAcc * dtMs;
-        if(mVel.GetMagnitude() > mMaxSpeed)
-            mVel.SetMagnitude(mMaxSpeed);
+    mVel += mAcc * dtMs;
+    if(mVel.GetMagnitude() > mMaxSpeed)
+        mVel.SetMagnitude(mMaxSpeed);
 
-        ResolveWallCollision(mPos + (mVel * dtMs));
-    }
+    ResolveWallCollision(mPos + (mVel * dtMs));
+}
 
-    void Enemy::Draw(Renderer& render)
-    {
-        render.RenderSprite(mTex, mPos);
-    }
+void Enemy::Draw(CastEngine::Renderer& render)
+{
+    render.RenderSprite(mTex, mPos);
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "window.hpp"
-#include "renderer.hpp"
+#include "castengine/window.hpp"
+#include "castengine/renderer.hpp"
 
 #include <vector>
 #include <queue>

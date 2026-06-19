@@ -5,7 +5,7 @@
 #include <functional>
 #include <utility>
 
-#include "vec2d.hpp"
+#include "castengine/vec2d.hpp"
 
 namespace CastEngine
 {

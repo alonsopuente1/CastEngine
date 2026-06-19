@@ -1,10 +1,9 @@
-#include "texture.hpp"
+#include "castengine/texture.hpp"
 
 #include <SDL2/SDL_image.h>
 
-#include "logger.hpp"
-
-#include "window.hpp"
+#include "castengine/logger.hpp"
+#include "castengine/window.hpp"
 
 namespace CastEngine
 {

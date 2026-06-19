@@ -1,8 +1,7 @@
-#include "entitymanager.hpp"
+#include "castengine/entitymanager.hpp"
 
-#include "map.hpp"
-#include "entity.hpp"
-#include "enemy.hpp"
+#include "castengine/map.hpp"
+#include "castengine/entity.hpp"
 
 #include <algorithm>
 #include <cfloat>
@@ -106,9 +105,6 @@ namespace CastEngine
 
     void EntityManager::RemoveIf(std::function<bool(Entity *)> pFunc)
     {
-        
-        
-
         mEntities.erase(std::remove_if(
             mEntities.begin(), mEntities.end(), 
             std::function<bool(std::unique_ptr<Entity>& ent)>(

@@ -1,7 +1,7 @@
-#include "hudelement.hpp"
+#include "castengine/hudelement.hpp"
 
-#include "fonts.hpp"
-#include "renderer.hpp"
+#include "castengine/fonts.hpp"
+#include "castengine/renderer.hpp"
 
 namespace CastEngine
 {

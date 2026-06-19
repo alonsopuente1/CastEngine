@@ -1,12 +1,12 @@
-#include "renderer.hpp"
+#include "castengine/renderer.hpp"
 
-#include "window.hpp"
+#include "castengine/window.hpp"
+#include "castengine/map.hpp"
+#include "castengine/camera.hpp"
+#include "castengine/entitymanager.hpp"
+#include "castengine/logger.hpp"
+
 #include "player.hpp"
-#include "map.hpp"
-#include "camera.hpp"
-#include "entitymanager.hpp"
-
-#include "logger.hpp"
 
 #include <cfloat>
 

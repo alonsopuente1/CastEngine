@@ -1,14 +1,11 @@
-#include "game.hpp"
+#include "castengine/game.hpp"
 
-#include "logger.hpp"
-#include "window.hpp"
-#include "scene.hpp"
-#include "fonts.hpp"
+#include "castengine/logger.hpp"
+#include "castengine/window.hpp"
+#include "castengine/scene.hpp"
+#include "castengine/fonts.hpp"
 
 #include <SDL2/SDL.h>
-
-#include "mainmenuscene.hpp"
-#include "mapselectscene.hpp"
 
 namespace CastEngine
 {

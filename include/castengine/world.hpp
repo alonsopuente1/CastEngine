@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "vec2d.hpp"
+#include "castengine/vec2d.hpp"
 
 /* world.hpp
 

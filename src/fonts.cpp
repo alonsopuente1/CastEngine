@@ -1,9 +1,9 @@
-#include "fonts.hpp"
+#include "castengine/fonts.hpp"
 
-#include "logger.hpp"
-#include "texture.hpp"
-#include "renderer.hpp"
-#include "window.hpp"
+#include "castengine/logger.hpp"
+#include "castengine/texture.hpp"
+#include "castengine/renderer.hpp"
+#include "castengine/window.hpp"
 
 std::string fontPaths[64] = { "res/fonts/runescape.ttf" };
 

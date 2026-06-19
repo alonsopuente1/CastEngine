@@ -1,9 +1,9 @@
-#include "animatedtexture.hpp"
+#include "castengine/animatedtexture.hpp"
 
-#include "texture.hpp"
-#include "util.hpp"
-#include "renderer.hpp"
-#include "logger.hpp"
+#include "castengine/texture.hpp"
+#include "castengine/renderer.hpp"
+#include "castengine/util.hpp"
+#include "castengine/logger.hpp"
 
 #include <algorithm>
 

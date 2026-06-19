@@ -1,12 +1,12 @@
 #include "mainmenuscene.hpp"
 
-#include "window.hpp"
-#include "game.hpp"
-#include "texture.hpp"
-#include "util.hpp"
-#include "fonts.hpp"
-#include "animatedtexture.hpp"
-#include "logger.hpp"
+#include "castengine/window.hpp"
+#include "castengine/game.hpp"
+#include "castengine/texture.hpp"
+#include "castengine/util.hpp"
+#include "castengine/fonts.hpp"
+#include "castengine/animatedtexture.hpp"
+#include "castengine/logger.hpp"
 
 #include "mapselectscene.hpp"
 

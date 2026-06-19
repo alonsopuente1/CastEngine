@@ -1,9 +1,8 @@
 #pragma once
 
-#include "scene.hpp"
-#include "button.hpp"
-#include "game.hpp"
-#include "hudelement.hpp"
+#include "castengine/scene.hpp"
+#include "castengine/button.hpp"
+#include "castengine/game.hpp"
 
 class MainMenuScene : public CastEngine::IScene
 {

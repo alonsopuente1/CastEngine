@@ -1,7 +1,8 @@
-#include "scene.hpp"
+#pragma once
 
-#include "button.hpp"
-#include "game.hpp"
+#include "castengine/scene.hpp"
+#include "castengine/button.hpp"
+#include "castengine/game.hpp"
 
 class MapSelectScene : public CastEngine::IScene
 {

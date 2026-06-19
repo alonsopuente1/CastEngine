@@ -1,6 +1,6 @@
-#include "texturebank.hpp"
+#include "castengine/texturebank.hpp"
 
-#include "logger.hpp"
+#include "castengine/logger.hpp"
 
 namespace CastEngine
 {

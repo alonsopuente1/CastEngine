@@ -1,10 +1,9 @@
 #pragma once
 
-#include "vec2d.hpp"
+#include "castengine/vec2d.hpp"
 
 namespace CastEngine
 {
-    class Player;
     class Camera
     {
     
@@ -18,8 +17,6 @@ namespace CastEngine
     public:
 
         Camera() = default;
-
-        void Follow(Player& player);
 
         inline void SetDir(const vec2d& vec) { mDir = vec; }
         inline vec2d GetDir() const { return mDir; }

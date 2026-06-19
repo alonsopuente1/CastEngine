@@ -1,8 +1,7 @@
 #pragma once
 
-#include "texturebank.hpp"
-
-#include "vec2d.hpp"
+#include "castengine/texturebank.hpp"
+#include "castengine/vec2d.hpp"
 
 namespace CastEngine
 {

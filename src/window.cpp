@@ -1,6 +1,6 @@
-#include "window.hpp"
+#include "castengine/window.hpp"
 
-#include "logger.hpp"
+#include "castengine/logger.hpp"
 
 namespace CastEngine
 {

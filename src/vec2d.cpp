@@ -1,5 +1,5 @@
 
-#include "vec2d.hpp"
+#include "castengine/vec2d.hpp"
 
 vec2d::vec2d() : x(0.0f), y(0.0f) {}
 vec2d::vec2d(float a) : x(a), y(a) {}

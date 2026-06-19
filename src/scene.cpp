@@ -1,5 +1,5 @@
-#include "scene.hpp"
+#include "castengine/scene.hpp"
 
-#include "game.hpp"
+#include "castengine/game.hpp"
 
 CastEngine::IScene::IScene(Game &pGame)  : mParentGame(pGame), mRenderer(pGame.GetRenderer()), mWindow(pGame.GetWindow()) {}

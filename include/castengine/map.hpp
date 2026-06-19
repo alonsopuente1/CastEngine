@@ -4,7 +4,7 @@
 #include <vector>
 #include <fstream>
 
-#include "vec2d.hpp"
+#include "castengine/vec2d.hpp"
 
 namespace CastEngine
 {

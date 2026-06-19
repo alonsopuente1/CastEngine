@@ -1,6 +1,6 @@
-#include "entity.hpp"
+#include "castengine/entity.hpp"
 
-#include "world.hpp"
+#include "castengine/world.hpp"
 
 void CastEngine::Entity::ResolveWallCollision(vec2d newPos)
 {

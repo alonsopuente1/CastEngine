@@ -1,17 +1,17 @@
 #pragma once
 
-#include "scene.hpp"
-#include "renderer.hpp"
-#include "window.hpp"
+#include "castengine/map.hpp"
+#include "castengine/world.hpp"
+#include "castengine/entitymanager.hpp"
+#include "castengine/entity.hpp"
+#include "castengine/camera.hpp"
+#include "castengine/game.hpp"
+#include "castengine/scene.hpp"
+#include "castengine/renderer.hpp"
+#include "castengine/window.hpp"
 
-#include "map.hpp"
-#include "player.hpp"
-#include "world.hpp"
-#include "entitymanager.hpp"
-#include "entity.hpp"
-#include "camera.hpp"
 #include "hud.hpp"
-#include "game.hpp"
+#include "player.hpp"
 
 class GameScene : public CastEngine::IScene, public CastEngine::IWorld
 {
@@ -19,13 +19,13 @@ class GameScene : public CastEngine::IScene, public CastEngine::IWorld
 private:
 
     CastEngine::Map mMap;
-    CastEngine::Player* mPlayer;
+    Player* mPlayer;
 
     CastEngine::EntityManager mEntManager;
 
     CastEngine::Camera mCam{};
 
-    CastEngine::HUD mHud;
+    HUD mHud;
     
 public:
 

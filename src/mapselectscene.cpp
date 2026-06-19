@@ -2,11 +2,10 @@
 
 #include "mainmenuscene.hpp"
 #include "gamescene.hpp"
-#include "util.hpp"
-#include "fonts.hpp"
 
-#include "logger.hpp"
-#include "util.hpp"
+#include "castengine/util.hpp"
+#include "castengine/fonts.hpp"
+#include "castengine/logger.hpp"
 
 MapSelectScene::~MapSelectScene()
 {
