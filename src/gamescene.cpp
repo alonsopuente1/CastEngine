@@ -4,6 +4,7 @@
 #include "enemy.hpp"
 #include "game.hpp"
 #include "logger.hpp"
+#include "fonts.hpp"
 
 GameScene::~GameScene()
 {
@@ -88,8 +89,10 @@ void GameScene::OnEnter()
     mPlayer->SetRotateSpeed(args.rotateSpeed);
     mPlayer->SetMaxSpeed(args.maxSpeed);
 
-
     mRenderer.SetCamera(mCam);
+
+    CastEngine::LoadFont("res/fonts/runescape.ttf");
+    mHud.Init(CastEngine::fonts[0]);
 }
 
 void GameScene::HandleEvents(SDL_Event& e)
@@ -134,6 +137,7 @@ void GameScene::Update(float dtMs)
     });
 
     mRenderer.UpdateMinimap(mEntManager, mMap);
+    mHud.Update(*mPlayer);
 
     mCam.Follow(*mPlayer);
 }
@@ -154,12 +158,15 @@ void GameScene::Draw()
 
     mRenderer.RenderMinimap();
 
+    mHud.Draw();
+
     mRenderer.Present();
 }
 
 void GameScene::OnExit()
 {
     mRenderer.texBank.FreeAll();
+    CastEngine::CleanupFonts();
 }
 
 void GameScene::OnPause()

@@ -10,6 +10,8 @@
 #include "entitymanager.hpp"
 #include "entity.hpp"
 #include "camera.hpp"
+#include "hud.hpp"
+#include "game.hpp"
 
 class GameScene : public CastEngine::IScene, public CastEngine::IWorld
 {
@@ -22,9 +24,15 @@ private:
     CastEngine::EntityManager mEntManager;
 
     CastEngine::Camera mCam{};
+
+    CastEngine::HUD mHud;
 public:
 
-    GameScene(CastEngine::Game& pGame) : IScene(pGame) {}
+    GameScene(CastEngine::Game& pGame) : 
+        IScene(pGame), 
+        mHud(pGame.GetRenderer()) 
+        {}
+    
     ~GameScene();
 
     void SpawnEntity(std::unique_ptr<CastEngine::Entity>&& ptr) override;
