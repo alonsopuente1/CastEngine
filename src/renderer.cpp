@@ -1,0 +1,354 @@
+#include "castengine/renderer.hpp"
+
+#include "castengine/window.hpp"
+#include "castengine/map.hpp"
+#include "castengine/camera.hpp"
+#include "castengine/entitymanager.hpp"
+#include "castengine/logger.hpp"
+
+#include "player.hpp"
+
+#include <cfloat>
+
+void CastEngine::Renderer::ResetDepthBuffer()
+{
+    depthBuffer.resize(mWindow.GetWidth());
+    for(float& f : depthBuffer)
+    {
+        f = FLT_MAX;
+    }
+}
+
+CastEngine::Renderer::Renderer(Window &window) : mWindow(window)
+{
+    if(!mWindow.IsInitialised())
+    {
+        LogMsg(ERROR, "passed uninitialised window to Renderer constructor\n");
+        exit(-1);
+    }
+    ResetDepthBuffer();
+}
+
+CastEngine::Renderer::~Renderer()
+{
+    Destroy();
+}
+
+bool CastEngine::Renderer::operator==(const Renderer &other)
+{
+    return mWindow == other.mWindow;
+}
+
+bool CastEngine::Renderer::operator!=(const Renderer &other)
+{
+    return !(*this == other);
+}
+
+bool CastEngine::Renderer::RenderTexture(const Texture &tex, SDL_Rect src, SDL_Rect dst)
+{
+    if(SDL_RenderCopy(mWindow.GetRenderer(), tex.GetTexture(), &src, &dst) < 0)
+    {
+        LogMsgf(ERROR, "failed to render texture. SDL_ERROR: %s", SDL_GetError());
+        return false;
+    }    
+    return true;
+}
+
+bool CastEngine::Renderer::RenderCircle(SDL_Point centre, float radius, SDL_Color pColour)
+{
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), pColour.r, pColour.g, pColour.b, pColour.a);
+
+    // form vertices for the circle
+    
+    const int numPoints = 20;
+    const float angle = (M_PI * 2) / numPoints;
+
+    for(int i = 0; i < numPoints; i++)
+    {
+        int x1 = cosf(angle * i) * radius + centre.x; 
+        int y1 = sinf(angle * i) * radius + centre.y;
+
+        int x2 = cosf(angle * (i + 1)) * radius + centre.x;
+        int y2 = sinf(angle * (i + 1)) * radius + centre.y;
+
+        if(SDL_RenderDrawLine(mWindow.GetRenderer(), x1, y1, x2, y2) < 0)
+        {
+            LogMsgf(ERROR, "failed to render line for cirlce. SDL_ERROR: %s", SDL_GetError());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_Color pColour)
+{
+    // number of triangles to use for the circle
+    // more triangles = better definition of circle
+    const int numTriangles = 20;
+
+    const int numVertices = numTriangles * 3;
+
+    std::vector<SDL_Vertex> vertices;
+    vertices.resize(static_cast<size_t>(numVertices));
+    
+    float triangleAngle = (M_PI * 2) / static_cast<float>(numTriangles);
+    
+    for(int i = 0; i < numVertices; i+= 3)
+    {
+        int j = i / 3;
+
+        SDL_Vertex* centreVertex = &vertices[i];
+        SDL_Vertex* currentVertex = &vertices[i + 1];
+        SDL_Vertex* finalVertex = &vertices[i + 2];
+
+        centreVertex->color = pColour;
+        currentVertex->color = pColour;
+        finalVertex->color = pColour;
+
+        centreVertex->position.x = centre.x;
+        centreVertex->position.y = centre.y; 
+
+        currentVertex->position.x = cosf(triangleAngle * j) * radius + centre.x;
+        currentVertex->position.y = sinf(triangleAngle * j) * radius + centre.y;
+
+        finalVertex->position.x = cosf(triangleAngle * (j + 1)) * radius + centre.x;
+        finalVertex->position.y = sinf(triangleAngle * (j + 1)) * radius + centre.y;
+    }
+
+    if(SDL_RenderGeometry(mWindow.GetRenderer(), NULL, vertices.data(), numVertices, NULL, 0) < 0)
+    {
+        LogMsg(ERROR, "failed to render circle, operation unsupported");
+        return false;
+    }
+
+    return true;
+}
+
+void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target)
+{
+    vec2d camToTarget = target - mCurrentCamera->GetPos();
+    vec2d dir = mCurrentCamera->GetDir().Normalised();
+    vec2d plane = dir.GetPerpendicular();
+
+    plane.SetMagnitude(tanf(mCurrentCamera->GetFOV() / 2.0f));
+
+    float invDet = 1.0f / (plane.x * dir.y - dir.x * plane.y);
+
+    vec2d transform = {
+        invDet * (dir.y * camToTarget.x - dir.x * camToTarget.y),
+        invDet * (-plane.y * camToTarget.x + plane.x * camToTarget.y)
+    };
+
+    int spriteScreenX = static_cast<int>((mWindow.GetWidth() / 2.f) * (1.f + transform.x / transform.y));
+
+    int spriteHeight = abs(static_cast<int>(mWindow.GetHeight() / transform.y));
+
+    int spriteWidth = (tex->GetWidth() / tex->GetHeight()) * spriteHeight;
+
+    int drawStartX = -spriteWidth / 2.f + spriteScreenX;
+    int drawEndX = spriteWidth / 2.f + spriteScreenX;
+
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);
+    for(int i = drawStartX; i < drawEndX; i++)
+    {
+        int texX = static_cast<int>(static_cast<float>(i - drawStartX) / static_cast<float>(drawEndX - drawStartX) * tex->GetWidth());
+
+        SDL_Rect src = {texX, 0, 1, static_cast<int>(tex->GetHeight())};
+        SDL_Rect dst = {i, -spriteHeight / 2 + mWindow.GetHeight() / 2, 1, spriteHeight};
+
+        if(transform.y > 0 && i > 0 && i < mWindow.GetWidth() && transform.y < depthBuffer[i])
+        {
+            depthBuffer[i] = transform.y;
+            SDL_RenderCopy(mWindow.GetRenderer(), tex->GetTexture(), &src, &dst);
+        }
+    }
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
+}
+
+void CastEngine::Renderer::RenderCameraView(const Map& pMap)
+{
+    vec2d dir = mCurrentCamera->GetDir();
+
+    vec2d plane = dir.GetPerpendicular();
+    plane.SetMagnitude(tanf(mCurrentCamera->GetFOV() / 2.0f));
+
+    const CastEngine::Texture* textures[10] = { 0 };
+
+    vec2d ppos = mCurrentCamera->GetPos();
+
+    int numTextures = static_cast<int>(sizeof(textures) / sizeof(textures[0]));
+    for(int i = 0; i < numTextures; i++)
+    {
+        textures[i] = texBank[i];
+    }
+
+    for(int x = 0; x < mWindow.GetWidth(); x++)
+    {
+        float cameraX = (float)x / (float)mWindow.GetWidth() * 2.0f - 1.0f;
+        vec2d rayDir = dir + (plane * cameraX);
+        
+        Map::RayCastDesc desc;
+        int mapVal = pMap.WallRayCast(mCurrentCamera->GetPos(), rayDir, desc);
+
+        if(mapVal < 0)
+            continue;
+
+        if(x < static_cast<int>(depthBuffer.size()) && desc.perpWallDist >= depthBuffer[x])
+            continue;
+
+        depthBuffer[x] = desc.perpWallDist;
+
+        int lineHeight = static_cast<int>(static_cast<float>(mWindow.GetHeight()) / desc.perpWallDist);
+
+        int drawStart = -lineHeight / 2 + mWindow.GetHeight() / 2;
+
+        int texNum = mapVal - 1;
+
+        if(texNum < 0)
+            continue;
+
+        const Texture* wallTexture = textures[texNum];
+
+        float wallX;
+
+        if(desc.side == Map::RayCastDesc::RAY_HIT_VERTICAL)
+            wallX = ppos.y + desc.perpWallDist * rayDir.y;
+        else
+            wallX = ppos.x + desc.perpWallDist * rayDir.x;
+
+
+        wallX -= floorf(wallX);
+
+        int texX = static_cast<int>(wallX * static_cast<float>(wallTexture->GetWidth()));
+        if(desc.side == Map::RayCastDesc::RAY_HIT_VERTICAL && rayDir.x > 0) texX = static_cast<int>(wallTexture->GetWidth()) - texX - 1;
+        if(desc.side == Map::RayCastDesc::RAY_HIT_HORIZONTAL && rayDir.y < 0) texX = static_cast<int>(wallTexture->GetWidth()) - texX - 1;
+
+        SDL_Rect src = {texX, 0, 1, static_cast<int>(wallTexture->GetHeight())};
+        SDL_Rect dst = {x, drawStart, 1, lineHeight};
+
+        RenderTexture(*wallTexture, src, dst);
+    }
+}
+
+void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour)
+{
+    SDL_Rect dest = {0, 0, mWindow.GetWidth(), mWindow.GetHeight() / 2};
+
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), topColour.r, topColour.g, topColour.b, topColour.a);
+    SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
+
+    dest.y += mWindow.GetHeight() / 2;
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), bottomColour.r, bottomColour.g, bottomColour.b, bottomColour.a);
+    SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
+
+}
+
+void CastEngine::Renderer::UpdateMinimap(const EntityManager &entManager, const Map &map)
+{
+    Texture* minimapTex = texBank["MINIMAP"];
+
+    if(!minimapTex)
+        minimapTex = texBank.PushTexture(Texture(mWindow, "MINIMAP", 100, 100));
+
+    const auto& entityList = entManager.GetEntities();
+
+    int numMapCells = map.GetHeight() * map.GetWidth();
+
+    int rectWidth = minimapTex->GetWidth() / map.GetWidth();
+    int rectHeight = minimapTex->GetHeight() / map.GetHeight();
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), minimapTex->GetTexture());
+
+    SDL_Color black = {0, 0, 0, 255};
+    ClearScreen(black);
+    
+    SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0xff, 0xff);
+
+    for(int i = 0; i < numMapCells; i++)
+    {
+        if(map[i] == 0)
+            continue;
+
+        int x = i % map.GetWidth();
+        int y = i / map.GetWidth();
+
+        SDL_Rect cellScreenRect = {
+            x * rectWidth,
+            y * rectHeight,
+            rectWidth,
+            rectHeight
+        };
+
+        if(SDL_RenderFillRect(mWindow.GetRenderer(), &cellScreenRect) < 0)
+        {
+            LogMsgf(ERROR, "failed to render map rect onto minimap texture. SDL_ERROR: %s", SDL_GetError());
+        }
+    }
+
+    /* DRAW ENTITIES ONTO MINIMAP */
+
+    for(const auto& ent : entityList)
+    {
+        vec2d minimapPos;
+        
+        minimapPos.x = ent->GetPos().x * rectWidth;
+        minimapPos.y = ent->GetPos().y * rectHeight;
+
+        SDL_Point entCircle = {static_cast<int>(minimapPos.x), static_cast<int>(minimapPos.y)};
+
+        RenderFillCircle(entCircle, ent->GetRadius() * rectWidth, {255, 0, 0, 255});
+    }
+
+    SDL_SetRenderTarget(mWindow.GetRenderer(), NULL);
+
+}
+
+void CastEngine::Renderer::RenderMinimap()
+{
+    Texture* minimapTex = texBank["MINIMAP"];
+    if(!minimapTex)
+    {
+        LogMsg(WARN, "failed to fetch the minimap tex");
+        return;
+    }
+
+    SDL_Rect minimapRect = {
+        0, 0, 
+        static_cast<int>(minimapTex->GetWidth()), 
+        static_cast<int>(minimapTex->GetHeight())};
+
+    SDL_Rect minimapDst = {
+        mWindow.GetWidth() / 20, 
+        mWindow.GetHeight() / 20, 
+        mWindow.GetWidth() / 10, 
+        mWindow.GetHeight() / 10};
+
+    RenderTexture(*minimapTex, minimapRect, minimapDst);
+}
+
+void CastEngine::Renderer::ClearScreen(SDL_Color &colour)
+{
+    SDL_Renderer* render = mWindow.GetRenderer();
+
+    if(SDL_SetRenderDrawColor(render, colour.r, colour.g, colour.b, colour.a) < 0)
+    {
+        LogMsgf(ERROR, "failed to clear screen. SDL_ERROR: %s", SDL_GetError());
+        return;
+    }
+    
+    if(SDL_RenderClear(render) < 0)
+        LogMsgf(ERROR, "failed to clear screen. SDL_ERROR: %s", SDL_GetError());
+
+}
+
+void CastEngine::Renderer::Present()
+{
+    SDL_RenderPresent(mWindow.GetRenderer());
+}
+
+void CastEngine::Renderer::Destroy()
+{
+    texBank.FreeAll();
+    ResetDepthBuffer();
+}
