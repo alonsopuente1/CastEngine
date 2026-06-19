@@ -30,6 +30,9 @@ namespace CastEngine
 
     void HUDElement::Draw(SDL_Rect dst)
     {
+        if(!mTexture)
+            return;
+        
         mParentRender.RenderTexture(*mTexture, 
             {0, 0, 
             static_cast<int>(mTexture->GetWidth()), 

@@ -18,6 +18,7 @@ namespace CastEngine
         shotgun.magSize = 4;
         shotgun.reserves = 20;
         shotgun.texScale = 0.7f;
+        shotgun.name = "Shotgun";
 
         if(!mCurrentGun.Load(shotgun))
         {  

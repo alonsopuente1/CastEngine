@@ -57,6 +57,8 @@ namespace CastEngine
         }
         mReserves = def.reserves;
 
+        mName = def.name;
+
         return true;
     }
 

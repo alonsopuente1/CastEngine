@@ -46,7 +46,7 @@ namespace CastEngine
         inline vec2d GetDir() const { return vec2d::AngToVec(mViewAngle); }
         
         inline bool TryShoot() { return mCurrentGun.TryShoot(); }
-        
+        inline const Gun& GetGun() const { return mCurrentGun; }
 
         void HandleKeyInput(const SDL_Event& e);
         void Update(float dtMs) override;

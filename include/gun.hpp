@@ -19,6 +19,8 @@ namespace CastEngine
         int magSize;
         int reserves;
 
+        std::string name;
+
     };
 
     class Gun
@@ -37,6 +39,8 @@ namespace CastEngine
         float mTexScale;
 
         AnimatedTexture mAnim;
+
+        std::string mName;
     public:
 
         Gun(Renderer& rend) : mAnim(rend) {}
@@ -53,7 +57,10 @@ namespace CastEngine
 
         inline int GetDamage() { return mDamage; }
 
-
+        inline int GetAmmo() const { return mAmmo; }
+        inline int GetMagSize() const { return mMagSize; }
+        inline int GetReserves() const { return mReserves; }
+        inline const std::string& GetName() const { return mName; }
     };
 
     
