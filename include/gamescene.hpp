@@ -26,6 +26,7 @@ private:
     CastEngine::Camera mCam{};
 
     CastEngine::HUD mHud;
+    
 public:
 
     GameScene(CastEngine::Game& pGame) : 

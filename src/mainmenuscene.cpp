@@ -60,7 +60,6 @@ void MainMenuScene::OnEnter()
         this->mParentGame.ShutDown();
     });
 
-    mTest.Init(CastEngine::fonts[0]);
 }
 
 void MainMenuScene::HandleEvents(SDL_Event& e)
@@ -75,7 +74,6 @@ void MainMenuScene::HandleEvents(SDL_Event& e)
 
 void MainMenuScene::Update(float dtMs)
 {
-    mTest.Update("Hello, World!");
 }
 
 void MainMenuScene::Draw()
@@ -86,8 +84,6 @@ void MainMenuScene::Draw()
 
     mStartButton.Draw();
     mExitButton.Draw();
-
-    mTest.Draw({0, 0, 100, 100});
 
     mRenderer.Present();
 }

@@ -12,8 +12,7 @@ public:
     MainMenuScene(CastEngine::Game& pGame) : 
         IScene(pGame), 
         mStartButton(pGame.GetWindow(), pGame.GetRenderer()), 
-        mExitButton(pGame.GetWindow(), pGame.GetRenderer()),
-        mTest(pGame.GetRenderer())
+        mExitButton(pGame.GetWindow(), pGame.GetRenderer())
         {}
 
     ~MainMenuScene();
@@ -31,7 +30,5 @@ private:
 
     CastEngine::Button mStartButton;
     CastEngine::Button mExitButton;
-
-    CastEngine::HUDElement mTest;
 
 };
