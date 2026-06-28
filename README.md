@@ -37,7 +37,9 @@ once the library is compiled, your game must be compiled with SDL2 as well.
 any scenes you define must inherit the IScene interface. example of scene class being declared
 
 ExampleScene.hpp
+
 '''C++
+
 #include "castengine/scene.hpp"
 
 namespace CastEngine
@@ -66,11 +68,13 @@ private:
     Texture* mExampleTex = nullptr;
 
 };
+
 '''
 
 after your scene has been declared and implemented, it can be used in the game with the Game class' method ChangeScene. before the game's Run method is called, the Game object must be instantiated and have been changed to a scene. example below
 
 main.cpp
+
 '''C++
 
 #include "castengine/game.hpp"
