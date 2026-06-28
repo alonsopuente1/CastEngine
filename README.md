@@ -27,9 +27,9 @@ SDL2_mixer
 once you have these installed you can compile from scratch
 
 simply run
-'''
+```
 make -j
-'''
+```
 
 ## Usage
 
@@ -38,7 +38,7 @@ any scenes you define must inherit the IScene interface. example of scene class 
 
 ExampleScene.hpp
 
-'''C++
+```C++
 
 #include "castengine/scene.hpp"
 
@@ -69,13 +69,13 @@ private:
 
 };
 
-'''
+```
 
 after your scene has been declared and implemented, it can be used in the game with the Game class' method ChangeScene. before the game's Run method is called, the Game object must be instantiated and have been changed to a scene. example below
 
 main.cpp
 
-'''C++
+```C++
 
 #include "castengine/game.hpp"
 
@@ -96,6 +96,6 @@ int main(int argc, char** argv)
     return 0;
 }
 
-'''
+```
 
 if you want a scene that has entities and maps to interact with, your scene should also implement the IWorld interface. this interface is so that the entities can interact with a map without having direct access to the scene. 
