@@ -31,9 +31,13 @@ simply run
 make -j
 ```
 
+in both the Linux and Windows build instructions, the generated library can be found in the root directory of the repo
+
 ## Usage
 
-once the library is compiled, your game must be compiled with SDL2 as well. 
+if you want to see an actual existing example of this engine being used for a game, check out my other repo [TheCaster](https://github.com/alonsopuente1/TheCaster)
+
+once the library is compiled, your game must be compiled with SDL2, SDL2_mixer, SDL2_image, SDL2_ttf as well. 
 any scenes you define must inherit the IScene interface. example of scene class being declared
 
 ExampleScene.hpp
