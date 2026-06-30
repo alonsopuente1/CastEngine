@@ -230,7 +230,7 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
     }
 }
 
-void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour)
+void CastEngine::Renderer::RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour)
 {
     SDL_Rect dest = {0, 0, mWindow.GetWidth(), mWindow.GetHeight() / 2};
 

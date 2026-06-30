@@ -40,7 +40,6 @@ namespace CastEngine
         bool operator==(const Renderer& other);
         bool operator!=(const Renderer& other);
 
-        
         bool RenderTexture(const Texture& tex, SDL_Rect src, SDL_Rect dst);
 
         /// @brief renders a circle to the screen
@@ -59,7 +58,7 @@ namespace CastEngine
         /// program will seg fault.
         void RenderCameraView(const Map& map);
 
-        void RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour);
+        void RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour);
         
         void UpdateMinimap(const EntityManager& entManager, const Map& map);
         void RenderMinimap();
