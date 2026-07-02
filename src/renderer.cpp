@@ -8,6 +8,7 @@
 #include "castengine/entity.hpp"
 
 #include <cfloat>
+#include "renderer.hpp"
 
 void CastEngine::Renderer::ResetDepthBuffer()
 {
@@ -324,6 +325,17 @@ void CastEngine::Renderer::RenderMinimap()
         mWindow.GetHeight() / 10};
 
     RenderTexture(*minimapTex, minimapRect, minimapDst);
+}
+
+void CastEngine::Renderer::ApplyLighting()
+{
+
+    for(int x = 0; x < mWindow.GetWidth(); x++)
+    {
+        SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0, static_cast<Uint8>(depthBuffer[x] * 10));
+        SDL_RenderDrawLine(mWindow.GetRenderer(), x, 0, x, mWindow.GetHeight());
+    }
+
 }
 
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)

@@ -63,6 +63,8 @@ namespace CastEngine
         void UpdateMinimap(const EntityManager& entManager, const Map& map);
         void RenderMinimap();
 
+        void ApplyLighting();
+
         
         void ClearScreen(SDL_Color& colour);
         void Present();
