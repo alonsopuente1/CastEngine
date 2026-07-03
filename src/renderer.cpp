@@ -8,7 +8,7 @@
 #include "castengine/entity.hpp"
 
 #include <cfloat>
-#include "renderer.hpp"
+#include "castengine/renderer.hpp"
 
 void CastEngine::Renderer::ResetDepthBuffer()
 {
