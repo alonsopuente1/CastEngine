@@ -329,13 +329,20 @@ void CastEngine::Renderer::RenderMinimap()
 
 void CastEngine::Renderer::ApplyLighting()
 {
-
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);
     for(int x = 0; x < mWindow.GetWidth(); x++)
     {
-        SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0, static_cast<Uint8>(depthBuffer[x] * 10));
+        float depth = depthBuffer[x];
+        float playerView = 4.0f;
+
+        float distRatio = depth / playerView;
+        if(distRatio > 1.0f)
+            distRatio = 1.0f;
+
+        SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0, static_cast<Uint8>(distRatio * 255));
         SDL_RenderDrawLine(mWindow.GetRenderer(), x, 0, x, mWindow.GetHeight());
     }
-
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
 }
 
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)
