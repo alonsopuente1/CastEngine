@@ -6,6 +6,7 @@
 #include "castengine/entitymanager.hpp"
 #include "castengine/logger.hpp"
 #include "castengine/entity.hpp"
+#include "castengine/renderer.hpp"
 
 #include <cfloat>
 
@@ -18,7 +19,12 @@ void CastEngine::Renderer::ResetDepthBuffer()
     }
 }
 
-CastEngine::Renderer::Renderer(Window &window) : mWindow(window)
+bool CastEngine::Renderer::InitScreenBuffer(int w, int h)
+{
+    return false;
+}
+
+CastEngine::Renderer::Renderer(Window &window) : mWindow(window) 
 {
     if(!mWindow.IsInitialised())
     {
@@ -230,7 +236,7 @@ void CastEngine::Renderer::RenderCameraView(const Map& pMap)
     }
 }
 
-void CastEngine::Renderer::RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour)
+void CastEngine::Renderer::RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour)
 {
     SDL_Rect dest = {0, 0, mWindow.GetWidth(), mWindow.GetHeight() / 2};
 
@@ -324,6 +330,24 @@ void CastEngine::Renderer::RenderMinimap()
         mWindow.GetHeight() / 10};
 
     RenderTexture(*minimapTex, minimapRect, minimapDst);
+}
+
+void CastEngine::Renderer::ApplyLighting()
+{
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);
+    for(int x = 0; x < mWindow.GetWidth(); x++)
+    {
+        float depth = depthBuffer[x];
+        float playerView = 4.0f;
+
+        float distRatio = depth / playerView;
+        if(distRatio > 1.0f)
+            distRatio = 1.0f;
+
+        SDL_SetRenderDrawColor(mWindow.GetRenderer(), 0, 0, 0, static_cast<Uint8>(distRatio * 255));
+        SDL_RenderDrawLine(mWindow.GetRenderer(), x, 0, x, mWindow.GetHeight());
+    }
+    SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_NONE);
 }
 
 void CastEngine::Renderer::ClearScreen(SDL_Color &colour)

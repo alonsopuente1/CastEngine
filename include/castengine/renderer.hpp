@@ -3,6 +3,8 @@
 #include "castengine/texturebank.hpp"
 #include "castengine/vec2d.hpp"
 
+#include <vector>
+
 namespace CastEngine
 {
   
@@ -23,6 +25,23 @@ namespace CastEngine
         Window& mWindow;
 
         const Camera* mCurrentCamera = nullptr;
+    
+        // pixels formatted as RGBA8888
+        std::vector<uint32_t> mPixelBuffer;
+        SDL_Texture* mScreenTex = nullptr;
+
+        int mBufferWidth = 0;
+        int mBufferHeight = 0;
+
+        inline void SetPixel(int x, int y, uint32_t colour)
+        {
+            if(x < 0 || x >= mBufferWidth || y < 0 || y >= mBufferHeight)
+                return;
+
+            mPixelBuffer[static_cast<size_t>(y * mBufferWidth + x)] = colour;
+        }
+
+        bool InitScreenBuffer(int w, int h);
 
     public:
         
@@ -59,12 +78,11 @@ namespace CastEngine
         /// program will seg fault.
         void RenderCameraView(const Map& map);
 
-        void RenderCeilingAndFloor(SDL_Colour topColour, SDL_Colour bottomColour);
-        
+        void RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour);
         void UpdateMinimap(const EntityManager& entManager, const Map& map);
         void RenderMinimap();
 
-        
+        void ApplyLighting();
         void ClearScreen(SDL_Color& colour);
         void Present();
 
