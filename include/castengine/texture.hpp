@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 /* texture.hpp
 
@@ -28,6 +29,10 @@ namespace CastEngine
         std::string     mName;
     
         Window&         mWindow;
+
+        std::vector<uint32_t> mPixelData;
+        int mWidth = 0;
+        int mHeight = 0;
 
     public:
 
@@ -94,6 +99,8 @@ namespace CastEngine
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
+
+        uint32_t SamplePixel(int x, int y) const;
 
     };
 };

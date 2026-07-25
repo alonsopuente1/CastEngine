@@ -4,6 +4,7 @@
 
 #include "castengine/logger.hpp"
 #include "castengine/window.hpp"
+#include "castengine/texture.hpp"
 
 namespace CastEngine
 {
@@ -78,6 +79,9 @@ namespace CastEngine
             SDL_DestroyTexture(mSDLTex);
         mSDLTex = nullptr;
         mName = "";
+        mPixelData.clear();
+        mWidth = 0;
+        mHeight = 0;
     }
     
     bool Texture::IsInitialised() const
@@ -99,14 +103,49 @@ namespace CastEngine
     {
         Destroy();
 
-        mSDLTex = IMG_LoadTexture(mWindow.GetRenderer(), filePath.c_str());
-
-        if(mSDLTex == NULL)
+        SDL_Renderer* rend = mWindow.GetRenderer();
+        if(!rend)
         {
-            LogMsgf(ERROR, "failed to load texture at file path '%s'. IMG_ERROR: %s", filePath.c_str(), IMG_GetError());
+            LogMsg(ERROR, "failed to get renderer from window");
             return false;
         }
 
+        SDL_Surface* surface = IMG_Load(filePath.c_str());
+        if(!surface)
+        {
+            LogMsgf(ERROR, "failed to load image surface from file path '%s'. IMG_ERROR: %s", filePath.c_str(), IMG_GetError());
+            return false;
+        }
+
+        SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
+        SDL_FreeSurface(surface);
+        if(!converted)
+        {
+            LogMsgf(ERROR, "failed to convert surface to RGBA8888 format. SDL_ERROR: %s", SDL_GetError());
+            return false;
+        }
+
+        mWidth = converted->w;
+        mHeight = converted->h;
+
+        int pixelCount = mWidth * mHeight;
+        mPixelData.resize(static_cast<size_t>(pixelCount));
+
+        SDL_LockSurface(converted);
+        memcpy(mPixelData.data(), converted->pixels, static_cast<size_t>(pixelCount) * sizeof(uint32_t));
+        SDL_UnlockSurface(converted);
+
+        mSDLTex = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, mWidth, mHeight);
+        SDL_FreeSurface(converted);
+
+        if(!mSDLTex)
+        {
+            LogMsgf(ERROR, "failed to create texture from surface. SDL_ERROR: %s", SDL_GetError());
+            mPixelData.clear();
+            return false;
+        }
+
+        SetTextureName(filePath);
         return true;
     }
 
@@ -138,6 +177,12 @@ namespace CastEngine
         mSDLTex = newTex;     
         SetTextureName(pName);
 
+        mWidth = pWidth;
+        mHeight = pHeight;
+
+        int pixelCount = pWidth * pHeight;
+        mPixelData.resize(static_cast<size_t>(pixelCount), 0);
+
         return true;
     }
 
@@ -156,4 +201,15 @@ namespace CastEngine
         mWindow = pWindow;
     }
 
+    uint32_t Texture::SamplePixel(int x, int y) const
+    {
+        if(mPixelData.empty())
+            return 0;
+        
+        // clamp to bounds
+        x = x < 0 ? 0 : (x >= mWidth  ? mWidth  - 1 : x);
+        y = y < 0 ? 0 : (y >= mHeight ? mHeight - 1 : y);
+    
+        return mPixelData[static_cast<size_t>(y * mWidth + x)];
+    }
 };

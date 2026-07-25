@@ -5,10 +5,14 @@ CPPFLAGS	= -I./include -Wextra -Wall -Wno-unused-parameter
 OUT			= build
 SRC			= src
 
+# all the .cpp files in the src folder
 CPP_FILES := $(subst src/,$(empty),$(wildcard $(SRC)/*.cpp))
+
+# replaces .cpp extension with .o and adds the build folder path
 CPPOBJS := \
 	$(foreach file,$(CPP_FILES),$(OUT)/$(file:.cpp=.o))
 
+# default target
 all: CastEngine
 
 $(OUT)/%.o: $(SRC)/%.cpp
