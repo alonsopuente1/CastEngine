@@ -9,6 +9,7 @@
 #include "castengine/renderer.hpp"
 
 #include <cfloat>
+#include "castengine/renderer.hpp"
 
 void CastEngine::Renderer::ResetDepthBuffer()
 {

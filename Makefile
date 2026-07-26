@@ -24,5 +24,7 @@ CastEngine: $(CPPOBJS)
 $(OUT):
 	mkdir -p $(OUT)
 
+$(CPPOBJS): | $(OUT)
+
 clean:
 	rm -f $(OUT)/*.o libCastEngine.a

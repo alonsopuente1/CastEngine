@@ -59,7 +59,6 @@ namespace CastEngine
         bool operator==(const Renderer& other);
         bool operator!=(const Renderer& other);
 
-        
         bool RenderTexture(const Texture& tex, SDL_Rect src, SDL_Rect dst);
 
         /// @brief renders a circle to the screen

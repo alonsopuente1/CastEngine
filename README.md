@@ -27,17 +27,23 @@ SDL2_mixer
 once you have these installed you can compile from scratch
 
 simply run
-'''
+```
 make -j
-'''
+```
+
+in both the Linux and Windows build instructions, the generated library can be found in the root directory of the repo
 
 ## Usage
 
-once the library is compiled, your game must be compiled with SDL2 as well. 
+if you want to see an actual existing example of this engine being used for a game, check out my other repo [TheCaster](https://github.com/alonsopuente1/TheCaster)
+
+once the library is compiled, your game must be compiled with SDL2, SDL2_mixer, SDL2_image, SDL2_ttf as well. 
 any scenes you define must inherit the IScene interface. example of scene class being declared
 
 ExampleScene.hpp
-'''C++
+
+```C++
+
 #include "castengine/scene.hpp"
 
 namespace CastEngine
@@ -66,12 +72,14 @@ private:
     Texture* mExampleTex = nullptr;
 
 };
-'''
+
+```
 
 after your scene has been declared and implemented, it can be used in the game with the Game class' method ChangeScene. before the game's Run method is called, the Game object must be instantiated and have been changed to a scene. example below
 
 main.cpp
-'''C++
+
+```C++
 
 #include "castengine/game.hpp"
 
@@ -92,6 +100,6 @@ int main(int argc, char** argv)
     return 0;
 }
 
-'''
+```
 
 if you want a scene that has entities and maps to interact with, your scene should also implement the IWorld interface. this interface is so that the entities can interact with a map without having direct access to the scene. 
