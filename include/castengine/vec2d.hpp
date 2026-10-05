@@ -43,6 +43,9 @@ struct vec2d
     
     vec2d GetPerpendicular() const;
 
+    /// @brief forms a vector from an angle in radians
+    /// @param angle angle in radians
+    /// @return vector with magnitude 1 pointing in the direction of the angle
     static vec2d AngToVec(float angle);
 
     void Normalise();

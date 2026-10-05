@@ -2,7 +2,7 @@
 
 #include "castengine/world.hpp"
 
-void CastEngine::Entity::ResolveWallCollision(vec2d newPos)
+void CastEngine::Entity::AttemptMove(vec2d newPos)
 {
         int left, right, top, bottom;
         bool changeX = false;

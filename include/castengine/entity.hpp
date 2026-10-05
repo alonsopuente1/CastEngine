@@ -35,7 +35,7 @@ namespace CastEngine
         virtual void OnCollision(Entity& other) {}
 
         // resolves wall collision with map in the world
-        void ResolveWallCollision(vec2d newPos);
+        void AttemptMove(vec2d newPos);
 
         // transform
         inline void AddPos(const vec2d& pos) { mPos += pos; }

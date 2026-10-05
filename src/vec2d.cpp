@@ -83,10 +83,12 @@ vec2d vec2d::GetPerpendicular() const
 {
     return vec2d(y, -x);
 }
+
 vec2d vec2d::AngToVec(float angle)
 {
     return vec2d(cosf(angle), sinf(angle));
 }
+
 void vec2d::Normalise()
 {
     *this /= GetMagnitude();
