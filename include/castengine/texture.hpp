@@ -30,7 +30,6 @@ namespace CastEngine
     
         Window&         mWindow;
 
-        std::vector<uint32_t> mPixelData;
         int mWidth = 0;
         int mHeight = 0;
 
@@ -99,8 +98,6 @@ namespace CastEngine
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
-
-        uint32_t SamplePixel(int x, int y) const;
-
+        
     };
 };

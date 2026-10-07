@@ -79,7 +79,6 @@ namespace CastEngine
             SDL_DestroyTexture(mSDLTex);
         mSDLTex = nullptr;
         mName = "";
-        mPixelData.clear();
         mWidth = 0;
         mHeight = 0;
     }
@@ -101,47 +100,31 @@ namespace CastEngine
 
     bool Texture::LoadTexture(const std::string& filePath)
     {
-        Destroy();
-
-        SDL_Renderer* rend = mWindow.GetRenderer();
-        if(!rend)
-        {
-            LogMsg(ERROR, "failed to get renderer from window");
-            return false;
-        }
-
         SDL_Surface* surface = IMG_Load(filePath.c_str());
         if(!surface)
         {
-            LogMsgf(ERROR, "failed to load image surface from file path '%s'. IMG_ERROR: %s", filePath.c_str(), IMG_GetError());
+            LogMsgf(ERROR, "failed to load image file (%s). SDL_ERROR: %s", filePath.c_str(), IMG_GetError());
             return false;
         }
 
-        SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
+        SDL_Texture* newTex = SDL_CreateTextureFromSurface(mWindow.GetRenderer(), surface);
         SDL_FreeSurface(surface);
-        if(!converted)
+        if(!newTex)
         {
-            LogMsgf(ERROR, "failed to convert surface to RGBA8888 format. SDL_ERROR: %s", SDL_GetError());
+            LogMsgf(ERROR, "failed to create texture from surface (%s). SDL_ERROR: %s", filePath.c_str(), SDL_GetError());
             return false;
         }
 
-        mWidth = converted->w;
-        mHeight = converted->h;
+        // only destroy after checking texture was able to be created
+        if(IsInitialised())
+            Destroy();
 
-        int pixelCount = mWidth * mHeight;
-        mPixelData.resize(static_cast<size_t>(pixelCount));
+        mSDLTex = newTex;
 
-        SDL_LockSurface(converted);
-        memcpy(mPixelData.data(), converted->pixels, static_cast<size_t>(pixelCount) * sizeof(uint32_t));
-        SDL_UnlockSurface(converted);
-
-        mSDLTex = SDL_CreateTexture(rend, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, mWidth, mHeight);
-        SDL_FreeSurface(converted);
-
-        if(!mSDLTex)
+        if(SDL_QueryTexture(mSDLTex, NULL, NULL, &mWidth, &mHeight) < 0)
         {
-            LogMsgf(ERROR, "failed to create texture from surface. SDL_ERROR: %s", SDL_GetError());
-            mPixelData.clear();
+            LogMsgf(ERROR, "failed to retrieve width and height of texture (%s). SDL_ERROR: %s", filePath.c_str(), SDL_GetError());
+            Destroy();
             return false;
         }
 
@@ -180,9 +163,6 @@ namespace CastEngine
         mWidth = pWidth;
         mHeight = pHeight;
 
-        int pixelCount = pWidth * pHeight;
-        mPixelData.resize(static_cast<size_t>(pixelCount), 0);
-
         return true;
     }
 
@@ -201,15 +181,4 @@ namespace CastEngine
         mWindow = pWindow;
     }
 
-    uint32_t Texture::SamplePixel(int x, int y) const
-    {
-        if(mPixelData.empty())
-            return 0;
-        
-        // clamp to bounds
-        x = x < 0 ? 0 : (x >= mWidth  ? mWidth  - 1 : x);
-        y = y < 0 ? 0 : (y >= mHeight ? mHeight - 1 : y);
-    
-        return mPixelData[static_cast<size_t>(y * mWidth + x)];
-    }
 };
