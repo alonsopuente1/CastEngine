@@ -26,23 +26,6 @@ namespace CastEngine
 
         const Camera* mCurrentCamera = nullptr;
     
-        // pixels formatted as RGBA8888
-        std::vector<uint32_t> mPixelBuffer;
-        SDL_Texture* mScreenTex = nullptr;
-
-        int mBufferWidth = 0;
-        int mBufferHeight = 0;
-
-        inline void SetPixel(int x, int y, uint32_t colour)
-        {
-            if(x < 0 || x >= mBufferWidth || y < 0 || y >= mBufferHeight)
-                return;
-
-            mPixelBuffer[static_cast<size_t>(y * mBufferWidth + x)] = colour;
-        }
-
-        bool InitScreenBuffer(int w, int h);
-
     public:
         
         Renderer(Window& window);

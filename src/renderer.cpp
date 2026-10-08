@@ -20,11 +20,6 @@ void CastEngine::Renderer::ResetDepthBuffer()
     }
 }
 
-bool CastEngine::Renderer::InitScreenBuffer(int w, int h)
-{
-    return false;
-}
-
 CastEngine::Renderer::Renderer(Window &window) : mWindow(window) 
 {
     if(!mWindow.IsInitialised())
