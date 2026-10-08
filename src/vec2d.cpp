@@ -91,6 +91,9 @@ vec2d vec2d::AngToVec(float angle)
 
 void vec2d::Normalise()
 {
+    float mag = GetMagnitude();
+    if(mag == 0.0f)
+        return;
     *this /= GetMagnitude();
 }
 void vec2d::Rotate(float angle)
