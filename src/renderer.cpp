@@ -174,6 +174,12 @@ void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target)
 
 void CastEngine::Renderer::RenderCameraView(const Map& pMap)
 {
+    if(!mCurrentCamera)
+    {
+        LogMsg(ERROR, "RenderCameraView called without a camera set. Call SetCamera() first");
+        return;
+    }
+
     vec2d dir = mCurrentCamera->GetDir();
 
     vec2d plane = dir.GetPerpendicular();
