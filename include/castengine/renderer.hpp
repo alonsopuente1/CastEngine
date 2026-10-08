@@ -73,11 +73,11 @@ namespace CastEngine
 
         /// @brief renders the given map from the perspective of the camera
         /// @param map map to render
+        /// @warning SetCamera MUST be called before using this function, otherwise 
+        /// program will seg fault.
         void RenderCameraView(const Map& map);
 
         void RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour);
-        void UpdateMinimap(const EntityManager& entManager, const Map& map);
-        void RenderMinimap();
 
         void ApplyLighting();
         void ClearScreen(SDL_Color& colour);
