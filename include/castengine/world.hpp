@@ -21,6 +21,7 @@ namespace CastEngine
     class Entity;
     class Map;
     class Texture;
+    class EntityManager;
     class IWorld
     {
 
@@ -49,6 +50,7 @@ namespace CastEngine
 
         virtual vec2d GetPlayerPos() const = 0;
         virtual vec2d GetPlayerDir() const = 0;
+        virtual EntityManager& GetEntityManager() = 0;
     };
 
 };
