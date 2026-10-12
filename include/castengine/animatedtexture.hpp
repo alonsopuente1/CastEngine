@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+#define FPS30 (1000 / 30)
+
 namespace CastEngine
 {
 
@@ -18,7 +20,7 @@ namespace CastEngine
         std::vector<Texture*> mAnimatedTexture;
 
         // time for ONE FRAME to finish in milliseconds
-        int mFrameTime = 0;
+        int mFrameTime = FPS30;
 
         // current frame of animation 
         int mCurrFrameIndex = 0;
@@ -35,8 +37,34 @@ namespace CastEngine
         ~AnimatedTexture() { Destroy(); }
 
         // move assignment and constructors
-        AnimatedTexture(AnimatedTexture&& other) noexcept;
-        AnimatedTexture& operator=(AnimatedTexture&& other) noexcept;
+        AnimatedTexture(AnimatedTexture&& other) noexcept : mRender(other.mRender)
+        {
+            mAnimatedTexture = std::move(other.mAnimatedTexture);
+            mFrameTime = other.mFrameTime;
+            mCurrFrameIndex = other.mCurrFrameIndex;
+            mTimePassed = other.mTimePassed;
+            mLooping = other.mLooping;
+
+            other.mAnimatedTexture.clear();
+        }
+        
+        AnimatedTexture& operator=(AnimatedTexture&& other) noexcept
+        {
+            if(this != &other)
+            {
+                Destroy();
+
+                mAnimatedTexture = std::move(other.mAnimatedTexture);
+                mFrameTime = other.mFrameTime;
+                mCurrFrameIndex = other.mCurrFrameIndex;
+                mTimePassed = other.mTimePassed;
+                mLooping = other.mLooping;
+
+                other.mAnimatedTexture.clear();
+            }
+
+            return *this;
+        }
 
         bool LoadAnimation(const std::string& animName, const std::string& filePath);
 
@@ -55,10 +83,6 @@ namespace CastEngine
 
         Texture* GetTexture() const;
         
-        inline void PlayOnce() { mCurrFrameIndex = 1; }
-        inline void Loop() { mLooping = true; }
-
-        inline bool IsPlaying() const { return mCurrFrameIndex > 0 || mLooping; }
         inline bool IsInitialised() const { return !mAnimatedTexture.empty(); }
     };
 
