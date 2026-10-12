@@ -12,6 +12,15 @@ namespace CastEngine
     class Renderer;
     class AnimatedTexture
     {
+    public:
+
+        enum class PlaybackState : int
+        {
+            Stopped = 0,
+            PlayingOnce,
+            Looping,
+            Finished
+        };
 
     private:
 
@@ -28,8 +37,7 @@ namespace CastEngine
         // time passed since the start of the current frame
         int mTimePassed = 0;
 
-        // if true, animation loops indefinitely until stopped
-        bool mLooping = false;
+        PlaybackState mState = PlaybackState::Stopped;
         
     public:
 
@@ -43,11 +51,11 @@ namespace CastEngine
             mFrameTime = other.mFrameTime;
             mCurrFrameIndex = other.mCurrFrameIndex;
             mTimePassed = other.mTimePassed;
-            mLooping = other.mLooping;
+            mState = other.mState;
 
             other.mAnimatedTexture.clear();
         }
-        
+
         AnimatedTexture& operator=(AnimatedTexture&& other) noexcept
         {
             if(this != &other)
@@ -58,7 +66,7 @@ namespace CastEngine
                 mFrameTime = other.mFrameTime;
                 mCurrFrameIndex = other.mCurrFrameIndex;
                 mTimePassed = other.mTimePassed;
-                mLooping = other.mLooping;
+                mState = other.mState;
 
                 other.mAnimatedTexture.clear();
             }
@@ -80,6 +88,14 @@ namespace CastEngine
         void SetAnimationTime(int newTimeMs);
 
         void Update(float dtMs);
+
+        void PlayOnce();
+        void Loop();
+        void Stop();
+
+        bool IsPlaying() const;
+        bool IsStopped() const;
+        bool HasFinished() const;
 
         Texture* GetTexture() const;
         

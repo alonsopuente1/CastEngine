@@ -67,19 +67,71 @@ namespace CastEngine
 
     void AnimatedTexture::Update(float dtMs)
     {
+        if(IsStopped() || !IsInitialised() || mFrameTime <= 0)
+            return;
+
         mTimePassed += dtMs;
 
-        while(mTimePassed > mFrameTime)
+        while(mTimePassed >= mFrameTime && IsPlaying())
         {
-            if(++mCurrFrameIndex >= static_cast<int>(mAnimatedTexture.size()))
-                mCurrFrameIndex = 0;
             mTimePassed -= mFrameTime;
+            
+            if(mCurrFrameIndex + 1 < static_cast<int>(mAnimatedTexture.size()))
+                ++mCurrFrameIndex;
+            else if(mState == PlaybackState::Looping)
+                mCurrFrameIndex = 0;
+            else
+            {
+                mState = PlaybackState::Finished;
+                mTimePassed = 0;
+            }
         }
+    }
+
+    void AnimatedTexture::PlayOnce()
+    {
+        if(!IsInitialised())
+            return;
+
+        mState = PlaybackState::PlayingOnce;
+        mCurrFrameIndex = 0;
+        mTimePassed = 0;        
+    }
+    void AnimatedTexture::Loop()
+    {
+        if(!IsInitialised())
+            return;
+
+        mState = PlaybackState::Looping;
+        mCurrFrameIndex = 0;
+        mTimePassed = 0;
+    }
+    
+    bool AnimatedTexture::IsPlaying() const
+    {
+        return mState == PlaybackState::Looping || mState == PlaybackState::PlayingOnce;
+    }
+    
+    bool AnimatedTexture::IsStopped() const
+    {
+        return !IsPlaying();
+    }
+
+    void AnimatedTexture::Stop()
+    {
+        mCurrFrameIndex = 0;
+        mTimePassed = 0;
+        mState = PlaybackState::Stopped;
+    }
+    
+    bool AnimatedTexture::HasFinished() const
+    {
+        return mState == PlaybackState::Finished;
     }
 
     Texture *AnimatedTexture::GetTexture() const
     {
-        if(mAnimatedTexture.empty())
+        if(!IsInitialised())
             return nullptr;
     
         return mAnimatedTexture[mCurrFrameIndex];
