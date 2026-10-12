@@ -9,6 +9,35 @@
 
 namespace CastEngine
 {
+    AnimatedTexture::AnimatedTexture(AnimatedTexture&& other) noexcept : mRender(other.mRender)
+    {
+        mAnimatedTexture = std::move(other.mAnimatedTexture);
+        mFrameTime = other.mFrameTime;
+        mCurrFrameIndex = other.mCurrFrameIndex;
+        mTimePassed = other.mTimePassed;
+        mLooping = other.mLooping;
+
+        other.mAnimatedTexture.clear();
+    }
+
+    AnimatedTexture& AnimatedTexture::operator=(AnimatedTexture&& other) noexcept
+    {
+        if(this != &other)
+        {
+            Destroy();
+
+            mAnimatedTexture = std::move(other.mAnimatedTexture);
+            mFrameTime = other.mFrameTime;
+            mCurrFrameIndex = other.mCurrFrameIndex;
+            mTimePassed = other.mTimePassed;
+            mLooping = other.mLooping;
+
+            other.mAnimatedTexture.clear();
+        }
+
+        return *this;
+    }
+
     bool AnimatedTexture::LoadAnimation(const std::string &animName, const std::string &filePath)
     {
         std::vector<std::string> frameFilePaths;

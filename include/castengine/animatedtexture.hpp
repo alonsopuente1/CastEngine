@@ -34,6 +34,10 @@ namespace CastEngine
         AnimatedTexture(Renderer& parentRender) : mRender(parentRender) {}
         ~AnimatedTexture() { Destroy(); }
 
+        // move assignment and constructors
+        AnimatedTexture(AnimatedTexture&& other) noexcept;
+        AnimatedTexture& operator=(AnimatedTexture&& other) noexcept;
+
         bool LoadAnimation(const std::string& animName, const std::string& filePath);
 
         /// @brief deallocates the textures from the parent renderer's texturebank
