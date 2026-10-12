@@ -103,15 +103,11 @@ namespace CastEngine
         return {nullptr, 0.0f};
     }
 
-    void EntityManager::RemoveIf(std::function<bool(Entity *)> pFunc)
+    void EntityManager::RemoveIf(std::function<bool(std::unique_ptr<Entity>&)> pFunc)
     {
         mEntities.erase(std::remove_if(
             mEntities.begin(), mEntities.end(), 
-            std::function<bool(std::unique_ptr<Entity>& ent)>(
-                [](std::unique_ptr<Entity>& ent)
-                {
-                    return !ent->IsAlive();
-                })
+            pFunc
             ), mEntities.end()); //mEntities,
     }
 };

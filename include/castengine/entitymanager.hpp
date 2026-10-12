@@ -48,7 +48,7 @@ namespace CastEngine
 
         std::pair<Entity*, float> RayCast(vec2d origin, vec2d dir, float maxDist);
 
-        void RemoveIf(std::function<bool(Entity*)> pFunc);
+        void RemoveIf(std::function<bool(std::unique_ptr<Entity>&)> pFunc);
     };
 
 };
