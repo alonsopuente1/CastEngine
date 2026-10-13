@@ -39,6 +39,8 @@ namespace CastEngine
             // true if map loaded successfully
             bool success;
 
+            // spawn positions of enemies
+            std::vector<vec2d> enemySpawnPos;
         };
 
         

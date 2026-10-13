@@ -154,6 +154,20 @@ namespace CastEngine
                 continue;
             }
 
+            if(firstToken == "enemyspawn")
+            {
+                vec2d spawnPos;
+                stream >> spawnPos.x >> spawnPos.y;
+                if(spawnPos.x < 0 || spawnPos.y < 0)
+                {
+                    LogMsgf(ERROR, "invalid spawn position for enemy. pos - x: %f y: %f", spawnPos.x, spawnPos.y);
+                    return false;
+                }
+
+                args.enemySpawnPos.push_back(spawnPos);
+                continue;
+            }
+
             // if execution reaches here, none of the token checks have 
             // been triggered therefore its an unrecognised token
             LogMsgf(ERROR, "unrecognised token in map file on line %i. token: '%s'", lineNum, firstToken.c_str());
