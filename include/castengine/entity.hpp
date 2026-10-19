@@ -54,4 +54,7 @@ namespace CastEngine
         inline void SetRadius(const float& newRadius) { mRadius = newRadius; }
     };
 
+    template <typename T>
+    inline bool IsBaseEntity(const Entity* ent) { return dynamic_cast<const T*>(ent) != nullptr; }
+
 };
