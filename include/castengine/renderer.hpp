@@ -49,9 +49,7 @@ namespace CastEngine
         /// @brief renders a sprite from the perspective of the currently set camera
         /// @warning SetCamera MUST be called before using this function, otherwise 
         /// program will seg fault.
-        void RenderSprite(Texture* tex, vec2d target);
-
-        void RenderSpriteEx(Texture* tex, vec2d target, float texScale, float transformY);
+        void RenderSprite(Texture* tex, vec2d target, float texScale = 1.f, float transformY = 0.f);
 
         /// @brief renders the given map from the perspective of the camera
         /// @param map map to render

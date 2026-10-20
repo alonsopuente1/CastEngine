@@ -126,13 +126,8 @@ bool CastEngine::Renderer::RenderFillCircle(SDL_Point centre, float radius, SDL_
     return true;
 }
 
-void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target)
+void CastEngine::Renderer::RenderSprite(Texture* tex, vec2d target, float texScale, float transformY)
 {
-    RenderSpriteEx(tex, target, 1.0f, 0.f);
-}
-
-void CastEngine::Renderer::RenderSpriteEx(Texture *tex, vec2d target, float texScale, float transformY)
-{    
     if(texScale <= 0.f)
         return;
 
