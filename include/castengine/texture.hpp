@@ -116,6 +116,9 @@ namespace CastEngine
 
         /// @warning function expects for LockSurface to have been called before this 
         Colour GetColour(int x, int y);
+        /// @brief sets COLOUR to position X Y in surface. call SyncTextureToSurface to update GPU texture
+        /// @warning function expects for LockSurface to have been called before this 
+        bool SetColour(Colour colour, int x, int y);
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);

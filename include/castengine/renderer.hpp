@@ -22,6 +22,9 @@ namespace CastEngine
         Window& mWindow;
 
         const Camera* mCurrentCamera = nullptr;
+        Texture* mCeilingFloorTex = nullptr;
+
+        bool RecreateCeilingFloorTex();
     
     public:
         

@@ -243,17 +243,23 @@ namespace CastEngine
 
     bool Texture::SyncTextureToSurface()
     {
-        if(!IsInitialised())
+        if(!mSDLTex || !mCPUTex)
+        {
+            LogMsg(ERROR, "attempting to sync an uninitialised texture");
             return false;
+        }
         if(mSDLTexLocked)
            UnlockTexture();
         if(!mCPUTexLocked)
-            LockSurface();
-
+        {
+            if(!LockSurface())
+                return false;
+        }
 
         if(SDL_UpdateTexture(mSDLTex, NULL, mCPUTex->pixels, mCPUTex->pitch) < 0)
         {
             LogMsgf(ERROR, "failed to sync surface to texture. SDL_ERROR: %s", SDL_GetError());
+            UnlockSurface();
             return false;
         }
 
@@ -317,6 +323,63 @@ namespace CastEngine
         SDL_GetRGBA(pixel, mCPUTex->format, &output.r, &output.g, &output.b, &output.a);
 
         return output;
+    }
+
+    bool Texture::SetColour(Colour colour, int x, int y)
+    {
+        if(!mCPUTex)
+        {
+            LogMsg(ERROR, "attempting to set a colour on an uninitialised surface");
+            return false;
+        }
+        if(!mCPUTexLocked)
+        {
+            LogMsg(WARN, "attempting to set colour when surface isnt locked!");
+            return false;
+        }
+        if(x < 0 || x >= mCPUTex->w || y < 0 || y >= mCPUTex->h)
+        {
+            LogMsgf(WARN, "pixel coordinates (%d, %d) are outside texture bounds", x, y);
+            return false;
+        }
+
+        const Uint32 pixel = SDL_MapRGBA(mCPUTex->format, colour.r, colour.g, colour.b, colour.a);
+        const int bytesPerPixel = mCPUTex->format->BytesPerPixel;
+        Uint8* pixelBytes = static_cast<Uint8*>(mCPUTex->pixels)
+            + static_cast<size_t>(y) * mCPUTex->pitch
+            + static_cast<size_t>(x) * bytesPerPixel;
+        
+        switch(bytesPerPixel)
+        {
+            case 1:
+                *pixelBytes = static_cast<Uint8>(pixel);
+                break;
+            case 2:
+            {
+                const Uint16 pixel16 = static_cast<Uint16>(pixel);
+                std::memcpy(pixelBytes, &pixel16, sizeof(pixel16));
+                break;
+            }
+            case 3:
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                pixelBytes[0] = static_cast<Uint8>((pixel >> 16) & 0xff);
+                pixelBytes[1] = static_cast<Uint8>((pixel >> 8) & 0xff);
+                pixelBytes[2] = static_cast<Uint8>(pixel & 0xff);
+#else
+                pixelBytes[0] = static_cast<Uint8>(pixel & 0xff);
+                pixelBytes[1] = static_cast<Uint8>((pixel >> 8) & 0xff);
+                pixelBytes[2] = static_cast<Uint8>((pixel >> 16) & 0xff);
+#endif
+                break;
+            case 4:
+                std::memcpy(pixelBytes, &pixel, sizeof(pixel));
+                break;
+            default:
+                LogMsgf(ERROR, "unsupported pixel size (%d bytes) in texture", bytesPerPixel);
+                return false;
+        }
+
+        return true;
     }
 
     Window &Texture::GetAttachedWindow() const

@@ -257,18 +257,23 @@ void CastEngine::Renderer::RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Col
     SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
 
 }
-static CastEngine::Texture* ceilingFloorTex = nullptr;
-bool RecreateCeilingFloorTex(CastEngine::Renderer& render)
+bool CastEngine::Renderer::RecreateCeilingFloorTex()
 {
-    if(ceilingFloorTex && ceilingFloorTex->IsInitialised())
-        render.texBank.RemoveByTex(*ceilingFloorTex);    
+    if(mCeilingFloorTex && mCeilingFloorTex->IsInitialised())
+        texBank.RemoveByTex(*mCeilingFloorTex);
+    mCeilingFloorTex = nullptr;
 
-    CastEngine::Texture newTex = CastEngine::Texture(render.GetWindow());
-    newTex.CreateBlankTexture("ceilingFloorTex", render.GetWindow().GetWidth(), render.GetWindow().GetHeight(), SDL_TEXTUREACCESS_STREAMING);
-    ceilingFloorTex = render.texBank.PushTexture(std::move(newTex));
-    if(!ceilingFloorTex)
+    Texture newTex = Texture(mWindow);
+    if(!newTex.CreateBlankTexture("ceilingFloorTex", mWindow.GetWidth(), mWindow.GetHeight(), SDL_TEXTUREACCESS_STREAMING))
     {
         LogMsg(ERROR, "failed to create texture for RenderTexturedCeilingFloor()");
+        return false;
+    }
+
+    mCeilingFloorTex = texBank.PushTexture(std::move(newTex));
+    if(!mCeilingFloorTex)
+    {
+        LogMsg(ERROR, "failed to add texture for RenderTexturedCeilingFloor() to the texture bank");
         return false;
     }
     return true;
@@ -276,56 +281,100 @@ bool RecreateCeilingFloorTex(CastEngine::Renderer& render)
 
 void CastEngine::Renderer::RenderTexturedCeilingFloor()
 {
-    if(!ceilingFloorTex && !RecreateCeilingFloorTex(*this))
+    if(!mCurrentCamera)
+    {
+        LogMsg(ERROR, "attempting to render textured ceiling/floor without a camera");
+        return;
+    }
+
+    if(mWindow.GetWidth() <= 0 || mWindow.GetHeight() <= 0)
         return;
 
-    void* pixels;
-    int pitch;
-    if(SDL_LockTexture(ceilingFloorTex->GetTexture(), NULL, &pixels, &pitch) < 0)
+    if((!mCeilingFloorTex || !mCeilingFloorTex->IsInitialised()
+        || mCeilingFloorTex->GetWidth() != static_cast<uint32_t>(mWindow.GetWidth())
+        || mCeilingFloorTex->GetHeight() != static_cast<uint32_t>(mWindow.GetHeight()))
+        && !RecreateCeilingFloorTex())
+        return;
+
+    Texture* woodTex = texBank["res/textures/env/wood.png"];
+    if(!woodTex || !woodTex->IsInitialised())
     {
-        LogMsgf(ERROR, "failed to lock texture for rendering. SDL_ERROR: %s", SDL_GetError());
+        LogMsg(ERROR, "missing or uninitialised wood texture for RenderTexturedCeilingFloor()");
+        return;
+    }
+
+    SDL_Surface* outputSurface = mCeilingFloorTex->GetSurface();
+    if(!outputSurface)
+    {
+        LogMsg(ERROR, "missing CPU surface for RenderTexturedCeilingFloor()");
+        return;
+    }
+    const Uint32 background = SDL_MapRGBA(outputSurface->format, 0, 0, 0, 255);
+    if(SDL_FillRect(outputSurface, nullptr, background) < 0)
+    {
+        LogMsgf(ERROR, "failed to clear textured ceiling/floor surface. SDL_ERROR: %s", SDL_GetError());
+        return;
+    }
+
+    if(!mCeilingFloorTex->LockSurface())
+        return;
+    if(!woodTex->LockSurface())
+    {
+        mCeilingFloorTex->UnlockSurface();
+        return;
+    }
+
+    const int screenTexW = static_cast<int>(mCeilingFloorTex->GetWidth());
+    const int screenTexH = static_cast<int>(mCeilingFloorTex->GetHeight());
+    const int woodTexW = static_cast<int>(woodTex->GetWidth());
+    const int woodTexH = static_cast<int>(woodTex->GetHeight());
+
+    if(woodTexW <= 0 || woodTexH <= 0)
+    {
+        woodTex->UnlockSurface();
+        mCeilingFloorTex->UnlockSurface();
         return;
     }
 
     const vec2d camDir = mCurrentCamera->GetDir();
-    const Texture * woodTex = texBank["res/textures/env/wood.png"];
+    const vec2d rayDir0 = camDir - camDir.GetPerpendicular();
+    const vec2d rayDir1 = camDir + camDir.GetPerpendicular();
+    const vec2d floorStepBase = (rayDir1 - rayDir0) / static_cast<float>(screenTexW);
+    const vec2d cameraPos = mCurrentCamera->GetPos();
 
-    int screenTexW = ceilingFloorTex->GetWidth();
-    int screenTexH = ceilingFloorTex->GetHeight();
+    for(int screenTexY = screenTexH / 2 + 1; screenTexY < screenTexH; screenTexY++)
+    {
+        const int distMiddle = screenTexY - screenTexH / 2;
+        const float rowDistance = (0.5f * screenTexH) / distMiddle;
+        const vec2d floorStep = floorStepBase * rowDistance;
+        vec2d currentFloorPos = cameraPos + rayDir0 * rowDistance;
 
-    for(int screenTexY = 0; screenTexY < screenTexH / 2; screenTexY++)
-    {        
-        vec2d rayDir0 = camDir - camDir.GetPerpendicular();
-        vec2d rayDir1 = camDir + camDir.GetPerpendicular();
-
-        int distMiddle = screenTexY - screenTexH / 2;
-
-        float posZ = 0.5f * screenTexH;
-
-        float rowDistance = posZ / distMiddle;
-
-        vec2d floorStep = ((rayDir1 - rayDir0) * rowDistance) / static_cast<float>(screenTexW);
-
-        vec2d currentFloorPos = mCurrentCamera->GetPos() + (rayDir0 * rowDistance);
-
-        for(int screenTexX; screenTexX < screenTexW; screenTexX++)
+        for(int screenTexX = 0; screenTexX < screenTexW; screenTexX++)
         {
-            
-            int cellX = static_cast<int>(currentFloorPos.x);
-            int cellY = static_cast<int>(currentFloorPos.y);
-            
-            int tx = static_cast<int>(woodTex->GetWidth() * (currentFloorPos.x - cellX));
-            int ty = static_cast<int>(woodTex->GetHeight() * (currentFloorPos.y - cellY));
-            
+            const float tileX = currentFloorPos.x - std::floor(currentFloorPos.x);
+            const float tileY = currentFloorPos.y - std::floor(currentFloorPos.y);
+            const int tx = static_cast<int>(woodTexW * tileX);
+            const int ty = static_cast<int>(woodTexH * tileY);
             currentFloorPos += floorStep;
 
-            RenderTexture(*woodTex, {tx, ty, 1, 1}, {screenTexX, screenTexY, 1, 1});
+            const Texture::Colour texColour = woodTex->GetColour(tx, ty);
+            if(!mCeilingFloorTex->SetColour(texColour, screenTexX, screenTexY)
+                || !mCeilingFloorTex->SetColour(texColour, screenTexX, screenTexH - screenTexY - 1))
+            {
+                woodTex->UnlockSurface();
+                mCeilingFloorTex->UnlockSurface();
+                return;
+            }
         }
     }
 
-    SDL_UnlockTexture(ceilingFloorTex->GetTexture());
+    woodTex->UnlockSurface();
+    mCeilingFloorTex->UnlockSurface();
 
-    RenderTexture(*ceilingFloorTex, {0, 0, screenTexW, screenTexH}, {0, 0, mWindow.GetWidth(), mWindow.GetHeight()});
+    if(!mCeilingFloorTex->SyncTextureToSurface())
+        return;
+
+    RenderTexture(*mCeilingFloorTex, {0, 0, screenTexW, screenTexH}, {0, 0, mWindow.GetWidth(), mWindow.GetHeight()});
 }
 
 void CastEngine::Renderer::ApplyLighting()
@@ -369,5 +418,6 @@ void CastEngine::Renderer::Present()
 void CastEngine::Renderer::Destroy()
 {
     texBank.FreeAll();
+    mCeilingFloorTex = nullptr;
     ResetDepthBuffer();
 }
