@@ -9,9 +9,7 @@ namespace CastEngine
 {
   
     class Window;
-    class Player;
     class Map;
-    class Gun;
     class Camera;
     class EntityManager;
 
