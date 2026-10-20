@@ -257,40 +257,75 @@ void CastEngine::Renderer::RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Col
     SDL_RenderFillRect(mWindow.GetRenderer(), &dest);
 
 }
+static CastEngine::Texture* ceilingFloorTex = nullptr;
+bool RecreateCeilingFloorTex(CastEngine::Renderer& render)
+{
+    if(ceilingFloorTex && ceilingFloorTex->IsInitialised())
+        render.texBank.RemoveByTex(*ceilingFloorTex);    
+
+    CastEngine::Texture newTex = CastEngine::Texture(render.GetWindow());
+    newTex.CreateBlankTexture("ceilingFloorTex", render.GetWindow().GetWidth(), render.GetWindow().GetHeight(), SDL_TEXTUREACCESS_STREAMING);
+    ceilingFloorTex = render.texBank.PushTexture(std::move(newTex));
+    if(!ceilingFloorTex)
+    {
+        LogMsg(ERROR, "failed to create texture for RenderTexturedCeilingFloor()");
+        return false;
+    }
+    return true;
+}
 
 void CastEngine::Renderer::RenderTexturedCeilingFloor()
 {
+    if(!ceilingFloorTex && !RecreateCeilingFloorTex(*this))
+        return;
+
+    void* pixels;
+    int pitch;
+    if(SDL_LockTexture(ceilingFloorTex->GetTexture(), NULL, &pixels, &pitch) < 0)
+    {
+        LogMsgf(ERROR, "failed to lock texture for rendering. SDL_ERROR: %s", SDL_GetError());
+        return;
+    }
+
     const vec2d camDir = mCurrentCamera->GetDir();
     const Texture * woodTex = texBank["res/textures/env/wood.png"];
 
-    for(int y = 0; y < mWindow.GetHeight() / 2; y++)
+    int screenTexW = ceilingFloorTex->GetWidth();
+    int screenTexH = ceilingFloorTex->GetHeight();
+
+    for(int screenTexY = 0; screenTexY < screenTexH / 2; screenTexY++)
     {        
         vec2d rayDir0 = camDir - camDir.GetPerpendicular();
         vec2d rayDir1 = camDir + camDir.GetPerpendicular();
 
-        int p = y - mWindow.GetHeight() / 2;
+        int distMiddle = screenTexY - screenTexH / 2;
 
-        float posZ = 0.5f * mWindow.GetHeight();
+        float posZ = 0.5f * screenTexH;
 
-        float rowDistance = posZ / p;
+        float rowDistance = posZ / distMiddle;
 
-        vec2d floorStep = ((rayDir1 - rayDir0) * rowDistance) / static_cast<float>(mWindow.GetWidth());
+        vec2d floorStep = ((rayDir1 - rayDir0) * rowDistance) / static_cast<float>(screenTexW);
 
-        vec2d floor = mCurrentCamera->GetPos() + (rayDir0 * rowDistance);
+        vec2d currentFloorPos = mCurrentCamera->GetPos() + (rayDir0 * rowDistance);
 
-        for(int x = 0; x < mWindow.GetWidth(); x++)
+        for(int screenTexX; screenTexX < screenTexW; screenTexX++)
         {
-            int cellX = static_cast<int>(floor.x);
-            int cellY = static_cast<int>(floor.y);
+            
+            int cellX = static_cast<int>(currentFloorPos.x);
+            int cellY = static_cast<int>(currentFloorPos.y);
+            
+            int tx = static_cast<int>(woodTex->GetWidth() * (currentFloorPos.x - cellX));
+            int ty = static_cast<int>(woodTex->GetHeight() * (currentFloorPos.y - cellY));
+            
+            currentFloorPos += floorStep;
 
-            int tx = static_cast<int>(woodTex->GetWidth() * (floor.x - cellX));
-            int ty = static_cast<int>(woodTex->GetHeight() * (floor.y - cellY));
-
-            floor += floorStep;
-
-            RenderTexture(*woodTex, {tx, ty, 1, 1}, {x, y, 1, 1});
+            RenderTexture(*woodTex, {tx, ty, 1, 1}, {screenTexX, screenTexY, 1, 1});
         }
     }
+
+    SDL_UnlockTexture(ceilingFloorTex->GetTexture());
+
+    RenderTexture(*ceilingFloorTex, {0, 0, screenTexW, screenTexH}, {0, 0, mWindow.GetWidth(), mWindow.GetHeight()});
 }
 
 void CastEngine::Renderer::ApplyLighting()

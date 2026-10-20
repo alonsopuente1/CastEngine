@@ -23,6 +23,11 @@ namespace CastEngine
     {
 
     private:
+        bool mCPUTexLocked = false;
+        bool mSDLTexLocked = false;
+
+        // always stored as RGBA, 8 bytes for each
+        SDL_Surface*    mCPUTex = nullptr;
         SDL_Texture*    mSDLTex = nullptr;
         // name of texture. can be used as unique id or not.
         // usually holds the file path from the last image it loaded
@@ -34,6 +39,12 @@ namespace CastEngine
         int mHeight = 0;
 
     public:
+
+        union Colour
+        {
+            uint32_t val;
+            uint8_t r, g, b, a;
+        };
 
         /// @brief textures have to be attached to a window
         ///     the textures only work for that window
@@ -63,7 +74,6 @@ namespace CastEngine
         /// @brief getter method for width
         /// @return width of texture (0 if no texture loaded)
         uint32_t GetWidth() const;
-
         /// @brief getter method for height
         /// @return height of texture (0 if no texture loaded)
         uint32_t GetHeight() const;
@@ -72,7 +82,6 @@ namespace CastEngine
         /// @param newName name to set to the texture
         /// @return 
         void SetTextureName(const std::string& newName);
-
         const std::string& GetTextureName() const;
 
         /// @brief destroys the texture but keeps window attached
@@ -82,19 +91,31 @@ namespace CastEngine
         /// @return true if does exist, false if not
         bool IsInitialised() const;
 
-        /// @brief loads a texture from image file. replaces any existing texture
-        /// @param filePath path to image file
-        bool LoadTexture(const std::string& filePath);
-                
+        
         /// @brief getter method for internal SDL texture
         /// @return NULL if not initialised
         SDL_Texture* GetTexture() const;
-
+        SDL_Surface* GetSurface() const;
+        
+        /// @brief loads a texture from image file. replaces any existing texture
+        /// @param filePath path to image file
+        bool LoadImage(const std::string& filePath);
         /// @brief destroys current texture and replaces with blank texture
         /// @param pWidth width of new texture
         /// @param pHeight height of new texture;
         /// @return true if successful, false if not
-        bool CreateBlankTexture(const std::string& pName, int pWidth, int pHeight);
+        bool CreateBlankTexture(const std::string& pName, int pWidth, int pHeight, SDL_TextureAccess access = SDL_TEXTUREACCESS_TARGET);
+
+        bool LockSurface();
+        void UnlockSurface();
+
+        bool LockTexture(const SDL_Rect *rect, void **pixels, int *pitch);
+        void UnlockTexture();
+
+        bool SyncTextureToSurface();
+
+        /// @warning function expects for LockSurface to have been called before this 
+        Colour GetColour(int x, int y);
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
