@@ -10,7 +10,21 @@
 
 namespace CastEngine
 {
- 
+    bool Texture::ConvertSurfacePixelFormat(SDL_Surface** surface, SDL_PixelFormatEnum newPixelFormat)
+    {
+        SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(*surface, SDL_PIXELFORMAT_RGBA8888, 0);
+        if(!convertedSurface)
+        {
+            LogMsgf(ERROR, "failed to convert surface to correct format. SDL_ERROR: %s", SDL_GetError());
+            return false;
+        }
+
+        SDL_FreeSurface(*surface);
+        *surface = convertedSurface;
+        
+        return true;
+    }
+
     Texture::Texture(Window& window) : mSDLTex(NULL), mName(""), mWindow(window)
     {}
 
@@ -229,9 +243,9 @@ namespace CastEngine
         if(SDL_LockTexture(mSDLTex, rect, pixels, pitch) < 0)
         {
             LogMsgf(ERROR, "failed to lock texture. SDL_ERROR: %s", SDL_GetError());
-            mSDLTexLocked = true;
             return false;
         }
+        mSDLTexLocked = true;
         return true;
     }
 
@@ -397,4 +411,20 @@ namespace CastEngine
         mWindow = pWindow;
     }
 
+    std::vector<uint32_t> Texture::CopyTexturePixels()
+    {
+        std::vector<uint32_t> output = {};
+
+        uint32_t* pixels;
+        int pitch;
+
+        if(SDL_LockTexture(mSDLTex, NULL, reinterpret_cast<void**>(&pixels), &pitch) < 0)
+        {
+            return {};
+        }
+
+        
+
+        return output;
+    }
 };

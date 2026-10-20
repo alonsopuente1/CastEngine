@@ -37,8 +37,11 @@ namespace CastEngine
 
         int mWidth = 0;
         int mHeight = 0;
-
+        
     public:
+        
+        // converts the pixel format of mSDLTex to desired format
+        static bool ConvertSurfacePixelFormat(SDL_Surface** surface, SDL_PixelFormatEnum newPixelFormat);
 
         union Colour
         {
@@ -122,6 +125,9 @@ namespace CastEngine
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
+
+        // returns a vector of the pixel values, just a copy, not a reference
+        std::vector<uint32_t> CopyTexturePixels();
         
     };
 };
