@@ -263,6 +263,41 @@ void CastEngine::Renderer::RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Col
 
 }
 
+void CastEngine::Renderer::RenderTexturedCeilingFloor()
+{
+    const vec2d camDir = mCurrentCamera->GetDir();
+    const Texture * woodTex = texBank["res/textures/env/wood.png"];
+
+    for(int y = 0; y < mWindow.GetHeight() / 2; y++)
+    {        
+        vec2d rayDir0 = camDir - camDir.GetPerpendicular();
+        vec2d rayDir1 = camDir + camDir.GetPerpendicular();
+
+        int p = y - mWindow.GetHeight() / 2;
+
+        float posZ = 0.5f * mWindow.GetHeight();
+
+        float rowDistance = posZ / p;
+
+        vec2d floorStep = ((rayDir1 - rayDir0) * rowDistance) / static_cast<float>(mWindow.GetWidth());
+
+        vec2d floor = mCurrentCamera->GetPos() + (rayDir0 * rowDistance);
+
+        for(int x = 0; x < mWindow.GetWidth(); x++)
+        {
+            int cellX = static_cast<int>(floor.x);
+            int cellY = static_cast<int>(floor.y);
+
+            int tx = static_cast<int>(woodTex->GetWidth() * (floor.x - cellX));
+            int ty = static_cast<int>(woodTex->GetHeight() * (floor.y - cellY));
+
+            floor += floorStep;
+
+            RenderTexture(*woodTex, {tx, ty, 1, 1}, {x, y, 1, 1});
+        }
+    }
+}
+
 void CastEngine::Renderer::ApplyLighting()
 {
     SDL_SetRenderDrawBlendMode(mWindow.GetRenderer(), SDL_BLENDMODE_BLEND);

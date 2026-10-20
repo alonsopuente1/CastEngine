@@ -11,7 +11,6 @@ namespace CastEngine
     class Window;
     class Map;
     class Camera;
-    class EntityManager;
 
     /// @brief a renderer for rendering player views, entities and more
     /// should be created alongside a Window object
@@ -61,6 +60,8 @@ namespace CastEngine
         void RenderCameraView(const Map& map);
 
         void RenderSolidCeilingFloor(SDL_Colour topColour, SDL_Colour bottomColour);
+
+        void RenderTexturedCeilingFloor();
 
         void ApplyLighting();
         void ClearScreen(SDL_Color& colour);
