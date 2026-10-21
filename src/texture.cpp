@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 
 #include <cstring>
+#include <algorithm>
 
 #include "castengine/logger.hpp"
 #include "castengine/window.hpp"
@@ -42,9 +43,8 @@ namespace CastEngine
         Destroy();
     }
 
-    Texture::Texture(Texture &&other) noexcept : mCPUTex(other.mCPUTex), mSDLTex(other.mSDLTex), mName(other.mName), mWindow(other.mWindow)
+    Texture::Texture(Texture &&other) noexcept : mSDLTex(other.mSDLTex), mName(other.mName), mWindow(other.mWindow)
     {
-        other.mCPUTex = NULL;
         other.mSDLTex = NULL;
         other.mName = "";
     }
@@ -57,10 +57,8 @@ namespace CastEngine
         Destroy();
 
         mSDLTex = tex.mSDLTex;
-        mCPUTex = tex.mCPUTex;
 
         tex.mSDLTex = NULL;
-        tex.mCPUTex = NULL;
 
         return *this;
     }
@@ -95,17 +93,13 @@ namespace CastEngine
     {
         if(mSDLTex)
             SDL_DestroyTexture(mSDLTex);
-        if(mCPUTex)
-            SDL_FreeSurface(mCPUTex);
         mSDLTex = nullptr;
         mName = "";
-        mWidth = 0;
-        mHeight = 0;
     }
     
     bool Texture::IsInitialised() const
     {
-        return mSDLTex != NULL || mCPUTex != NULL;
+        return mSDLTex != NULL;
     }
 
     void Texture::SetTextureName(const std::string& newName)
@@ -126,16 +120,6 @@ namespace CastEngine
             return nullptr;
         }
         return mSDLTex;
-    }
-
-    SDL_Surface *Texture::GetSurface() const
-    {
-        if(mCPUTexLocked)
-        {
-            LogMsg(WARN, "cannot get surface, surface is locked");
-            return nullptr;
-        }
-        return mCPUTex;
     }
 
     bool Texture::LoadImage(const std::string &filePath)
@@ -160,14 +144,6 @@ namespace CastEngine
             Destroy();
 
         mSDLTex = newTex;
-        mCPUTex = newSurface;
-
-        if(SDL_QueryTexture(mSDLTex, NULL, NULL, &mWidth, &mHeight) < 0)
-        {
-            LogMsgf(ERROR, "failed to retrieve width and height of texture (%s). SDL_ERROR: %s", filePath.c_str(), SDL_GetError());
-            Destroy();
-            return false;
-        }
 
         SetTextureName(filePath);
         return true;
@@ -202,38 +178,9 @@ namespace CastEngine
             Destroy();
 
         mSDLTex = newTex;
-        mCPUTex = newSurface; 
         SetTextureName(pName);
 
-        mWidth = pWidth;
-        mHeight = pHeight;
-
         return true;
-    }
-
-    bool Texture::LockSurface()
-    {
-        if(mCPUTexLocked)
-            return true;
-        if(!mCPUTex)
-        {
-            LogMsg(ERROR, "attempting to lock an uninitialised surface");
-            return false;
-        }
-        if(SDL_LockSurface(mCPUTex) < 0)
-        {
-            LogMsgf(ERROR, "failed to lock surface. SDL_ERROR: %s", SDL_GetError());
-            return false;
-        }
-
-        mCPUTexLocked = true;
-        return true;
-    }
-
-    void Texture::UnlockSurface()
-    {
-        SDL_UnlockSurface(mCPUTex);
-        mCPUTexLocked = false;
     }
 
     bool Texture::LockTexture(const SDL_Rect *rect, void **pixels, int *pitch)
@@ -253,33 +200,6 @@ namespace CastEngine
     {
         SDL_UnlockTexture(mSDLTex);
         mSDLTexLocked = false;
-    }
-
-    bool Texture::SyncTextureToSurface()
-    {
-        if(!mSDLTex || !mCPUTex)
-        {
-            LogMsg(ERROR, "attempting to sync an uninitialised texture");
-            return false;
-        }
-        if(mSDLTexLocked)
-           UnlockTexture();
-        if(!mCPUTexLocked)
-        {
-            if(!LockSurface())
-                return false;
-        }
-
-        if(SDL_UpdateTexture(mSDLTex, NULL, mCPUTex->pixels, mCPUTex->pitch) < 0)
-        {
-            LogMsgf(ERROR, "failed to sync surface to texture. SDL_ERROR: %s", SDL_GetError());
-            UnlockSurface();
-            return false;
-        }
-
-        UnlockSurface();
-
-        return true;
     }
 
     Texture::Colour Texture::GetColour(int x, int y)
@@ -411,20 +331,109 @@ namespace CastEngine
         mWindow = pWindow;
     }
 
-    std::vector<uint32_t> Texture::CopyTexturePixels()
+    void Texture::SyncTextureToCPU()
     {
-        std::vector<uint32_t> output = {};
-
         uint32_t* pixels;
         int pitch;
 
-        if(SDL_LockTexture(mSDLTex, NULL, reinterpret_cast<void**>(&pixels), &pitch) < 0)
+        LockTexture(NULL, reinterpret_cast<void**>(&pixels), &pitch);
+
+        uint8_t* destination = reinterpret_cast<uint8_t*>(pixels);
+        
+        for(int y = 0; y < GetHeight(); y++)
         {
-            return {};
+            uint32_t* destinationRow = reinterpret_cast<uint32_t*>(destination + y * pitch);
+            const uint32_t* sourceRow = CPUData.mPixelData.data() + static_cast<size_t>(y) * GetWidth();
+            std::copy_n(sourceRow, GetWidth(), destinationRow);
+        }
+        
+        UnlockTexture();
+    }
+
+    bool Texture::TextureCPUSnapshot()
+    {
+        if (!mWindow.GetRenderer() || !mSDLTex)
+            return false;
+
+        SDL_Renderer* renderer = mWindow.GetRenderer();
+
+        int width = 0;
+        int height = 0;
+
+        if (SDL_QueryTexture(
+                mSDLTex, nullptr, nullptr, &width, &height) != 0)
+        {
+            return false;
         }
 
-        
+        // Create a temporary GPU texture that we can render into.
+        SDL_Texture* readback = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA32,
+            SDL_TEXTUREACCESS_TARGET,
+            width,
+            height
+        );
 
-        return output;
+        if (!readback)
+            return false;
+
+        // Preserve the current renderer target.
+        SDL_Texture* previousTarget = SDL_GetRenderTarget(renderer);
+
+        // Preserve the source texture's rendering settings.
+        SDL_BlendMode previousBlend;
+        Uint8 previousR, previousG, previousB, previousA;
+
+        SDL_GetTextureBlendMode(mSDLTex, &previousBlend);
+        SDL_GetTextureColorMod(mSDLTex, &previousR, &previousG, &previousB);
+        SDL_GetTextureAlphaMod(mSDLTex, &previousA);
+
+        bool success = false;
+
+        if (SDL_SetRenderTarget(renderer, readback) == 0)
+        {
+            // Avoid blending or modulation changing the pixel values.
+            SDL_SetTextureBlendMode(mSDLTex, SDL_BLENDMODE_NONE);
+            SDL_SetTextureColorMod(mSDLTex, 255, 255, 255);
+            SDL_SetTextureAlphaMod(mSDLTex, 255);
+
+            if (SDL_RenderCopy(renderer, mSDLTex, nullptr, nullptr) == 0)
+            {
+                std::vector<uint32_t> pixelData(
+                    static_cast<size_t>(width) * height
+                );
+
+                // Read the rendered texture into CPU memory.
+                if (SDL_RenderReadPixels(
+                        renderer,
+                        nullptr,
+                        SDL_PIXELFORMAT_RGBA32,
+                        pixelData.data(),
+                        width * static_cast<int>(sizeof(uint32_t))
+                    ) == 0)
+                {
+                    CPUData.mPixelData = std::move(pixelData);
+                    CPUData.mPixelDataFormat = SDL_PIXELFORMAT_RGBA32;
+                    CPUData.mPixelDataWidth = width;
+                    CPUData.mPixelDataHeight = height;
+
+                    success = true;
+                }
+            }
+        }
+
+        // Restore renderer and texture state.
+        SDL_SetRenderTarget(renderer, previousTarget);
+
+        SDL_SetTextureBlendMode(mSDLTex, previousBlend);
+        SDL_SetTextureColorMod(
+            mSDLTex, previousR, previousG, previousB
+        );
+        SDL_SetTextureAlphaMod(mSDLTex, previousA);
+
+        SDL_DestroyTexture(readback);
+
+        return success;
     }
 };

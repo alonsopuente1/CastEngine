@@ -371,7 +371,7 @@ void CastEngine::Renderer::RenderTexturedCeilingFloor()
     woodTex->UnlockSurface();
     mCeilingFloorTex->UnlockSurface();
 
-    if(!mCeilingFloorTex->SyncTextureToSurface())
+    if(!mCeilingFloorTex->SyncTextureToCPUData())
         return;
 
     RenderTexture(*mCeilingFloorTex, {0, 0, screenTexW, screenTexH}, {0, 0, mWindow.GetWidth(), mWindow.GetHeight()});

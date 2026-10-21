@@ -23,11 +23,15 @@ namespace CastEngine
     {
 
     private:
-        bool mCPUTexLocked = false;
         bool mSDLTexLocked = false;
-
-        // always stored as RGBA, 8 bytes for each
-        SDL_Surface*    mCPUTex = nullptr;
+        
+        struct
+        {
+            SDL_PixelFormatEnum mPixelDataFormat;
+            std::vector<uint32_t> mPixelData;
+            int mPixelDataWidth, mPixelDataHeight;
+        } CPUData;
+        
         SDL_Texture*    mSDLTex = nullptr;
         // name of texture. can be used as unique id or not.
         // usually holds the file path from the last image it loaded
@@ -35,9 +39,6 @@ namespace CastEngine
     
         Window&         mWindow;
 
-        int mWidth = 0;
-        int mHeight = 0;
-        
     public:
         
         // converts the pixel format of mSDLTex to desired format
@@ -98,7 +99,6 @@ namespace CastEngine
         /// @brief getter method for internal SDL texture
         /// @return NULL if not initialised
         SDL_Texture* GetTexture() const;
-        SDL_Surface* GetSurface() const;
         
         /// @brief loads a texture from image file. replaces any existing texture
         /// @param filePath path to image file
@@ -109,25 +109,24 @@ namespace CastEngine
         /// @return true if successful, false if not
         bool CreateBlankTexture(const std::string& pName, int pWidth, int pHeight, SDL_TextureAccess access = SDL_TEXTUREACCESS_TARGET);
 
-        bool LockSurface();
-        void UnlockSurface();
-
         bool LockTexture(const SDL_Rect *rect, void **pixels, int *pitch);
         void UnlockTexture();
 
-        bool SyncTextureToSurface();
+        /// @brief copies the pixel data into internal CPU data
+        void SyncTextureToCPU();
+
+        /// @warning this method is expensive, use wisely
+        bool TextureCPUSnapshot();
 
         /// @warning function expects for LockSurface to have been called before this 
         Colour GetColour(int x, int y);
         /// @brief sets COLOUR to position X Y in surface. call SyncTextureToSurface to update GPU texture
-        /// @warning function expects for LockSurface to have been called before this 
+        /// @warning function expects for LockSurface to have been called before this
         bool SetColour(Colour colour, int x, int y);
 
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
 
-        // returns a vector of the pixel values, just a copy, not a reference
-        std::vector<uint32_t> CopyTexturePixels();
         
     };
 };
