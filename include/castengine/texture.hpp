@@ -22,32 +22,33 @@ namespace CastEngine
     class Texture 
     {
 
+    public:
+
+        struct CPUTexture
+        {
+            SDL_PixelFormatEnum mPixelDataFormat = static_cast<SDL_PixelFormatEnum>(0);
+            std::vector<uint32_t> mPixelData = {};
+            int mPixelDataWidth = 0, mPixelDataHeight = 0;
+        };
+
     private:
         bool mSDLTexLocked = false;
-        
-        struct
-        {
-            SDL_PixelFormatEnum mPixelDataFormat;
-            std::vector<uint32_t> mPixelData;
-            int mPixelDataWidth, mPixelDataHeight;
-        } CPUData;
         
         SDL_Texture*    mSDLTex = nullptr;
         // name of texture. can be used as unique id or not.
         // usually holds the file path from the last image it loaded
         std::string     mName;
-    
+        
         Window&         mWindow;
+        
+        CPUTexture      mCPUData;
 
     public:
         
-        // converts the pixel format of mSDLTex to desired format
-        static bool ConvertSurfacePixelFormat(SDL_Surface** surface, SDL_PixelFormatEnum newPixelFormat);
-
         union Colour
         {
             uint32_t val;
-            uint8_t r, g, b, a;
+            SDL_PixelFormatEnum format;
         };
 
         /// @brief textures have to be attached to a window
@@ -100,9 +101,12 @@ namespace CastEngine
         /// @return NULL if not initialised
         SDL_Texture* GetTexture() const;
         
+        CPUTexture& GetCPUTexture() { return mCPUData; }
+
         /// @brief loads a texture from image file. replaces any existing texture
         /// @param filePath path to image file
         bool LoadImage(const std::string& filePath);
+        
         /// @brief destroys current texture and replaces with blank texture
         /// @param pWidth width of new texture
         /// @param pHeight height of new texture;
@@ -115,15 +119,30 @@ namespace CastEngine
         /// @brief copies the pixel data into internal CPU data
         void SyncTextureToCPU();
 
+        /// @brief takes a snapshot of the GPU texture and copies it into
+        /// @brief CPU storage. format will match the GPU texture format
         /// @warning this method is expensive, use wisely
         bool TextureCPUSnapshot();
 
         /// @warning function expects for LockSurface to have been called before this 
-        Colour GetColour(int x, int y);
+        Colour GetColour(int x, int y) const;
         /// @brief sets COLOUR to position X Y in surface. call SyncTextureToSurface to update GPU texture
         /// @warning function expects for LockSurface to have been called before this
         bool SetColour(Colour colour, int x, int y);
 
+        /// @brief converts the format of the values in 'pixels' to chosen format. assumes 'pixels
+        /// is a tightly packed array of pixels with no padding
+        /// @param pixels array of pixel values to convert
+        /// @param srcFormat format of 'pixels'
+        /// @param dstFormat new format to convert 'pixels'
+        /// @param pitch size of one row of 'pixels' in bytes
+        /// @param width width of pixels
+        /// @param height height of pixels
+        /// @return true on success, false on failure
+        static bool ConvertPixelFormat(CPUTexture& tex, SDL_PixelFormatEnum srcFormat, SDL_PixelFormatEnum dstFormat, int pitch, int width, int height);
+        inline SDL_PixelFormatEnum GetPixelFormat() const { return mCPUData.mPixelDataFormat; }
+        inline bool IsCPUTextureAvailable() const { return !mCPUData.mPixelData.empty(); }
+        
         Window& GetAttachedWindow() const;
         void SetAttachedWindow(Window& pWindow);
 

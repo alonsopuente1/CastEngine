@@ -276,6 +276,13 @@ bool CastEngine::Renderer::RecreateCeilingFloorTex()
         LogMsg(ERROR, "failed to add texture for RenderTexturedCeilingFloor() to the texture bank");
         return false;
     }
+
+    if(!mCeilingFloorTex->TextureCPUSnapshot())
+    {
+        LogMsg(ERROR, "failed to CPU snapshot for RenderTexturedCeilingFloor tex");
+        return false;
+    }
+
     return true;
 }
 
@@ -303,27 +310,25 @@ void CastEngine::Renderer::RenderTexturedCeilingFloor()
         return;
     }
 
-    SDL_Surface* outputSurface = mCeilingFloorTex->GetSurface();
-    if(!outputSurface)
+    if(!woodTex->IsCPUTextureAvailable())
     {
-        LogMsg(ERROR, "missing CPU surface for RenderTexturedCeilingFloor()");
-        return;
-    }
-    const Uint32 background = SDL_MapRGBA(outputSurface->format, 0, 0, 0, 255);
-    if(SDL_FillRect(outputSurface, nullptr, background) < 0)
-    {
-        LogMsgf(ERROR, "failed to clear textured ceiling/floor surface. SDL_ERROR: %s", SDL_GetError());
+        LogMsg(ERROR, "cpu data for texture needed for render is not available");
         return;
     }
 
-    if(!mCeilingFloorTex->LockSurface())
-        return;
-    if(!woodTex->LockSurface())
-    {
-        mCeilingFloorTex->UnlockSurface();
-        return;
-    }
+    SDL_PixelFormatEnum format1 = woodTex->GetColour(0, 0).format,
+                        format2 = mCeilingFloorTex->GetColour(0, 0).format;
+    
 
+    if(format1 != format2) 
+    {
+        if(!Texture::ConvertPixelFormat(woodTex->GetCPUTexture(), woodTex->GetCPUTexture().mPixelDataFormat, format2, sizeof(uint32_t) * woodTex->GetCPUTexture().mPixelDataWidth, woodTex->GetCPUTexture().mPixelDataWidth, woodTex->GetCPUTexture().mPixelDataHeight))
+        {
+            LogMsg(ERROR, "failed to convert pixel format of wood texture");
+            return;
+        }
+    }
+    
     const int screenTexW = static_cast<int>(mCeilingFloorTex->GetWidth());
     const int screenTexH = static_cast<int>(mCeilingFloorTex->GetHeight());
     const int woodTexW = static_cast<int>(woodTex->GetWidth());
@@ -331,8 +336,6 @@ void CastEngine::Renderer::RenderTexturedCeilingFloor()
 
     if(woodTexW <= 0 || woodTexH <= 0)
     {
-        woodTex->UnlockSurface();
-        mCeilingFloorTex->UnlockSurface();
         return;
     }
 
@@ -358,21 +361,13 @@ void CastEngine::Renderer::RenderTexturedCeilingFloor()
             currentFloorPos += floorStep;
 
             const Texture::Colour texColour = woodTex->GetColour(tx, ty);
-            if(!mCeilingFloorTex->SetColour(texColour, screenTexX, screenTexY)
-                || !mCeilingFloorTex->SetColour(texColour, screenTexX, screenTexH - screenTexY - 1))
-            {
-                woodTex->UnlockSurface();
-                mCeilingFloorTex->UnlockSurface();
+            if(!mCeilingFloorTex->SetColour(texColour, screenTexX, screenTexY))
                 return;
-            }
         }
     }
 
-    woodTex->UnlockSurface();
-    mCeilingFloorTex->UnlockSurface();
-
-    if(!mCeilingFloorTex->SyncTextureToCPUData())
-        return;
+    mCeilingFloorTex->SyncTextureToCPU();
+    
 
     RenderTexture(*mCeilingFloorTex, {0, 0, screenTexW, screenTexH}, {0, 0, mWindow.GetWidth(), mWindow.GetHeight()});
 }

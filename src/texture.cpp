@@ -11,20 +11,6 @@
 
 namespace CastEngine
 {
-    bool Texture::ConvertSurfacePixelFormat(SDL_Surface** surface, SDL_PixelFormatEnum newPixelFormat)
-    {
-        SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(*surface, SDL_PIXELFORMAT_RGBA8888, 0);
-        if(!convertedSurface)
-        {
-            LogMsgf(ERROR, "failed to convert surface to correct format. SDL_ERROR: %s", SDL_GetError());
-            return false;
-        }
-
-        SDL_FreeSurface(*surface);
-        *surface = convertedSurface;
-        
-        return true;
-    }
 
     Texture::Texture(Window& window) : mSDLTex(NULL), mName(""), mWindow(window)
     {}
@@ -43,9 +29,10 @@ namespace CastEngine
         Destroy();
     }
 
-    Texture::Texture(Texture &&other) noexcept : mSDLTex(other.mSDLTex), mName(other.mName), mWindow(other.mWindow)
+    Texture::Texture(Texture &&other) noexcept : mSDLTex(other.mSDLTex), mName(other.mName), mWindow(other.mWindow), mCPUData(other.mCPUData)
     {
-        other.mSDLTex = NULL;
+        other.mCPUData = CPUTexture();
+        other.mSDLTex = nullptr;
         other.mName = "";
     }
 
@@ -57,8 +44,19 @@ namespace CastEngine
         Destroy();
 
         mSDLTex = tex.mSDLTex;
-
         tex.mSDLTex = NULL;
+
+        mCPUData.mPixelData = std::move(tex.mCPUData.mPixelData);
+        tex.mCPUData.mPixelData = {};
+        
+        mCPUData.mPixelDataFormat = tex.mCPUData.mPixelDataFormat;
+        tex.mCPUData.mPixelDataFormat = static_cast<SDL_PixelFormatEnum>(0);
+        
+        mCPUData.mPixelDataWidth = tex.mCPUData.mPixelDataWidth;
+        tex.mCPUData.mPixelDataWidth = 0;
+
+        mCPUData.mPixelDataHeight = tex.mCPUData.mPixelDataHeight;
+        tex.mCPUData.mPixelDataHeight = 0;
 
         return *this;
     }
@@ -202,116 +200,56 @@ namespace CastEngine
         mSDLTexLocked = false;
     }
 
-    Texture::Colour Texture::GetColour(int x, int y)
+    Texture::Colour Texture::GetColour(int x, int y) const
     {
-        Colour output = {};
+        if(mCPUData.mPixelData.empty())
+            return {};
 
-        if(!mCPUTex)
-        {
-            LogMsg(ERROR, "attempting to get a colour from an uninitialised surface");
-            return output;
-        }
-        if(!mCPUTexLocked)
-        {
-            LogMsg(WARN, "cannot get colour from an unlocked surface");
-            return output;
-        }
-        if(x < 0 || x >= mCPUTex->w || y < 0 || y >= mCPUTex->h)
-        {
-            LogMsgf(WARN, "pixel coordinates (%d, %d) are outside texture bounds", x, y);
-            return output;
-        }
+        Texture::Colour output = {};
 
-        const int bytesPerPixel = mCPUTex->format->BytesPerPixel;
-        const Uint8* pixelBytes = static_cast<const Uint8*>(mCPUTex->pixels)
-            + y * mCPUTex->pitch + x * bytesPerPixel;
-        Uint32 pixel = 0;
+        int index = x + y * mCPUData.mPixelDataWidth;
 
-        switch(bytesPerPixel)
-        {
-            case 1:
-                pixel = *pixelBytes;
-                break;
-            case 2:
-                std::memcpy(&pixel, pixelBytes, sizeof(Uint16));
-                break;
-            case 3:
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                pixel = (static_cast<Uint32>(pixelBytes[0]) << 16)
-                    | (static_cast<Uint32>(pixelBytes[1]) << 8)
-                    | static_cast<Uint32>(pixelBytes[2]);
-#else
-                pixel = static_cast<Uint32>(pixelBytes[0])
-                    | (static_cast<Uint32>(pixelBytes[1]) << 8)
-                    | (static_cast<Uint32>(pixelBytes[2]) << 16);
-#endif
-                break;
-            case 4:
-                std::memcpy(&pixel, pixelBytes, sizeof(pixel));
-                break;
-            default:
-                LogMsgf(ERROR, "unsupported pixel size (%d bytes) in texture", bytesPerPixel);
-                return output;
-        }
-
-        SDL_GetRGBA(pixel, mCPUTex->format, &output.r, &output.g, &output.b, &output.a);
+        output.val = mCPUData.mPixelData[index];
+        output.format = mCPUData.mPixelDataFormat;
 
         return output;
     }
 
     bool Texture::SetColour(Colour colour, int x, int y)
     {
-        if(!mCPUTex)
+        if(mCPUData.mPixelData.empty())
+            return false;
+
+        int index = x + mCPUData.mPixelDataWidth * y;
+
+        if(mCPUData.mPixelDataFormat != colour.format)
         {
-            LogMsg(ERROR, "attempting to set a colour on an uninitialised surface");
+            LogMsg(ERROR, "input colour format doesnt match CPU data format");
             return false;
         }
-        if(!mCPUTexLocked)
+        
+        mCPUData.mPixelData[index] = colour.val;
+
+        return true;
+    }
+
+    bool Texture::ConvertPixelFormat(CPUTexture& tex, SDL_PixelFormatEnum srcFormat, SDL_PixelFormatEnum dstFormat, int pitch, int width, int height)
+    {
+        if(tex.mPixelData.empty() || tex.mPixelData.size() != static_cast<size_t>(width * height))
         {
-            LogMsg(WARN, "attempting to set colour when surface isnt locked!");
-            return false;
-        }
-        if(x < 0 || x >= mCPUTex->w || y < 0 || y >= mCPUTex->h)
-        {
-            LogMsgf(WARN, "pixel coordinates (%d, %d) are outside texture bounds", x, y);
             return false;
         }
 
-        const Uint32 pixel = SDL_MapRGBA(mCPUTex->format, colour.r, colour.g, colour.b, colour.a);
-        const int bytesPerPixel = mCPUTex->format->BytesPerPixel;
-        Uint8* pixelBytes = static_cast<Uint8*>(mCPUTex->pixels)
-            + static_cast<size_t>(y) * mCPUTex->pitch
-            + static_cast<size_t>(x) * bytesPerPixel;
-        
-        switch(bytesPerPixel)
+        std::vector<uint32_t> newPixels = {};
+        newPixels.reserve(width * height);
+
+        if(SDL_ConvertPixels(width, height, srcFormat, tex.mPixelData.data(), pitch, dstFormat, newPixels.data(), pitch) < 0)
         {
-            case 1:
-                *pixelBytes = static_cast<Uint8>(pixel);
-                break;
-            case 2:
-            {
-                const Uint16 pixel16 = static_cast<Uint16>(pixel);
-                std::memcpy(pixelBytes, &pixel16, sizeof(pixel16));
-                break;
-            }
-            case 3:
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                pixelBytes[0] = static_cast<Uint8>((pixel >> 16) & 0xff);
-                pixelBytes[1] = static_cast<Uint8>((pixel >> 8) & 0xff);
-                pixelBytes[2] = static_cast<Uint8>(pixel & 0xff);
-#else
-                pixelBytes[0] = static_cast<Uint8>(pixel & 0xff);
-                pixelBytes[1] = static_cast<Uint8>((pixel >> 8) & 0xff);
-                pixelBytes[2] = static_cast<Uint8>((pixel >> 16) & 0xff);
-#endif
-                break;
-            case 4:
-                std::memcpy(pixelBytes, &pixel, sizeof(pixel));
-                break;
-            default:
-                LogMsgf(ERROR, "unsupported pixel size (%d bytes) in texture", bytesPerPixel);
-                return false;
+            return false;
         }
+
+        tex.mPixelData = std::move(newPixels);
+        tex.mPixelDataFormat = dstFormat;
 
         return true;
     }
@@ -336,14 +274,15 @@ namespace CastEngine
         uint32_t* pixels;
         int pitch;
 
-        LockTexture(NULL, reinterpret_cast<void**>(&pixels), &pitch);
+        if(!mSDLTexLocked)
+            LockTexture(NULL, reinterpret_cast<void**>(&pixels), &pitch);
 
         uint8_t* destination = reinterpret_cast<uint8_t*>(pixels);
         
         for(int y = 0; y < GetHeight(); y++)
         {
             uint32_t* destinationRow = reinterpret_cast<uint32_t*>(destination + y * pitch);
-            const uint32_t* sourceRow = CPUData.mPixelData.data() + static_cast<size_t>(y) * GetWidth();
+            const uint32_t* sourceRow = mCPUData.mPixelData.data() + static_cast<size_t>(y) * GetWidth();
             std::copy_n(sourceRow, GetWidth(), destinationRow);
         }
         
@@ -359,17 +298,21 @@ namespace CastEngine
 
         int width = 0;
         int height = 0;
-
+        SDL_PixelFormatEnum outputFormat;
+        
         if (SDL_QueryTexture(
-                mSDLTex, nullptr, nullptr, &width, &height) != 0)
+                mSDLTex, reinterpret_cast<uint32_t*>(&outputFormat), nullptr, &width, &height) != 0)
         {
             return false;
         }
 
+        void* pixels;
+        int  pitch;
+
         // Create a temporary GPU texture that we can render into.
         SDL_Texture* readback = SDL_CreateTexture(
             renderer,
-            SDL_PIXELFORMAT_RGBA32,
+            outputFormat,
             SDL_TEXTUREACCESS_TARGET,
             width,
             height
@@ -389,40 +332,30 @@ namespace CastEngine
         SDL_GetTextureColorMod(mSDLTex, &previousR, &previousG, &previousB);
         SDL_GetTextureAlphaMod(mSDLTex, &previousA);
 
-        bool success = false;
+        if (SDL_SetRenderTarget(renderer, readback) < 0)
+            return false;
 
-        if (SDL_SetRenderTarget(renderer, readback) == 0)
+        // Avoid blending or modulation changing the pixel values.
+        SDL_SetTextureBlendMode(mSDLTex, SDL_BLENDMODE_NONE);
+        SDL_SetTextureColorMod(mSDLTex, 255, 255, 255);
+        SDL_SetTextureAlphaMod(mSDLTex, 255);
+        
+        if (SDL_RenderCopy(renderer, mSDLTex, nullptr, nullptr) < 0)
+            return false;   
+        
+        std::vector<uint32_t> pixelData(static_cast<size_t>(width) * height);
+
+        // Read the rendered texture into CPU memory.
+        if (SDL_RenderReadPixels(renderer, nullptr, outputFormat, pixelData.data(), width * static_cast<int>(sizeof(uint32_t))) < 0)
         {
-            // Avoid blending or modulation changing the pixel values.
-            SDL_SetTextureBlendMode(mSDLTex, SDL_BLENDMODE_NONE);
-            SDL_SetTextureColorMod(mSDLTex, 255, 255, 255);
-            SDL_SetTextureAlphaMod(mSDLTex, 255);
-
-            if (SDL_RenderCopy(renderer, mSDLTex, nullptr, nullptr) == 0)
-            {
-                std::vector<uint32_t> pixelData(
-                    static_cast<size_t>(width) * height
-                );
-
-                // Read the rendered texture into CPU memory.
-                if (SDL_RenderReadPixels(
-                        renderer,
-                        nullptr,
-                        SDL_PIXELFORMAT_RGBA32,
-                        pixelData.data(),
-                        width * static_cast<int>(sizeof(uint32_t))
-                    ) == 0)
-                {
-                    CPUData.mPixelData = std::move(pixelData);
-                    CPUData.mPixelDataFormat = SDL_PIXELFORMAT_RGBA32;
-                    CPUData.mPixelDataWidth = width;
-                    CPUData.mPixelDataHeight = height;
-
-                    success = true;
-                }
-            }
-        }
-
+            LogMsgf(ERROR, "failed to read render target pixels. SDL_ERROR: %s", SDL_GetError());
+            return false;
+        }    
+        mCPUData.mPixelData = std::move(pixelData);
+        mCPUData.mPixelDataFormat = outputFormat;
+        mCPUData.mPixelDataWidth = width;
+        mCPUData.mPixelDataHeight = height;
+               
         // Restore renderer and texture state.
         SDL_SetRenderTarget(renderer, previousTarget);
 
@@ -434,6 +367,6 @@ namespace CastEngine
 
         SDL_DestroyTexture(readback);
 
-        return success;
+        return true;
     }
 };
